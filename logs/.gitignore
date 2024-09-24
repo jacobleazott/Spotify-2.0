@@ -1,0 +1,5 @@
+# This directory should never have anything commited, but we want it for local use
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore

@@ -1,0 +1,611 @@
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                            ╠══╣
+# ║  ║    SPOTIFY API HELPERS                     CREATED: 2024-01-05          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                            ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# This class is a fundamentally just a wrapper around spotipy to fit our needs specifically. It handles our token
+#   info and you just need to call the class with the scope you wish to use. It handles the rest. The class should
+#   only include "general" methods for grabbing data and formatting it.
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import spotipy
+import inspect
+from datetime import datetime, timedelta
+import calendar
+from Levenshtein import distance
+import time
+import logging as log
+from typing import Optional
+
+SHUFFLE_MACRO_ID = "2DlsEWns58UPs5X7PXrPJI"
+GEN_ARTIST_MACRO_ID = "24NFf8j4Hc21IxQK7POU6f"
+DISTRIBUTE_TRACKS_MACRO_ID = "4HrvoPsIkc10m8WahhlRKg"
+ORGANIZE_PLAYLIST_MACRO_ID = "7mmImiqGDVDjH17htwQPeO"
+MAX_SCOPE_LIST = ["user-read-playback-state"
+                , "user-modify-playback-state"
+                , "playlist-read-private"
+                , "user-follow-read"
+                , "playlist-modify-public"
+                , "playlist-modify-private"]
+            
+           
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'
+INPUT: args - list of variables we wish to validate
+       types - list of python types the 'args' should be
+OUTPUT: NA, will raise exception if types are not correct
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def validate_inputs(args, types):
+    assert isinstance(args, list) and isinstance(types, list)
+    if len(args) != len(types):
+        raise Exception(f"{inspect.stack()[0][3]} args and types len differ args:{len(args)} types:{len(types)}")
+    bad_elements = []
+    for idx, arg in enumerate(args):
+        if type(arg) is not types[idx]:
+            bad_elements.append(f"arg_num: {idx}, expected: {types[idx]}, actual: {type(arg)}")
+    if len(bad_elements) != 0:
+        raise Exception(f"{inspect.stack()[1][3]}: Input Validation Failed {bad_elements}")
+    
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: splits up 'items' into size 'size' chunks
+INPUT: items - list of values
+       size - chunk size we are splitting up 'items' into
+OUTPUT: tuple of lists with given 'size'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def chunks(items: list, size: int) -> list:
+    validate_inputs([items, size], [list, int])
+    size = max(1, size)
+    return [items[i:i + size] for i in range(0, len(items), size)]
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Generic handler for the spotify api response.
+INPUT: response - spotify api response (dictionary)
+       info - list of desired info we want to pull from 'response'
+OUTPUT: list of what 'info' was pulled from 'response'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def get_generic_field(response: dict, info: list[str]) -> list:
+    validate_inputs([response, info], [dict, list])
+    ret = []
+    for field in info:
+        tmp_response = response
+        for field_part in [field] if type(field) is not list else field:
+            tmp_response = tmp_response[field_part]
+        ret.append(tmp_response)
+    return ret
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Returns all the 'elements' that fall within the start_date and end_date
+             Y-M is treated as Y-M-last day of month
+             Y is treated as Y-12-31
+             Any other time format will always be included
+INPUT: elements - list of elements with a ['release_date'] dictionary field
+       start_date - datetime for start of desired selection
+       end_date - datetime for end of desired selection
+OUTPUT: list of all 'elements' that fell within 'start_date' and 'end_date'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_date: datetime) -> list[dict]:
+    validate_inputs([elements, start_date, end_date], [list, datetime, datetime])
+    valid_elements = []
+    for element in elements:
+        invalid_format_count = 0
+        for fmt in ('%Y-%m-%d', '%Y-%m', '%Y'):
+            try:
+                element_date = datetime.strptime(element["release_date"], fmt)
+                if fmt == '%Y-%m':
+                    element_date = element_date.replace(day=calendar.monthrange(element_date.year, element_date.month)[1])
+                elif fmt == '%Y':
+                    element_date = element_date.replace(day=31, month=12)
+
+                if start_date <= element_date <= end_date:
+                    valid_elements.append(element)
+                    break
+            except ValueError:
+                invalid_format_count += 1
+        if invalid_format_count >= 3:
+            valid_elements.append(element)
+    return valid_elements
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Abstract helper that uses spotipy. Handles are token authorization and offers abstract methods
+             to better access spotify's api.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+class GeneralSpotifyHelpers:
+    sp = None
+    username = ""
+    scopes = ""
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Creates the spotipy object for the given 'username' and 'scope'
+    INPUT: scope - list of spotify scopes to request access for, note MAX_SCOPE IS ALWAYS PASSED IN
+           username (optional) - user id we use for auth and operations (requires prior authorization for scopes)
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def __init__(self, scopes: list[str], username: str="azm67mmfixu99v9idlpc6r9bs") -> None:
+        validate_inputs([scopes, username], [list, str])
+        
+        self.username = username
+        self.scopes = scopes
+        self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
+                                                                            username=self.username,
+                                                                            open_browser=False))
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available
+    INPUT: response - spotify api response (dict)
+    OUTPUT: 'None' if no 'next' response, or a spotify api response (dict) if available
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _get_next_response(self, response: dict) -> None | dict:
+        validate_inputs([response], [dict])
+        
+        ret = None
+        if "next" in response:
+            ret = self.sp.next(response)
+        else:
+            for key, field in list(response.items()):
+                if "next" in response[key]:
+                    ret = self.sp.next(response[key])
+                    break
+        return ret
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Abstract helper for _gather_data() to best traverse down the dictionary response
+    INPUT: iterator - list of specific dictionary fields we wish to itterate over
+           list_of_data_paths - dict path to the data we care about returning (in list format)
+           other_iterators - if there is a sub list of data we need that will be these (dict)
+    OUTPUT: list of dictionaries for the requested data
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _iterate_and_grab_data(self, iterator: dict, list_of_data_paths: list[str], other_iterators: dict) -> list[dict]:
+        validate_inputs([iterator, list_of_data_paths, other_iterators], [list, list, dict])
+        
+        dict_list = []
+        for item in iterator:
+            elem_dict = {}
+            # Get Base Iterator Data
+            for data_path in list_of_data_paths:
+                data_path = [data_path] if type(data_path) is not list else data_path
+                tmp_item = item
+                for data_path_part in data_path:
+                    tmp_item = tmp_item[data_path_part]
+                # Generates key w/o first elem since we know what it should be
+                elem_dict['_'.join(data_path[1:]) if len(data_path) > 1 else data_path[0]] = tmp_item
+            # Get All other_iterators data
+            if len(other_iterators) > 0:
+                # Janky list conversion since dictionaries need tuples as keys
+                iterator_path = list(list(other_iterators)[0]) if type(list(other_iterators)[0]) is \
+                                tuple else [list(other_iterators)[0]]
+                data_fields = other_iterators[list(other_iterators)[0]]
+                tmp_results = item
+                for iterator_path_part in iterator_path:
+                    tmp_results = tmp_results[iterator_path_part]
+                iterator_path.remove("items") if "items" in iterator_path else None
+                # Generates key like above, but this nests a dictionary for our further iterators
+                elem_dict['_'.join(iterator_path[1:]) if len(iterator_path) > 1 else iterator_path[0]] \
+                    = self._iterate_and_grab_data(tmp_results, data_fields, dict(list(other_iterators.items())[1:]))
+            dict_list.append(elem_dict)
+        return dict_list
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Generalized helper to pull specified data from a spotify api response
+    INPUT: results - Dictionary response from spotipy api call
+           iter_dict - dict path to the data we care about returning (in list format)
+           other_iterators - Dictionary of associated iterator paths and fields desired from iterator. 
+                             Follows below template
+                             {<iterator or path to iterator>: <list of paths to fields>, ...}
+                             ex. {"items": [["track", "name"], ["track", "album", "name"]]
+                                  , ("track", "artists"): ["name", "id"]}):}
+    OUTPUT: elements requested through the "iter_dict'"
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _gather_data(self, results: dict, iter_dict: dict) -> list[dict]:
+        validate_inputs([results, iter_dict], [dict, dict])
+        
+        elements = []
+        iterator_path = list(iter_dict)[0]
+        data_fields = iter_dict[iterator_path]
+        while results is not None:
+            tmp_results = results
+            for iterator_path_part in tuple([iterator_path]) if type(iterator_path) is not tuple else iterator_path:
+                tmp_results = tmp_results[iterator_path_part]
+            elements += self._iterate_and_grab_data(tmp_results, data_fields, dict(list(iter_dict.items())[1:]))
+            results = self._get_next_response(results)
+        return elements
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
+                 out of 'scope' we throw an exception to stop us from doing something we shouldn't
+    INPUT: desired_scopes - list of desired scopes to compare against our instantiated list
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _validate_scope(self, desired_scopes: list[str]) -> None:
+        validate_inputs([desired_scopes], [list])
+        
+        if set(desired_scopes).intersection(set(self.scopes)) != set(desired_scopes):
+            raise Exception(f"SCOPE PROTECTION: {desired_scopes} NOT IN {self.scopes}")
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # USER ═══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Returns list of user's followed artists
+    INPUT: info - list of info to return from api response
+    OUTPUT: list of followed user artists with given 'info'
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_user_artists(self, info: list[str]=['id']) -> list[dict]:
+        self._validate_scope(["user-follow-read"])
+        
+        validate_inputs([info], [list])
+        return self._gather_data(
+            self.sp.current_user_followed_artists(limit=50)
+            , {("artists", "items"): info})
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Returns list of user's playlists
+    INPUT: info - list of info to return from api response
+    OUTPUT: list of user's playlists with given 'info'
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_user_playlists(self, info: list[str]=['id']) -> list[dict]:
+        self._validate_scope(["playlist-read-private"])
+        
+        validate_inputs([info], [list])
+        return self._gather_data(
+            self.sp.current_user_playlists(limit=50)
+            , {"items": info})
+        
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYBACK ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Gets playback state of current spotify session
+    INPUT: NA
+    OUTPUT: Returns current playing track id, shuffle state, and the current playlist, 
+            if not playing then "", False, ""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_playback_state(self) -> tuple[str, bool, str]:
+        self._validate_scope(["user-read-playback-state"])
+        
+        playback = self.sp.current_playback()
+        ret = ("", False, "")
+    
+        current_playlist = ""
+        if playback is not None and playback['context'] is not None and playback['context']['type'] == 'playlist' \
+                and playback["is_playing"]:
+                    
+            ret = (playback["item"]["id"]
+                    , playback["shuffle_state"]
+                    , playback['context']['uri'].split(':')[2]) 
+
+        return ret
+        
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Overwrites spotify queue with given tracks
+    INPUT: tracks - the tracks that will be written to the queue
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def write_to_queue(self, tracks: list[str]) -> None:
+        self._validate_scope(["user-modify-playback-state"])
+        
+        for track in tracks:
+            self.sp.add_to_queue(track)
+            time.sleep(0.20)
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Changes spotify current playback
+    INPUT: play (optional): True if play, False if pause
+           skip (optional): "next" if skip track, "prev" if previous track
+           shuffle (optional): True/ False if shuffle is enabled
+           repeat (optional): True/ False if repeat is enabled
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def change_playback(self, pause: Optional[bool]=None, 
+                        skip: str="", 
+                        shuffle: Optional[bool]=None, 
+                        repeat: Optional[bool]=None) -> None:
+        self._validate_scope(["user-modify-playback-state"])
+        
+        if pause == True:
+            self.sp.pause_playback()
+            
+        if skip == "next":
+            self.sp.next_track()
+        elif skip == "prev":
+            self.sp.previous_track()
+            
+        if shuffle != None:
+            self.sp.shuffle(shuffle)
+        
+        if repeat != None:
+            self.sp.repeat(repeat)
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYLISTS ══════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Adds given tracks into the given playlist
+    INPUT: playlist_id - (str) id of the playlist we will add the tracks to
+           track_ids - list of track ids we will be adding to the playlist
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def add_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        validate_inputs([playlist_id, track_ids], [str, list])
+        
+        track_chunks = chunks(track_ids, 100)
+        for chunk in track_chunks:
+            self.sp.playlist_add_items(playlist_id, chunk)
+            
+            
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES
+    INPUT: playlist_id - (str) id of the playlist we will add the tracks to
+           track_ids - list of track ids we will be adding to the playlist
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def add_unique_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        validate_inputs([playlist_id, track_ids], [str, list])
+        
+        track_ids = list(dict.fromkeys(track_ids))
+        playlist_track_ids = [track['id'] for track in self.get_playlist_tracks(playlist_id)]
+        tracks_to_add = [track_id for track_id in track_ids if track_id not in playlist_track_ids]
+        self.add_tracks_to_playlist(playlist_id, tracks_to_add)
+        
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Grabs all the tracks with given <object>_info provided
+    INPUT: playlist_id - id of playlist we are grabbing tracks from
+           track_info (optional) - list of track info we wish to grab (defaults is 'id')
+           album_info (optional) - list of album info we wish to grab (defaults is 'id')
+           artist_info (optional) - list of artist info we wish to grab (defaults is 'id')
+    OUTPUT: List of tracks (dict) with given info from <object>_info 
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_playlist_tracks(self, playlist_id: str, 
+                            track_info: list[str]=['id'], 
+                            album_info: list[str]=['id'], 
+                            artist_info: list[str]=['id']) -> list[dict]:
+        self._validate_scope(["playlist-read-private"])
+        validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
+        
+        # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
+        return self._gather_data(
+            self.sp.playlist_items(playlist_id, limit=100)
+            , {"items": [["track", elem] if type(elem) is str else ["track"] + elem for elem in track_info] +
+                [["track", "album", elem] if type(elem) is str else ["track", "album"] + elem for elem in album_info]
+                , ("track", "artists"): artist_info})
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Creates a new playlist for the user
+    INPUT: playlist_name - name of the playlist that will be displayed on spotify
+           playlist_description (optional) - description seen under name on spotify (defaults to empty)
+           public (optional) - whether the playlist is public or not
+    OUTPUT: the created playlist id (str)
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def create_playlist(self, name: str, description: str='', public: bool=False) -> str:
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        validate_inputs([name, description, public], [str, str, bool])
+        
+        return self.sp.user_playlist_create(self.username, name, description=description, public=public)['id']
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Changes given playlists description or name
+    INPUT: playlist_id - id of playlist we will change the description/ name of
+           name (optional)- name we will use to overwrite the current playlist name
+           description (optional) - description we will use to overwrite the current description
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def change_playlist_details(self, playlist_id: str, 
+                                name: Optional[str]=None, 
+                                description: Optional[str]=None):
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        validate_inputs([playlist_id], [str])
+        
+        if name is not None and description is not None:
+            self.sp.playlist_change_details(playlist_id, name=name, description=description)
+        elif name is not None:
+            self.sp.playlist_change_details(playlist_id, name=name)
+        elif description is not None:
+            self.sp.playlist_change_details(playlist_id, description=description)
+            
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Removes all tracks from a playlist assuming it starts with "My Playlist #" aka the default name
+    INPUT: playlist_id - id of playlist we will delete all tracks from
+           max_playlist_length (optional)- second gate to always check how many tracks we "expect" to delete
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        validate_inputs([playlist_id, max_playlist_length], [str, int])
+        
+        playlist_name = self.get_playlist_data(playlist_id, info=["name"])[0]
+        if playlist_name.startswith('My Playlist #'):
+            print("gate 1")
+            tracks = self.get_playlist_tracks(playlist_id)
+            if len(tracks) <= max_playlist_length:
+                print("gate 2")
+                self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])
+        
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ARTISTS ════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Grabs all the given artists albums of type 'album_type' and returns 'info' on that album
+    INPUT: artist_id - id of the artist we will be grabbing albums from
+           album_types - type of albums we are requesting. Types are  album, single, appears_on, and compilation
+           info (optional) - info we will grab for the albums can be id, name, and release_date. 
+                              There are more but I know those work
+    OUTPUT: list of album dictionaries with 'info' for the given artist 
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_artist_albums(self, artist_id:str, 
+                          album_types: list[str]=['album'], 
+                          info: list[str]=['id']):
+        validate_inputs([artist_id, album_types, info], [str, list, list])
+        
+        return self._gather_data(
+            self.sp.artist_albums(artist_id
+                                  , country="US"
+                                  , limit=50
+                                  , include_groups=','.join(album_types))
+            , {"items": info})
+
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Get all album, single, and appears_on tracks by the given artist between the start_date and end_date
+                 This will no longer work after 9999
+    INPUT: artist_id - id of the artist we will be grabbing tracks from
+           start_date (optional) - (datetime) of the start of our range
+           end_date (optional) - (datetime) of the end of our range
+    OUTPUT: list of track id's from the given artist. The albums/ singles are first and ordered in chronological 
+            order, the appears_on tracks are simply added on to the end
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def gather_tracks_by_artist(self, artist_id:str, 
+                                start_date: datetime=datetime(1, 1, 1), 
+                                end_date: datetime=datetime(9999, 1, 1)) -> list[str]:
+        validate_inputs([artist_id, start_date, end_date], [str, datetime, datetime])
+        
+        # Gather all artists albums/ singles
+        artist_albums = self.get_artist_albums(artist_id
+                                                , album_types=['album', 'single']
+                                                , info=['id', 'release_date', 'album_type'])
+        # Remove all compilations
+        artist_albums = [album for album in artist_albums if album['album_type'] != 'compilation']
+        
+        # Sort albums by release date
+        artist_albums.sort(key=lambda x: x['release_date'])
+        
+        # Grab those only within our date range
+        artist_albums = get_elements_in_date_range(artist_albums, start_date, end_date)
+
+        # Gather the tracks from these albums
+        album_tracks = [track["id"] for album in 
+                        self.get_albums_tracks([album['id'] for album in artist_albums]) for track in album['tracks']]
+
+        # Gather all albums/ singles artist appeared on
+        artist_appears_on_albums = self.get_artist_albums(artist_id
+                                                , album_types=['appears_on']
+                                                , info=['id', 'release_date', 'album_type'])
+
+        # Remove all compilations
+        artist_appears_on_albums = [album for album in artist_appears_on_albums 
+                                    if album['album_type'] != 'compilation']
+        # Grab those only within our date range
+        artist_appears_on_albums = get_elements_in_date_range(artist_appears_on_albums, start_date, end_date)
+        # Gather the tracks from these albums
+        appears_on_album_tracks = self.get_albums_tracks([album['id'] for album in artist_appears_on_albums]
+                                                         , album_info=['id', 'release_date']
+                                                         , track_info=['id', 'name'])
+        # Get only the tracks that our artist supported
+        appears_on_album_tracks = [track for album in appears_on_album_tracks for track in album['tracks'] 
+                                   for artist in track['artists'] if artist_id in artist.values()]
+        # Validate each track in this list
+        appears_on_album_tracks = self.verify_appears_on_tracks(appears_on_album_tracks, artist_id)
+
+        return album_tracks + appears_on_album_tracks
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ALBUMS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Gathers all of an albums tracks and returns with given <object>_info info
+                 info can be id, name, and release_date. There are more but I know those work
+    INPUT: album_ids - list of spotify scopes to request access for
+           album_info (optional) - list of info we wish to grab for the given album
+           track_info (optional) - list of info we wish to grab from each track in the album
+           artist_info (optional) - list of info we wish to grab from the artists for each of the tracks                
+    OUTPUT: list of track dicts containing the requested info
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_albums_tracks(self, album_ids: list[str], 
+                          album_info:  list[str]=['id'], 
+                          track_info:  list[str]=['id'], 
+                          artist_info: list[str]=['id']) -> list[dict]:
+        validate_inputs([album_ids, album_info, track_info], [list, list, list])
+        
+        album_chunks = chunks(album_ids, 20)
+        album_data = []
+        for album_chunk in album_chunks:
+            album_data += self._gather_data(
+                self.sp.albums(album_chunk)
+                , {"albums": album_info, ("tracks", "items"): track_info, "artists": artist_info}
+            )
+        return album_data
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # TRACKS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Gets all artists from the given track 
+    INPUT: track_id - list of spotify scopes to request access for
+    OUTPUT: list of artist ids for the given track
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_track_artists(self, track_id: str, info: list[str]=['id']) -> list[str]:
+        validate_inputs([track_id], [str])
+        
+        artist_ids = []
+        for artist_data in self.sp.track(track_id)['artists']:
+            data = []
+            for elem in info:
+                data.append(artist_data[elem])
+            artist_ids.append(data)
+        return artist_ids
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Verifies if the given track is the "unique" one just by searching for it, if it's the first 
+                 result then it is unique, if not then it's probably a duplicate.
+    INPUT: tracks - list of spotify tracks we will be verifying
+           artist_id - (str) of the given artist so we can better tell if it's theirs
+    OUTPUT: list of the tracks we have verified
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def verify_appears_on_tracks(self, tracks: list[str], artist_id: [str]) -> list[str]:
+        validate_inputs([tracks, artist_id], [list, str])
+        
+        valid_tracks = []
+        for track in tracks:
+            artist_name = self.get_artist_data(track['artists'][0]['id'], ['name'])[0]
+            track_name = ''.join(e for e in track['name'] if e.isalnum() or e == " ")
+            tracks_data = self.sp.search(f"{track_name}%20artist:{artist_name}", 
+                                         limit=5, type='track')['tracks']['items']
+            for track_data in tracks_data:
+                track_id = track_data['id']
+                if track_id == track['id']:
+                    valid_tracks.append(track['id'])
+                    break
+
+            if len(tracks_data) == 0:
+                valid_tracks.append(track['id'])
+        return valid_tracks
+
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # MISC HELPERS ═══════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Simple getters to take a given track, artist, album, or playlist id and return requested fields
+    INPUT: <input>_id - (str) id of spotify object
+           info (optional) - desired info we want from the spotify response (returns 'id' if not specified)
+    OUTPUT: list of what 'info' we got from the given <input>_id
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_track_data(self, track_id: str, info: list[str]=['id']) -> list[str]:
+        validate_inputs([track_id, info], [str, list])
+        return get_generic_field(self.sp.track(track_id), info)
+
+    def get_artist_data(self, artist_id: str, info: list[str]=['id']) -> list[str]:
+        validate_inputs([artist_id, info], [str, list])
+        return get_generic_field(self.sp.artist(artist_id), info)
+
+    def get_album_data(self, album_id: str, info: list[str]=['id']) -> list[str]:
+        validate_inputs([album_id, info], [str, list])
+        return get_generic_field(self.sp.album(album_id), info)
+
+    def get_playlist_data(self, playlist_id: str, info: list[str]=['id']) -> list[str]:
+        validate_inputs([playlist_id, info], [str, list])
+        return get_generic_field(self.sp.playlist(playlist_id), info)
+
+# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
