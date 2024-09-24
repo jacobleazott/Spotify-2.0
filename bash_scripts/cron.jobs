@@ -1,0 +1,14 @@
+# List of processes run by cron
+# To implement just run "crontab cron.jobs" this replaces the current cron configuration
+
+PROJ_PATH = /home/jaleazo/projects/Spotify_Release_Pi/bash_scripts
+LOG_PATH  = /home/jaleazo/projects/Spotify_Release_Pi/logs
+
+* * * * *  $PROJ_PATH/Proj.sh Playback_Tracker  >  $LOG_PATH/Playback-Tracker.log    2>&1    # Every Minute
+0 3 * * *  $PROJ_PATH/Proj.sh Backup_Data       >> $LOG_PATH/Backup-Data.log         2>&1    # Every Day at 3 AM
+0 2 * * 1  $PROJ_PATH/Proj.sh Weekly_Report     >> $LOG_PATH/Weekly-Report.log       2>&1    # Every Monday at 2AM
+0 1 1 * *  $PROJ_PATH/Proj.sh Monthly_Release   >> $LOG_PATH/Monthly-Release.log     2>&1    # First of Every Month at 1 AM
+
+# Auto refreshes cron with this file
+* * * * *  crontab $PROJ_PATH/cron.jobs
+# newline is needed for cron syntax pls don't delete
