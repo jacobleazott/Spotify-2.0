@@ -6,26 +6,37 @@
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# 
+# This file contains the overarching "Spotify Feature" library. As all roads lead to roam, all features lead here.
+#   The idea is any given capability or feature should solely be accessed through here. This class will handle the
+#   GSH object, scopes, logging, and other feature level management. The end user in the applications should only
+#   ever have to instantiate this and choose which features they wish to use. No additional involvement needed.
 #
+# The paradigm of feature implementations is that if it is complicated enough to need multiple functions/ helpers it
+#   goes into it's own file/ class where 'SpotifyFeatures' will pass all appropriate args, our GSH object, and logger.
+#   The individual feature should define it's own scope needs (currently 'FEATURE_SCOPES') and apply them themselves.
 #
+# CURRENT FEATURES -
 #
-# Current Features -
-# 
+#   PLAYLIST GENERATORS ══════════════════════════════════════════════════════════════════════════════════════════════
+#   Generate Artist Playlist                    - reference generate_artist_playlist()
+#   Generate Monthly Release Playlist           - reference generate_monthly_release()
+#   Generate 'Generic' Artist Release Playlist  - reference generate_release_playlist()
 #
+#   DATA BACKUP ══════════════════════════════════════════════════════════════════════════════════════════════════════
+#   Spotify Library Backup                      - reference Backup_Spotify_Data.py
+#   Log Playback To Databases                   - reference Log_Playback.py
 #
+#   PLAYBACK MODIFIERS ═══════════════════════════════════════════════════════════════════════════════════════════════
+#   Shuffle Playlist                            - reference Shuffle_Styles.py
 #
+#   PLAYLIST ALTERATIONS ═════════════════════════════════════════════════════════════════════════════════════════════
+#   Distribute Tracks To 'Collections'          - reference
+#   Organize Playlist By Release Date           - reference
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+#   MISC FEATURES ════════════════════════════════════════════════════════════════════════════════════════════════════
+#   Get Current Playback State                  - reference get_playback_state()
+#   Sanity Checks                               - reference Sanity_Tests.py
+#   Weekly Listening Report                     - reference Weekly_Report.py
 #
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging as log
@@ -36,8 +47,10 @@ import General_Spotify_Helpers as gsh
 from decorators import *
 
 # FEATURES
+from Misc_Features import MiscFeatures
 from Backup_Spotify_Data import BackupSpotifyData
 from Log_Playback import LogPlayback
+from Shuffle_Styles import Shuffler, ShuffleType
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -47,10 +60,11 @@ class SpotifyFeatures(LogAllMethods):
     def __init__(self, log_file_name: str="default", log_mode: str='a', log_level=logging.INFO) -> None:
         self.spotify = gsh.GeneralSpotifyHelpers()
         self.logger = get_file_logger(f'logs/{log_file_name}.log', log_level=log_level, mode=log_mode)
+        self.mfeatures = MiscFeatures(self.spotify, logger=self.logger)
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates a playlist for an artist's entire discography
-    INPUT: artist_id - id of the artist to create for their entire discography
+    DESCRIPTION: Creates a playlist for an artist's entire discography.
+    INPUT: artist_id - id of the artist to create for their entire discography.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def generate_artist_playlist(self, artist_id: str) -> None:
@@ -59,12 +73,12 @@ class SpotifyFeatures(LogAllMethods):
                                , "playlist-read-private"]
         
         artist_name = self.spotify.get_artist_data(artist_id, ['name'])[0]
-        self.generate_artist_release(artist_id, 
-                                     f"{artist_name} GO THROUGH", 
-                                     f"Every Track by {artist_name}")
+        self.mfeatures.generate_artist_release(artist_id, 
+                                               f"{artist_name} GO THROUGH", 
+                                               f"Every Track by {artist_name}")
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates a new playlist with all released tracks from the last month from all of the user's artists
+    DESCRIPTION: Creates a new playlist with all released tracks from the last month from all of the user's artists.
     INPUT: NA
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -75,7 +89,7 @@ class SpotifyFeatures(LogAllMethods):
                                , "user-follow-read"]
         
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
-        self.generate_artist_release(
+        self.mfeatures.generate_artist_release(
             [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name']), 
                                                key=lambda ar: ar['name'])],
             f"Release Radar: {last_month.strftime("%m-%Y")}",
@@ -84,10 +98,10 @@ class SpotifyFeatures(LogAllMethods):
             end_date=datetime(last_month.year, last_month.month, 1).replace(day=last_month.day))
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates a new playlist with all released tracks within given date range for all given artists
-    INPUT: artist_ids - artist_ids we will be grabbing tracks from
-           start_date - start day of range for track collection
-           end_date - end day of range for track collection
+    DESCRIPTION: Creates a new playlist with all released tracks within given date range for all given artists.
+    INPUT: artist_ids - artist_ids we will be grabbing tracks from.
+           start_date - start day of range for track collection.
+           end_date - end day of range for track collection.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def generate_release_playlist(self, artist_ids: list[str], start_date: datetime, end_date: datetime) -> None:
@@ -95,7 +109,7 @@ class SpotifyFeatures(LogAllMethods):
                                , "playlist-modify-private"
                                , "playlist-read-private"]
         
-        self.generate_artist_release(
+        self.mfeatures.generate_artist_release(
             artist_ids, 
             f"Release Radar: {start_date.strftime(f"%m-%d-%Y")} -> {end_date.strftime(f"%m-%d-%Y")}",
             f"Releases From *given* Artists From {start_date.strftime(f"%m-%d-%Y")} -> \
@@ -112,8 +126,8 @@ class SpotifyFeatures(LogAllMethods):
         BackupSpotifyData(self.spotify, logger=self.logger).backup_data()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Log the given track_id as a listened track to our listening and track_count db's
-    INPUT: NA
+    DESCRIPTION: Log the given track_id as a listened track to our listening and track_count db's.
+    INPUT: track_id - id of track we will be logging as a 'listened' to track.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def log_playback_to_db(self, track_id: str) -> None:
@@ -124,8 +138,8 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: 
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def shuffle_playlist(self, playlist_id: str="", weighted: bool=False) -> None:
-        print("not implemented")
+    def shuffle_playlist(self, playlist_id: str="", shuffle_type: ShuffleType=ShuffleType.RANDOM) -> None:
+        print("not imported")
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: 
@@ -133,7 +147,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def distribute_tracks_to_artist_playlists(self, playlist_id: str="") -> None:
-        print("not implemented")
+        print("not imported")
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: 
@@ -141,7 +155,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def organize_playlist_by_date(self) -> None:
-        print("not implemented")
+        print("not imported")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: 
@@ -149,43 +163,26 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def get_playback_state(self):
-        print("not done")
+        print("not imported")
         
-        
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # HELPER FEATURES ════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists
-    INPUT: artist_id_list - list of spotify artist_id's we want to gather tracks from
-           playlist_name - name that the new playlist will be given
-           playlist_description - description that the new playlist will be given
-           start_date - start day of track collection
-           end_date - end day of track collection
-           logger - logger object used
-    OUTPUT: str of playlist_id created
+    DESCRIPTION: 
+    INPUT: 
+    OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def _generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
-                start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
-        playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
-        self.logger.info(f"Created New Playlist: {playlist_id}")
+    def generate_weekly_report(self):
+        print("not imported")
         
-        tracks = []
-        for artist_id in artist_id_list:
-            self.logger.info(f"finding tracks for {artist_id}")
-            tmp_tracks = self.spotify.gather_tracks_by_artist(artist_id, 
-                                                          start_date=start_date, 
-                                                          end_date=end_date)
-            self.logger.info(f"\tFound {len(tmp_tracks)} tracks")
-            tracks += tmp_tracks
-            
-        self.logger.info(f"Adding {len(tracks)} tracks to playlist {playlist_id}")
-        self.logger.debug(f"Tracks: {tracks}")
-        self.spotify.add_tracks_to_playlist(playlist_id, tracks)
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: 
+    INPUT: 
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def run_sanity_checks(self):
+        print("not imported")
         
-        return playlist_id
 
-
+# TESTING TESTING TESTING
 def main():
     # SpotifyFeatures().generate_artist_playlist("7AB7bdCR5saJ0b9C4RuceX")
     SpotifyFeatures().backup_spotify_library()

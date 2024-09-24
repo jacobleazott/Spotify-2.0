@@ -418,28 +418,6 @@ class GeneralSpotifyHelpers:
         elif description is not None:
             self.sp.playlist_change_details(playlist_id, description=description)
             
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Removes all tracks from a playlist assuming it starts with "My Playlist #" aka the default name
-    INPUT: playlist_id - id of playlist we will delete all tracks from
-           max_playlist_length (optional)- second gate to always check how many tracks we "expect" to delete
-    OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
-        """
-        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
-        validate_inputs([playlist_id, max_playlist_length], [str, int])
-        
-        playlist_name = self.get_playlist_data(playlist_id, info=["name"])[0]
-        if playlist_name.startswith('My Playlist #'):
-            print("gate 1")
-            tracks = self.get_playlist_tracks(playlist_id)
-            if len(tracks) <= max_playlist_length:
-                print("gate 2")
-                self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])
-        """
-        return None
-        
-
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ARTISTS ════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════

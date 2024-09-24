@@ -6,7 +6,19 @@
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# 
+# Spotify's shuffle sucks... like a lot. This file exists to give the user their own choice in how they want their
+#   playlists shuffled. Currently only works with given playlist_id's but may one day be improved to simply take a 
+#   collection of 'tracks' to be more dynamic.
+#
+# SHUFFLE TYPES -
+#   RANDOM - ...it's random, like actually random, not spotify's 'random'. (yes yes it's pseudo-random)
+#       
+#   WEIGHTED - This shuffle type requires the LogPlayback functionality which records the user's playback. From that
+#               logging we get a 'track counts db' that contains every song the user has listened to (since it's been
+#               running) and how many times they have listened to it. We then sort the entire playlist's contents in
+#               order of # of times listened. It grabs the lowest 'QUEUE_LENGTH' tracks (rounding up for ties of 
+#               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
+#               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import random
 import logging
@@ -19,7 +31,7 @@ import General_Spotify_Helpers as gsh
 from Log_Playback import LogPlayback
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Enum to define our different shuffle styles for playlists.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 @unique
 class ShuffleType(Enum):
@@ -27,7 +39,7 @@ class ShuffleType(Enum):
     WEIGHTED = 1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Feature class that implements various shuffle methodologies. Currently works only on full playlists.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Shuffler(LogAllMethods):
     QUEUE_LENGTH = 80
@@ -40,14 +52,13 @@ class Shuffler(LogAllMethods):
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if not None else logger.getLogger()
         
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates a weighted queue for listening, it orders tracks from least to most listened and 'partially'
-                 randomizes the queue based upon how many times specifically we have listened to each track
-    INPUT: track_ids - list of tracks we pulled from the playlist and are making the weighted queue off of
-    OUTPUT: list of tracks partially randomized in the reverse weighted form
-    # TODO: LOOK ABOVE< MIGHT NEED TO FIX
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def make_weighted(track_ids: list[str]):
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
+                 randomizes the queue based upon how many times specifically we have listened to each track.
+    INPUT: track_ids - list of tracks we pulled from the playlist and are making the weighted queue off of.
+    OUTPUT: list of tracks partially randomized in the reverse weighted form.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def _weighted_shuffle(track_ids: list[str]) -> list[str]:
         track_counts_conn = sqlite3.connect(LogPlayback.TRACK_COUNTS_DB)
         track_count_data = []
 
@@ -93,8 +104,10 @@ class Shuffler(LogAllMethods):
         return track_list[:min(len(track_list), QUEUE_LENGTH)]
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: 
-    INPUT: 
+    DESCRIPTION: Grabs all the tracks from the given playlist, and applies the given shuffle to those tracks.
+                 it then adds those now 'shuffled' tracks to the user's queue.
+    INPUT: playlist_id - id of the playlist we will be grabbing the tracks from.
+           shuffle_type - specific shuffle type we will be applying to the tracks from 'playlist_id'.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
@@ -108,7 +121,7 @@ class Shuffler(LogAllMethods):
                 random.seed(datetime.now().timestamp())
                 random.shuffle(tracks)
             case ShuffleType.WEIGHTED:
-                tracks = self.shuffle_weighted(tracks)
+                tracks = self._weighted_shuffle(tracks)
             case _:
                 raise Exception(f"Unknown Shuffle Type: {shuffle_type}")
                 
@@ -116,11 +129,4 @@ class Shuffler(LogAllMethods):
         tracks = tracks[:(min(len(tracks), QUEUE_LENGTH))]
         self.spotify.write_to_queue(tracks)
     
-    
-
-
-
-
-    
-
 # FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════

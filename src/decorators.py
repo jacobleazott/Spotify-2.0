@@ -1,3 +1,13 @@
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                            ╠══╣
+# ║  ║    LOGGERS AND DECORATORS                  CREATED: 2024-09-20          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                            ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# This file simply contains function decorators, and log helpers.
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import functools
 from typing import Union, Optional
@@ -5,9 +15,11 @@ from typing import Union, Optional
 FUNCTION_ARG_LOGGING_LEVEL = 15
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
-INPUT: 
-OUTPUT: 
+DESCRIPTION: Crates a simple Logger object with our desired format and returns it.
+INPUT: filename - name of logfile
+        log_level - int or str for logging level
+        mode - write ('w') or append ('a') mode for the logger
+OUTPUT: Logger Object
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w') -> logging.Logger:
     logger = logging.getLogger(filename)
@@ -21,9 +33,11 @@ def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
-INPUT: 
-OUTPUT: 
+DESCRIPTION: Decorator that can auto detect a logger passed in to a function (args or kwargs) or is a member of that 
+                functions class. It uses a default logger if neither are present. It then logs all input args for that
+                function at 'FUNCTION_ARG_LOGGING_LEVEL'. Additionally, it catches any exceptions raised to make sure
+                they make it into the log and also provide us with a mini 'stack trace' if the caller functions also
+                used this decorator through the re-raise.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def log_func(_func=None):
     def decorator_log(func):
@@ -61,7 +75,7 @@ def log_func(_func=None):
     
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Applies 'log_func' decorator to every single function in a class.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class LogAllMethods:
     def __init_subclass__(cls, **kwargs):
@@ -69,3 +83,5 @@ class LogAllMethods:
         for attr, value in cls.__dict__.items():
             if callable(value):
                 setattr(cls, attr, log_func(value))
+                
+# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════

@@ -217,7 +217,6 @@ def generate_artist_playlist_macro(playlist_id):
     spotify.change_playlist_details(playlist_id, 
                                     name=f"{track['artists'][0]['name']} GO THROUGH", 
                                     description=f"All the tracks from {track['artists'][0]['name']}")
-    spotify.remove_all_playlist_tracks(playlist_id, max_playlist_length=2)
     spotify.add_tracks_to_playlist(playlist_id, artist_tracks)
 
 
