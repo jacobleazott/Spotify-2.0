@@ -8,9 +8,13 @@
 # ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import pickle
+import sqlite3
 import logging
+from datetime import datetime, timedelta
 
 from decorators import *
+import General_Spotify_Helpers as gsh
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -77,22 +81,26 @@ class LogPlayback(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def log_track(self, track_id):
+        # Don't log if no track is present or it is one of our macros
+        if track_id in gsh.MACRO_LIST + [""]:
+            return
+
         self.track_id = track_id
-        year = datetime.datetime.now().year
+        year = datetime.now().year
         ldb_conn = sqlite3.connect(self.LISTENING_DB)
 
         ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{year}'(
                 track_id TEXT NOT NULL,
                 time timestamp NOT NULL);''')
 
-        timestamp = (datetime.datetime.now() - datetime.timedelta(
-            seconds=int(datetime.datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
+        timestamp = (datetime.now() - timedelta(
+            seconds=int(datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
         
         ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
                          VALUES ("{track_id}", "{timestamp}");""")
         ldb_conn.commit()
         ldb_conn.close()
 
-        self.update_last_track_count(track_id)
+        self.update_last_track_count()
     
 # FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════

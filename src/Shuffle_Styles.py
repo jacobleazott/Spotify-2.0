@@ -58,7 +58,7 @@ class Shuffler(LogAllMethods):
     INPUT: track_ids - list of tracks we pulled from the playlist and are making the weighted queue off of.
     OUTPUT: list of tracks partially randomized in the reverse weighted form.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def _weighted_shuffle(track_ids: list[str]) -> list[str]:
+    def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
         track_counts_conn = sqlite3.connect(LogPlayback.TRACK_COUNTS_DB)
         track_count_data = []
 
@@ -88,20 +88,22 @@ class Shuffler(LogAllMethods):
                 track_count_groupings.append(tmp_track_count_group)
                 tmp_play_count = track[0]
                 tmp_track_count_group = []
-                if idx >= QUEUE_LENGTH:
+                if idx >= self.QUEUE_LENGTH:
                     break
             tmp_track_count_group.append(track[1])
         track_count_groupings.append(tmp_track_count_group)
             
         # Now we randomize each "set" of track_counts individually and add them up to one master list
         track_list = []
-        random.seed(datetime.datetime.now().timestamp())
+        random.seed(datetime.now().timestamp())
        
         for track_group in track_count_groupings:
             random.shuffle(track_group)
             track_list += track_group
+            
+        print("Weighted")
         
-        return track_list[:min(len(track_list), QUEUE_LENGTH)]
+        return track_list
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Grabs all the tracks from the given playlist, and applies the given shuffle to those tracks.
@@ -126,7 +128,7 @@ class Shuffler(LogAllMethods):
                 raise Exception(f"Unknown Shuffle Type: {shuffle_type}")
                 
                 
-        tracks = tracks[:(min(len(tracks), QUEUE_LENGTH))]
+        tracks = tracks[:(min(len(tracks), self.QUEUE_LENGTH))]
         self.spotify.write_to_queue(tracks)
     
 # FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
