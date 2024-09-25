@@ -100,9 +100,7 @@ class Shuffler(LogAllMethods):
         for track_group in track_count_groupings:
             random.shuffle(track_group)
             track_list += track_group
-            
-        print("Weighted")
-        
+
         return track_list
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

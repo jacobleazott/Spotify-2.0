@@ -87,7 +87,6 @@ class SpotifyFeatures(LogAllMethods):
         self.spotify.scopes = ["playlist-read-private"]
         
         artist_id = self.mfeatures.get_first_artist_from_playlist(playlist_id)
-        print(artist_id)
         self.generate_artist_playlist_from_id(artist_id)
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
