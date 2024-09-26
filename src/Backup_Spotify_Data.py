@@ -14,6 +14,7 @@ import logging
 from datetime import datetime
 
 from decorators import *
+import General_Spotify_Helpers as gsh
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -26,7 +27,7 @@ class BackupSpotifyData(LogAllMethods):
     def __init__(self, spotify, logger=None):
         self.spotify = spotify
         self.spotify.scopes = self.FEATURE_SCOPES
-        self.logger = logger if not None else logger.getLogger()
+        self.logger = logger if logger is not None else logging.getLogger()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Queries user for a valid artist id.

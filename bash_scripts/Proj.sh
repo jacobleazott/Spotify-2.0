@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd ~/projects/Spotify_Release_Pi/
-source .venv/bin/activate
+source ~/projects/.venv/bin/activate
+cd ~/projects/Spotify-2.0/
 source tokens/spotify_token.sh
 
 case $1 in
@@ -18,13 +18,13 @@ case $1 in
         # We occasionally get Address already in use errors likely because of cron runing jobs in parallel.
         #    Here we will just use a different redirect uri to deconflict them
         export SPOTIPY_REDIRECT_URI='http://localhost:9091'
-        python3 src/Playback_Macro.py
+        python3 src/Implementations.py
         sleep 15
-        python3 src/Playback_Macro.py
+        python3 src/Implementations.py
         sleep 15
-        python3 src/Playback_Macro.py
+        python3 src/Implementations.py
         sleep 15
-        python3 src/Playback_Macro.py
+        python3 src/Implementations.py
         ;;
     *)
         echo "Invalid Value"
