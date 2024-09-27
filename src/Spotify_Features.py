@@ -109,7 +109,6 @@ class SpotifyFeatures(LogAllMethods):
             start_date=datetime(last_month.year, last_month.month, 1),
             end_date=datetime(last_month.year, last_month.month, 1).replace(day=last_month.day))
         
-        
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a new playlist with all released tracks within given date range for all given artists.
     INPUT: artist_ids - artist_ids we will be grabbing tracks from.
@@ -207,7 +206,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def skip_track(self) -> None:
-        print("Skipping track")
         self.spotify.change_playback(skip="next")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -225,15 +223,6 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
         print("not imported")
-        
 
-# TESTING TESTING TESTING
-def main():
-    # SpotifyFeatures().generate_artist_playlist("7AB7bdCR5saJ0b9C4RuceX")
-    SpotifyFeatures().backup_spotify_library()
-    # SpotifyFeatures().generate_monthly_release()
-
-if __name__ == "__main__":
-    main()
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
