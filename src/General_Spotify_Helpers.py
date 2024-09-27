@@ -1,15 +1,15 @@
-# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
-# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
-# ╠══╣                                                                                                            ╠══╣
-# ║  ║    SPOTIFY API HELPERS                     CREATED: 2024-01-05          https://github.com/jacobleazott    ║  ║
-# ║══║                                                                                                            ║══║
-# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
-# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
-# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    SPOTIFY API HELPERS                      CREATED: 2024-01-05          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # This class is a fundamentally just a wrapper around spotipy to fit our needs specifically. It handles our token
 #   info and you just need to call the class with the scope you wish to use. It handles the rest. The class should
 #   only include "general" methods for grabbing data and formatting it.
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import spotipy
 import inspect
 from datetime import datetime, timedelta
@@ -26,6 +26,9 @@ ORGANIZE_PLAYLIST_MACRO_ID = "7mmImiqGDVDjH17htwQPeO"
 
 MACRO_LIST = [SHUFFLE_MACRO_ID, GEN_ARTIST_MACRO_ID, DISTRIBUTE_TRACKS_MACRO_ID, ORGANIZE_PLAYLIST_MACRO_ID]
 
+# "The 100" Playlist
+PLAYLISTS_WE_CAN_DELETE_FROM = ["3dZVHLVdpOGlSy8oH9WvBi"]
+
 MAX_SCOPE_LIST = ["user-read-playback-state"
                 , "user-modify-playback-state"
                 , "playlist-read-private"
@@ -35,10 +38,10 @@ MAX_SCOPE_LIST = ["user-read-playback-state"
             
            
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'
-INPUT: args - list of variables we wish to validate
-       types - list of python types the 'args' should be
-OUTPUT: NA, will raise exception if types are not correct
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: args - List of variables we wish to validate.
+       types - List of python types the 'args' should be.
+OUTPUT: NA, will raise exception if types are not correct.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def validate_inputs(args, types):
     assert isinstance(args, list) and isinstance(types, list)
@@ -53,10 +56,10 @@ def validate_inputs(args, types):
     
     
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: splits up 'items' into size 'size' chunks
-INPUT: items - list of values
-       size - chunk size we are splitting up 'items' into
-OUTPUT: tuple of lists with given 'size'
+DESCRIPTION: Splits up 'items' into size 'size' chunks.
+INPUT: items - List of values.
+       size - Chunk size we are splitting up 'items' into.
+OUTPUT: Tuple of lists with given 'size'.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def chunks(items: list, size: int) -> list:
     validate_inputs([items, size], [list, int])
@@ -66,9 +69,9 @@ def chunks(items: list, size: int) -> list:
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Generic handler for the spotify api response.
-INPUT: response - spotify api response (dictionary)
-       info - list of desired info we want to pull from 'response'
-OUTPUT: list of what 'info' was pulled from 'response'
+INPUT: response - Spotify api response (dictionary).
+       info - List of desired info we want to pull from 'response'.
+OUTPUT: List of what 'info' was pulled from 'response'.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def get_generic_field(response: dict, info: list[str]) -> list:
     validate_inputs([response, info], [dict, list])
@@ -82,14 +85,14 @@ def get_generic_field(response: dict, info: list[str]) -> list:
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Returns all the 'elements' that fall within the start_date and end_date
-             Y-M is treated as Y-M-last day of month
-             Y is treated as Y-12-31
-             Any other time format will always be included
-INPUT: elements - list of elements with a ['release_date'] dictionary field
-       start_date - datetime for start of desired selection
-       end_date - datetime for end of desired selection
-OUTPUT: list of all 'elements' that fell within 'start_date' and 'end_date'
+DESCRIPTION: Returns all the 'elements' that fall within the start_date and end_date.
+             Y-M is treated as Y-M-last day of month.
+             Y is treated as Y-12-31.
+             Any other time format will always be included.
+INPUT: elements - List of elements with a ['release_date'] dictionary field.
+       start_date - Datetime for start of desired selection.
+       end_date - Datetime for end of desired selection.
+OUTPUT: List of all 'elements' that fell within 'start_date' and 'end_date'.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_date: datetime) -> list[dict]:
     validate_inputs([elements, start_date, end_date], [list, datetime, datetime])
@@ -123,12 +126,12 @@ class GeneralSpotifyHelpers:
     username = ""
     scopes = ""
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates the spotipy object for the given 'username' and 'scope'
-    INPUT: scope - list of spotify scopes to request access for, note MAX_SCOPE IS ALWAYS PASSED IN
-           username (optional) - user id we use for auth and operations (requires prior authorization for scopes)
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Creates the spotipy object for the given 'username' and 'scope'.
+    INPUT: scope - List of spotify scopes to request access for, note MAX_SCOPE IS ALWAYS PASSED IN.
+           username - User id we use for auth and operations (requires prior authorization for scopes).
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, scopes: Optional[list[str]]=None, username: str="azm67mmfixu99v9idlpc6r9bs") -> None:
         # validate_inputs([scopes, username], [list, str])
         
@@ -138,11 +141,11 @@ class GeneralSpotifyHelpers:
                                                                             username=self.username,
                                                                             open_browser=False))
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available
-    INPUT: response - spotify api response (dict)
-    OUTPUT: 'None' if no 'next' response, or a spotify api response (dict) if available
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.
+    INPUT: response - Spotify api response (dict).
+    OUTPUT: 'None' if no 'next' response, or a spotify api response (dict) if available.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _get_next_response(self, response: dict) -> None | dict:
         validate_inputs([response], [dict])
         
@@ -156,13 +159,13 @@ class GeneralSpotifyHelpers:
                     break
         return ret
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Abstract helper for _gather_data() to best traverse down the dictionary response
-    INPUT: iterator - list of specific dictionary fields we wish to itterate over
-           list_of_data_paths - dict path to the data we care about returning (in list format)
-           other_iterators - if there is a sub list of data we need that will be these (dict)
-    OUTPUT: list of dictionaries for the requested data
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Abstract helper for _gather_data() to best traverse down the dictionary response.
+    INPUT: iterator - List of specific dictionary fields we wish to itterate over.
+           list_of_data_paths - Dict path to the data we care about returning (in list format).
+           other_iterators - If there is a sub list of data we need that will be these (dict).
+    OUTPUT: List of dictionaries for the requested data.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _iterate_and_grab_data(self, iterator: dict, list_of_data_paths: list[str], other_iterators: dict) -> list[dict]:
         validate_inputs([iterator, list_of_data_paths, other_iterators], [list, list, dict])
         
@@ -193,17 +196,17 @@ class GeneralSpotifyHelpers:
             dict_list.append(elem_dict)
         return dict_list
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Generalized helper to pull specified data from a spotify api response
-    INPUT: results - Dictionary response from spotipy api call
-           iter_dict - dict path to the data we care about returning (in list format)
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Generalized helper to pull specified data from a spotify api response.
+    INPUT: results - Dictionary response from spotipy api call.
+           iter_dict - Dict path to the data we care about returning (in list format).
            other_iterators - Dictionary of associated iterator paths and fields desired from iterator. 
                              Follows below template
                              {<iterator or path to iterator>: <list of paths to fields>, ...}
                              ex. {"items": [["track", "name"], ["track", "album", "name"]]
-                                  , ("track", "artists"): ["name", "id"]}):}
-    OUTPUT: elements requested through the "iter_dict'"
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                                  , ("track", "artists"): ["name", "id"]}):}.
+    OUTPUT: Elements requested through the "iter_dict'".
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _gather_data(self, results: dict, iter_dict: dict) -> list[dict]:
         validate_inputs([results, iter_dict], [dict, dict])
         
@@ -218,27 +221,27 @@ class GeneralSpotifyHelpers:
             results = self._get_next_response(results)
         return elements
     
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
-                 out of 'scope' we throw an exception to stop us from doing something we shouldn't
-    INPUT: desired_scopes - list of desired scopes to compare against our instantiated list
+                 out of 'scope' we throw an exception to stop us from doing something we shouldn't.
+    INPUT: desired_scopes - List of desired scopes to compare against our instantiated list.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _validate_scope(self, desired_scopes: list[str]) -> None:
         validate_inputs([desired_scopes], [list])
         
         if set(desired_scopes).intersection(set(self.scopes)) != set(desired_scopes):
             raise Exception(f"SCOPE PROTECTION: {desired_scopes} NOT IN {self.scopes}")
 
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # USER ═══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # USER ════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Returns list of user's followed artists
-    INPUT: info - list of info to return from api response
-    OUTPUT: list of followed user artists with given 'info'
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Returns list of user's followed artists.
+    INPUT: info - List of info to return from api response.
+    OUTPUT: List of followed user artists with given 'info'.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_user_artists(self, info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["user-follow-read"])
         
@@ -247,11 +250,11 @@ class GeneralSpotifyHelpers:
             self.sp.current_user_followed_artists(limit=50)
             , {("artists", "items"): info})
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Returns list of user's playlists
-    INPUT: info - list of info to return from api response
-    OUTPUT: list of user's playlists with given 'info'
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Returns list of user's playlists.
+    INPUT: info - List of info to return from api response.
+    OUTPUT: List of user's playlists with given 'info'.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_user_playlists(self, info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["playlist-read-private"])
         
@@ -260,16 +263,16 @@ class GeneralSpotifyHelpers:
             self.sp.current_user_playlists(limit=50)
             , {"items": info})
         
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # PLAYBACK ═══════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Gets playback state of current spotify session
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Gets playback state of current spotify session.
     INPUT: NA
     OUTPUT: Returns current playing track id, shuffle state, and the current playlist, 
-            if not playing then "", False, ""
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+            if not playing then "", False, "".
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playback_state(self) -> tuple[str, bool, str]:
         self._validate_scope(["user-read-playback-state"])
         
@@ -286,11 +289,11 @@ class GeneralSpotifyHelpers:
 
         return ret
         
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Overwrites spotify queue with given tracks
-    INPUT: tracks - the tracks that will be written to the queue
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Overwrites spotify queue with given tracks.
+    INPUT: tracks - The tracks that will be written to the queue.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def write_to_queue(self, tracks: list[str]) -> None:
         self._validate_scope(["user-modify-playback-state"])
         
@@ -298,14 +301,14 @@ class GeneralSpotifyHelpers:
             self.sp.add_to_queue(track)
             time.sleep(0.20)
     
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Changes spotify current playback
-    INPUT: play (optional): True if play, False if pause
-           skip (optional): "next" if skip track, "prev" if previous track
-           shuffle (optional): True/ False if shuffle is enabled
-           repeat (optional): True/ False if repeat is enabled
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Changes spotify current playback.
+    INPUT: play - True if play, False if pause.
+           skip - "next" if skip track, "prev" if previous track.
+           shuffle - True/ False if shuffle is enabled.
+           repeat - True/ False if repeat is enabled.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def change_playback(self, pause: Optional[bool]=None, 
                         skip: str="", 
                         shuffle: Optional[bool]=None, 
@@ -326,16 +329,16 @@ class GeneralSpotifyHelpers:
         if repeat != None:
             self.sp.repeat(repeat)
 
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # PLAYLISTS ══════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYLISTS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Adds given tracks into the given playlist
-    INPUT: playlist_id - (str) id of the playlist we will add the tracks to
-           track_ids - list of track ids we will be adding to the playlist
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Adds given tracks into the given playlist.
+    INPUT: playlist_id - Id of the playlist we will add the tracks to.
+           track_ids - List of track ids we will be adding to the playlist.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
         validate_inputs([playlist_id, track_ids], [str, list])
@@ -345,12 +348,12 @@ class GeneralSpotifyHelpers:
             self.sp.playlist_add_items(playlist_id, chunk)
             
             
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES
-    INPUT: playlist_id - (str) id of the playlist we will add the tracks to
-           track_ids - list of track ids we will be adding to the playlist
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES.
+    INPUT: playlist_id - Id of the playlist we will add the tracks to.
+           track_ids - List of track ids we will be adding to the playlist.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_unique_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
         validate_inputs([playlist_id, track_ids], [str, list])
@@ -361,15 +364,16 @@ class GeneralSpotifyHelpers:
         self.add_tracks_to_playlist(playlist_id, tracks_to_add)
         
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Grabs all the tracks with given <object>_info provided
-    INPUT: playlist_id - id of playlist we are grabbing tracks from
-           track_info (optional) - list of track info we wish to grab (defaults is 'id')
-           album_info (optional) - list of album info we wish to grab (defaults is 'id')
-           artist_info (optional) - list of artist info we wish to grab (defaults is 'id')
-    OUTPUT: List of tracks (dict) with given info from <object>_info 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def get_playlist_tracks(self, playlist_id: str, 
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Grabs all the tracks with given <object>_info provided.
+    INPUT: playlist_id - Id of playlist we are grabbing tracks from.
+           offset - Index of the first track to grab.
+           track_info - List of track info we wish to grab (defaults is 'id').
+           album_info - List of album info we wish to grab (defaults is 'id').
+           artist_info - List of artist info we wish to grab (defaults is 'id').
+    OUTPUT: List of tracks (dict) with given info from <object>_info .
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    def get_playlist_tracks(self, playlist_id: str, offset: int=0,
                             track_info: list[str]=['id'], 
                             album_info: list[str]=['id'], 
                             artist_info: list[str]=['id']) -> list[dict]:
@@ -378,18 +382,18 @@ class GeneralSpotifyHelpers:
         
         # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
         return self._gather_data(
-            self.sp.playlist_items(playlist_id, limit=100)
+            self.sp.playlist_items(playlist_id, limit=100, offset=offset)
             , {"items": [["track", elem] if type(elem) is str else ["track"] + elem for elem in track_info] +
                 [["track", "album", elem] if type(elem) is str else ["track", "album"] + elem for elem in album_info]
                 , ("track", "artists"): artist_info})
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Creates a new playlist for the user
-    INPUT: playlist_name - name of the playlist that will be displayed on spotify
-           playlist_description (optional) - description seen under name on spotify (defaults to empty)
-           public (optional) - whether the playlist is public or not
-    OUTPUT: the created playlist id (str)
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Creates a new playlist for the user.
+    INPUT: playlist_name - Name of the playlist that will be displayed on spotify.
+           playlist_description - Description seen under name on spotify (defaults to empty).
+           public - Whether the playlist is public or not.
+    OUTPUT: The created playlist id (str).
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def create_playlist(self, name: str, description: str='', public: bool=False) -> str:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
         if len(self.get_user_playlists()) > 400:
@@ -398,13 +402,13 @@ class GeneralSpotifyHelpers:
         
         return self.sp.user_playlist_create(self.username, name, description=description, public=public)['id']
     
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Changes given playlists description or name
-    INPUT: playlist_id - id of playlist we will change the description/ name of
-           name (optional)- name we will use to overwrite the current playlist name
-           description (optional) - description we will use to overwrite the current description
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Changes given playlists description or name.
+    INPUT: playlist_id - Id of playlist we will change the description/ name of.
+           name - Name we will use to overwrite the current playlist name.
+           description - Description we will use to overwrite the current description.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def change_playlist_details(self, playlist_id: str, 
                                 name: Optional[str]=None, 
                                 description: Optional[str]=None):
@@ -418,18 +422,32 @@ class GeneralSpotifyHelpers:
         elif description is not None:
             self.sp.playlist_change_details(playlist_id, description=description)
             
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ARTISTS ════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Removes all tracks from a playlist assuming it is in our PLAYLISTS_WE_CAN_DELETE_FROM list.
+    INPUT: playlist_id - Id of playlist we will delete all tracks from.
+           max_playlist_length - Second gate to always check how many tracks we "expect" to delete.
+    OUTPUT: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private", 'DELETE-DELETE-DELETE'])
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Grabs all the given artists albums of type 'album_type' and returns 'info' on that album
-    INPUT: artist_id - id of the artist we will be grabbing albums from
-           album_types - type of albums we are requesting. Types are  album, single, appears_on, and compilation
-           info (optional) - info we will grab for the albums can be id, name, and release_date. 
-                              There are more but I know those work
-    OUTPUT: list of album dictionaries with 'info' for the given artist 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+        if playlist_id in PLAYLISTS_WE_CAN_DELETE_FROM:
+            tracks = self.get_playlist_tracks(playlist_id)
+            if len(tracks) > 0 and len(tracks) <= max_playlist_length:
+                self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Grabs all the given artists albums of type 'album_type' and returns 'info' on that album.
+    INPUT: artist_id - Id of the artist we will be grabbing albums from.
+           album_types - Type of albums we are requesting. Types are  album, single, appears_on, and compilation.
+           info - Info we will grab for the albums can be id, name, and release_date. 
+                              There are more but I know those work.
+    OUTPUT: List of album dictionaries with 'info' for the given artist.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_artist_albums(self, artist_id:str, 
                           album_types: list[str]=['album'], 
                           info: list[str]=['id']):
@@ -443,15 +461,15 @@ class GeneralSpotifyHelpers:
             , {"items": info})
 
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Get all album, single, and appears_on tracks by the given artist between the start_date and end_date
-                 if no start or end date is given no filtering will be done
-    INPUT: artist_id - id of the artist we will be grabbing tracks from
-           start_date (optional) - (datetime) of the start of our range
-           end_date (optional) - (datetime) of the end of our range
-    OUTPUT: list of track id's from the given artist. The albums/ singles are first and ordered in chronological 
-            order, the appears_on tracks are simply added on to the end
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                 if no start or end date is given no filtering will be done.
+    INPUT: artist_id - Id of the artist we will be grabbing tracks from.
+           start_date - Datetime of the start of our range.
+           end_date - Datetime of the end of our range.
+    OUTPUT: List of track id's from the given artist. The albums/ singles are first and ordered in chronological 
+            order, the appears_on tracks are simply added on to the end.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def gather_tracks_by_artist(self, artist_id:str, 
                                 start_date: Optional[datetime]=None, 
                                 end_date: Optional[datetime]=None) -> list[str]:
@@ -498,19 +516,19 @@ class GeneralSpotifyHelpers:
 
         return album_tracks + appears_on_album_tracks
 
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ALBUMS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Gathers all of an albums tracks and returns with given <object>_info info
-                 info can be id, name, and release_date. There are more but I know those work
-    INPUT: album_ids - list of spotify scopes to request access for
-           album_info (optional) - list of info we wish to grab for the given album
-           track_info (optional) - list of info we wish to grab from each track in the album
-           artist_info (optional) - list of info we wish to grab from the artists for each of the tracks                
-    OUTPUT: list of track dicts containing the requested info
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Gathers all of an albums tracks and returns with given <object>_info info.
+                 info can be id, name, and release_date. There are more but I know those work.
+    INPUT: album_ids - List of spotify scopes to request access for.
+           album_info - List of info we wish to grab for the given album.
+           track_info - List of info we wish to grab from each track in the album.
+           artist_info - List of info we wish to grab from the artists for each of the tracks.
+    OUTPUT: List of track dicts containing the requested info.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_albums_tracks(self, album_ids: list[str], 
                           album_info:  list[str]=['id'], 
                           track_info:  list[str]=['id'], 
@@ -526,15 +544,15 @@ class GeneralSpotifyHelpers:
             )
         return album_data
 
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # TRACKS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Gets all artists from the given track 
-    INPUT: track_id - list of spotify scopes to request access for
-    OUTPUT: list of artist ids for the given track
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Gets all artists from the given track .
+    INPUT: track_id - List of spotify scopes to request access for.
+    OUTPUT: List of artist ids for the given track.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_track_artists(self, track_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([track_id], [str])
         
@@ -546,13 +564,13 @@ class GeneralSpotifyHelpers:
             artist_ids.append(data)
         return artist_ids
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Verifies if the given track is the "unique" one just by searching for it, if it's the first 
                  result then it is unique, if not then it's probably a duplicate.
-    INPUT: tracks - list of spotify tracks we will be verifying
-           artist_id - (str) of the given artist so we can better tell if it's theirs
-    OUTPUT: list of the tracks we have verified
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    INPUT: tracks - List of spotify tracks we will be verifying.
+           artist_id - Str of the given artist so we can better tell if it's theirs.
+    OUTPUT: List of the tracks we have verified.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def verify_appears_on_tracks(self, tracks: list[str], artist_id: [str]) -> list[str]:
         validate_inputs([tracks, artist_id], [list, str])
         
@@ -572,16 +590,16 @@ class GeneralSpotifyHelpers:
                 valid_tracks.append(track['id'])
         return valid_tracks
 
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # MISC HELPERS ═══════════════════════════════════════════════════════════════════════════════════════════════════
-    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # MISC HELPERS ════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Simple getters to take a given track, artist, album, or playlist id and return requested fields
-    INPUT: <input>_id - (str) id of spotify object
-           info (optional) - desired info we want from the spotify response (returns 'id' if not specified)
-    OUTPUT: list of what 'info' we got from the given <input>_id
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Simple getters to take a given track, artist, album, or playlist id and return requested fields.
+    INPUT: <input>_id - Str id of spotify object.
+           info - Desired info we want from the spotify response (returns 'id' if not specified).
+    OUTPUT: List of what 'info' we got from the given <input>_id.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_track_data(self, track_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([track_id, info], [str, list])
         return get_generic_field(self.sp.track(track_id), info)
@@ -598,4 +616,4 @@ class GeneralSpotifyHelpers:
         validate_inputs([playlist_id, info], [str, list])
         return get_generic_field(self.sp.playlist(playlist_id), info)
 
-# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

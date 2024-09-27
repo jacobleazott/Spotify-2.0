@@ -1,49 +1,52 @@
-# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
-# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
-# ╠══╣                                                                                                            ╠══╣
-# ║  ║    MISC FEATURES                           CREATED: 2024-09-22          https://github.com/jacobleazott    ║  ║
-# ║══║                                                                                                            ║══║
-# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
-# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
-# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    MISC FEATURES                            CREATED: 2024-09-22          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # This file contains simple misc features. Only features that can be comfortably done in one function should be in
 #   this file. If it requires anything additional it should receive its own dedicated file.
 #
 # Current Features:
 #   generate_artist_release - Takes given artist_id(s), playlist name, playlist desc, start/ end date, and creates a 
 #                               new playlist with all the tracks from those artists released within the given dates.
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 from datetime import datetime
 
 from decorators import *
 import General_Spotify_Helpers as gsh
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MiscFeatures(LogAllMethods):
     
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify
-        self.logger = logger if not None else logger.getLogger()
+        self.logger = logger if logger is not None else logging.getLogger()
         
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Returns the first artist of the first track out of a playlist (not from our macro list)
-    INPUT: playlist_id - id of playlist we will grab artist_id from
-    OUTPUT: str of the first artist of the first non macro track
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Returns the first artist of the first track out of a playlist (not from our macro list).
+    INPUT: playlist_id - Id of playlist we will grab artist_id from.
+    OUTPUT: Str of the first artist of the first non macro track.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_first_artist_from_playlist(self, playlist_id: str) -> str:
         playlist_tracks = self.spotify.get_playlist_tracks(playlist_id, artist_info=['id', 'name'])
         return [track for track in playlist_tracks if track['id'] not in gsh.MACRO_LIST][0]['artists'][0]['id']
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists
-    INPUT: artist_id_list - list of spotify artist_id's we want to gather tracks from
-           playlist_name - name that the new playlist will be given
-           playlist_description - description that the new playlist will be given
-           start_date - start day of track collection
-           end_date - end day of track collection
-           logger - logger object used
-    OUTPUT: str of playlist_id created
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists.
+    INPUT: artist_id_list - List of spotify artist_id's we want to gather tracks from.
+           playlist_name - Name that the new playlist will be given.
+           playlist_description - Description that the new playlist will be given.
+           start_date - Start day of track collection.
+           end_date - End day of track collection.
+           logger - Logger object used.
+    OUTPUT: Str of playlist_id created.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
                 start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
         playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
@@ -64,11 +67,11 @@ class MiscFeatures(LogAllMethods):
         
         return playlist_id
     
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Distributes tracks from given playlist into their respective 'good', 'year', and 'artist' playlists
-    INPUT: playlist_id - id of playlist we will grab tracks from to distribute to our collections
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Distributes tracks from given playlist into their respective 'good', 'year', and 'artist' playlists.
+    INPUT: playlist_id - Id of playlist we will grab tracks from to distribute to our collections.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def distribute_tracks_to_collections_from_playlist(self, playlist_id: str) -> None:
         user_playlists = self.spotify.get_user_playlists(info=['id', 'name'])
         good_playlist = None
@@ -129,13 +132,13 @@ class MiscFeatures(LogAllMethods):
         self.logger.info(f"Finished Adding Tracks To \"The Good\" and year {datetime.today().year}")
         
         
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: This takes all non-local tracks and organizes them. It then adds the tracks back into the playlist 
                  at the bottom so we never mess with deleting tracks. The tracks are ordered by release date and then
                  ordered by album/ disc number/ track number.
-    INPUT: playlist_id - id of playlist we are going to "reorganize"
+    INPUT: playlist_id - Id of playlist we are going to "reorganize".
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def reorganize_playlist(self, playlist_id):
         tracks = self.spotify.get_playlist_tracks(playlist_id, 
                                                 track_info=['id', 'name', 'disc_number', 'track_number', 'is_local'],
@@ -179,7 +182,4 @@ class MiscFeatures(LogAllMethods):
         
         self.spotify.add_tracks_to_playlist(playlist_id, track_ids_ordered)
     
-# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
-
-
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
