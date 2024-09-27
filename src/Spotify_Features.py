@@ -43,6 +43,7 @@
 import logging as log
 from datetime import datetime, timedelta
 from typing import Union
+import time
 
 import General_Spotify_Helpers as gsh
 from decorators import *
@@ -99,7 +100,6 @@ class SpotifyFeatures(LogAllMethods):
                                , "playlist-modify-private"
                                , "playlist-read-private"
                                , "user-follow-read"]
-        
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
         self.mfeatures.generate_artist_release(
             [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name']), 
@@ -108,6 +108,7 @@ class SpotifyFeatures(LogAllMethods):
             f"Releases From All Followed Artists From The Month {last_month.strftime("%m-%Y")}",
             start_date=datetime(last_month.year, last_month.month, 1),
             end_date=datetime(last_month.year, last_month.month, 1).replace(day=last_month.day))
+        
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a new playlist with all released tracks within given date range for all given artists.
@@ -187,11 +188,26 @@ class SpotifyFeatures(LogAllMethods):
         return self.spotify.get_playback_state()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Updates our "latest" playlist with the "latest" tracks in our main playlist. 
+                 NOTE THIS DELETES THE "latest" PLAYLIST CONTENTS.
+    INPUT: NA
+    OUTPUT: NA
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def update_daily_latest_playlist(self) -> None:
+        self.spotify.scopes = [  "playlist-read-private"
+                               , "playlist-read-collaborative"
+                               , "playlist-modify-public"
+                               , "playlist-modify-private"
+                               , "DELETE-DELETE-DELETE"]
+        self.mfeatures.update_daily_latest_playlist()
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Skips current user track.
     INPUT: NA
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def skip_track(self) -> None:
+        print("Skipping track")
         self.spotify.change_playback(skip="next")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -199,7 +215,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def generate_weekly_report(self):
+    def generate_weekly_report(self) -> None:
         print("not imported")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -207,7 +223,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def run_sanity_checks(self):
+    def run_sanity_checks(self) -> None:
         print("not imported")
         
 
