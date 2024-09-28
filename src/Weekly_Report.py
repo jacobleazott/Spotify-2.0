@@ -188,7 +188,7 @@ class WeeklyReport(LogAllMethods):
         st_diffs = self.gen_html_header_list(self.sanity_tester.sanity_diffs_in_major_playlist_sets(), 
                                             "No Differences Detected For Master, Years, and '__' Good Job!")
         st_prog = self.gen_html_unordered_list(self.sanity_tester.sanity_in_progress_artists(), 
-                                            "No Differences Detected For Master, Years, and '__' Good Job!")
+                                            "No In Progress Artists Detected, Get Back To Work.")
         st_dupe = self.gen_html_header_list(self.sanity_tester.sanity_duplicates(), 
                                             "No Duplicates Detected Good Job!")
         st_integ = self.gen_html_unordered_list(self.sanity_tester.sanity_artist_playlist_integrity(), 
@@ -220,5 +220,6 @@ class WeeklyReport(LogAllMethods):
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
         
         self.send_email(subject, body)
+
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

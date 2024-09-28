@@ -50,9 +50,6 @@ class SanityTest(LogAllMethods):
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
-    
-    # user_playlists = []
-    # user_followed_artists = []
 
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify

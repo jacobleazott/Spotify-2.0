@@ -225,16 +225,13 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
-        # Not sure what it means to run this without the weekly report yet. Just logging? Printing?
-        print("not implemented")
-
-
-def main():
-    SpotifyFeatures().generate_weekly_report()
-    
-
-if __name__ == "__main__":
-    main()
+        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        logger.info("SANITY TESTS ==========================================================")
+        logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
+        logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
+        logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
+        logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
+        logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

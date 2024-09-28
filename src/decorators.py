@@ -83,5 +83,6 @@ class LogAllMethods:
         for attr, value in cls.__dict__.items():
             if callable(value):
                 setattr(cls, attr, log_func(value))
-                
+
+
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
