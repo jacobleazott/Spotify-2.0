@@ -9,12 +9,12 @@
 # This script simply takes all of the users current followed artists and playlists and backs them up to an SQLite DB.
 #   It utilizes a simple many to many relationship table for playlists and tracks.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import sqlite3
 import logging
+import sqlite3
 from datetime import datetime
 
-from decorators import *
 import General_Spotify_Helpers as gsh
+from decorators import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.

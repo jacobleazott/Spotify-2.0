@@ -40,10 +40,11 @@
 #   Weekly Listening Report                     - reference Weekly_Report.py
 #
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging as log
+import logging
+import time
+
 from datetime import datetime, timedelta
 from typing import Union
-import time
 
 import General_Spotify_Helpers as gsh
 from decorators import *

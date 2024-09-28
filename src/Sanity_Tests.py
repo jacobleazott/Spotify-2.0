@@ -27,8 +27,8 @@
 # In Progress Sanity Test -
 #   - Basically just give the user a list of __ playlists that the user is not following currently
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import re
 import logging
+import re
 
 import General_Spotify_Helpers as gsh
 from decorators import *

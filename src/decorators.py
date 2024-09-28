@@ -8,8 +8,8 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # This file simply contains function decorators, and log helpers.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging
 import functools
+import logging
 from typing import Union, Optional
 
 FUNCTION_ARG_LOGGING_LEVEL = 15

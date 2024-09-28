@@ -25,16 +25,17 @@
 #   triggers usually happen very early in the morning when we aren't even using spotify so if it takes 10 mins to
 #   complete vs. 4 mins parallel it doesn't really affect us.
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import os
+import threading
+import time
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
-import threading
-import time
-import os
 
-from Spotify_Features import SpotifyFeatures
 import General_Spotify_Helpers as gsh
 from Shuffle_Styles import ShuffleType
+from Spotify_Features import SpotifyFeatures
 
 threads = []
 MAX_RUNTIME_MINUTES = 30
