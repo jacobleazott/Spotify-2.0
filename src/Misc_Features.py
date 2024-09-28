@@ -193,9 +193,10 @@ class MiscFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
+        tracks = [gsh.SHUFFLE_MACRO_ID]
         offset = self.spotify.get_playlist_data(self.SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
                     - self.PLAYLIST_LENGTH
-        tracks = [track['id'] for track in self.spotify.get_playlist_tracks(self.SOURCE_PLAYLIST, offset=offset)]
+        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(self.SOURCE_PLAYLIST, offset=offset)]
 
         self.spotify.remove_all_playlist_tracks(self.DEST_PLAYLIST, max_playlist_length=self.PLAYLIST_LENGTH)
         self.spotify.add_tracks_to_playlist(self.DEST_PLAYLIST, tracks)
