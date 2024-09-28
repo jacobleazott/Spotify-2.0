@@ -53,6 +53,8 @@ from Misc_Features import MiscFeatures
 from Backup_Spotify_Data import BackupSpotifyData
 from Log_Playback import LogPlayback
 from Shuffle_Styles import Shuffler, ShuffleType
+from Weekly_Report import WeeklyReport
+from Sanity_Tests import SanityTest
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -214,7 +216,8 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
-        print("not imported")
+        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        WeeklyReport(self.spotify, sanity_tester, logger=self.logger).gen_weekly_report()
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Runs various santiy checks against the user's collection to verify nothing has been mismanaged.
@@ -222,7 +225,16 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
-        print("not imported")
+        # Not sure what it means to run this without the weekly report yet. Just logging? Printing?
+        print("not implemented")
+
+
+def main():
+    SpotifyFeatures().generate_weekly_report()
+    
+
+if __name__ == "__main__":
+    main()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

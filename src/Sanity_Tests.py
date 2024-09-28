@@ -27,39 +27,45 @@
 # In Progress Sanity Test -
 #   - Basically just give the user a list of __ playlists that the user is not following currently
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import General_Spotify_Helpers as gsh
 import re
+import logging
 
-PLAYLIST_IDS_FOR_IGNORED_TRACKS = ["7Mgr45oWF0fzRzdlz0NNgT"]
-
-SCOPE = ["user-follow-read"
-       , "playlist-read-collaborative"
-       , "playlist-read-private"]    
+import General_Spotify_Helpers as gsh
+from decorators import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Collection of sanity tests to verify integrity and completion of the user's collections. This is very
+             dependent on having a library setup in my fashion.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SanityTest:
-    spotify = None
-    user_playlists = None
-    user_followed_artists = None
+class SanityTest(LogAllMethods):
+    FEATURE_SCOPES = ["user-follow-read"
+                    , "playlist-read-collaborative"
+                    , "playlist-read-private"]
+    
+    PLAYLIST_IDS_FOR_IGNORED_TRACKS = ["7Mgr45oWF0fzRzdlz0NNgT"]
+
     # List of tracks to disregard for our comparisons, this currently includes our "shuffle macro" as well as our 
     #   "Soundtracks" playlists tracks
-    track_list_to_disregard = [gsh.SHUFFLE_MACRO_ID]
+    track_list_to_disregard = gsh.MACRO_LIST
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
     
-    def __init__(self):
-        self.spotify = gsh.GeneralSpotifyHelpers(SCOPE)
+    # user_playlists = []
+    # user_followed_artists = []
+
+    def __init__(self, spotify, logger: logging.Logger=None) -> None:
+        self.spotify = spotify
+        self.spotify.scopes = self.FEATURE_SCOPES
+        self.logger = logger if logger is not None else logging.getLogger()
+        
         self.user_playlists = self.spotify.get_user_playlists(info=["id", "name"])
         self.user_followed_artists = self.spotify.get_user_artists(info=["name", "id"])
         self._gather_playlist_data()
-
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # "HELPER" FUNCTIONS ══════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Grabs all '__', year, master, and track disregard playlists for later internal use.
     INPUT: NA
@@ -80,7 +86,7 @@ class SanityTest:
                 # print(f"Grabbing {playlist['name']}")
                 self.master_playlist.append((playlist['name'], self._get_playlist_tracks_info(playlist["id"])))
                 
-            if playlist["id"] in PLAYLIST_IDS_FOR_IGNORED_TRACKS:
+            if playlist["id"] in self.PLAYLIST_IDS_FOR_IGNORED_TRACKS:
                 self.track_list_to_disregard += [track[0] for track in self._get_playlist_tracks_info(playlist["id"])]
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -267,5 +273,6 @@ class SanityTest:
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def print_the_results(self):
         print("unimplemented")
+
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
