@@ -33,6 +33,7 @@
 #   PLAYLIST ALTERATIONS ══════════════════════════════════════════════════════════════════════════════════════════════
 #   Distribute Tracks To 'Collections'          - reference Misc_Features.py distribute_tracks_to_collections...()
 #   Organize Playlist By Release Date           - reference Misc_Features.py reorganize_playlist()
+#   Update 'Daily Latest' Playlist              - reference Misc_Features.py update_daily_latest_playlist()
 #
 #   MISC FEATURES ═════════════════════════════════════════════════════════════════════════════════════════════════════
 #   Get Current Playback State                  - reference get_playback_state()
