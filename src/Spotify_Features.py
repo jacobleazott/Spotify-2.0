@@ -38,12 +38,15 @@
 #   Get Current Playback State                  - reference get_playback_state()
 #   Sanity Checks                               - reference Sanity_Tests.py
 #   Weekly Listening Report                     - reference Weekly_Report.py
+#   Upload Latest Backup To Google Drive        - reference upload_latest_backup_to_drive()
 #
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import os
 import time
 
 from datetime import datetime, timedelta
+from glob import glob
 from typing import Union
 
 import General_Spotify_Helpers as gsh
@@ -52,10 +55,11 @@ from decorators import *
 # FEATURES
 from Misc_Features import MiscFeatures
 from Backup_Spotify_Data import BackupSpotifyData
+from Google_Drive_Uploader import DriveUploader
 from Log_Playback import LogPlayback
+from Sanity_Tests import SanityTest
 from Shuffle_Styles import Shuffler, ShuffleType
 from Weekly_Report import WeeklyReport
-from Sanity_Tests import SanityTest
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of all of our Spotify API features. Handles and abstracts our GSH object.
@@ -233,6 +237,15 @@ class SpotifyFeatures(LogAllMethods):
         logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
         logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
         logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
+        
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Uploads the latest backup of our Spotify library to Google Drive.
+    INPUT: NA
+    OUTPUT: NA
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def upload_latest_backup_to_drive(self) -> None:
+        latest_backup = max(glob('databases/backups/*'), key=os.path.getmtime)
+        DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
