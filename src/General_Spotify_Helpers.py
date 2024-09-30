@@ -139,7 +139,9 @@ class GeneralSpotifyHelpers:
         cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_jacob_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
                                                                             open_browser=False,
-                                                                            cache_handler=cache_handler))
+                                                                            cache_handler=cache_handler)
+                                  , requests_timeout=10
+                                  , retries=10)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.
