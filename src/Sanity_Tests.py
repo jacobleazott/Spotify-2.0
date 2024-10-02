@@ -226,7 +226,7 @@ class SanityTest(LogAllMethods):
     def sanity_contributing_artists(self):
         res_list = []
         checked_list = []
-        # track_list = [track for track in playlist[1] for playlist in self.individual_artist_playlists]
+
         for playlist in self.individual_artist_playlists:
             for track in playlist[1]:
                 # Find Number of artists I follow in the list of artists for this track

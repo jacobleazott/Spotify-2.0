@@ -80,25 +80,25 @@ class BackupSpotifyData(LogAllMethods):
 
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists_tracks(
                                 id_playlist text REFERENCES playlists(id),
-                                id_track text REFERENCES tracks(id)
+                                id_track text REFERENCES tracks(id),
                                 UNIQUE(id_playlist, id_track)
                                 )""")
         
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_artists(
                                 id_track text REFERENCES tracks(id),
-                                id_artist text REFERENCES artists(id)
+                                id_artist text REFERENCES artists(id),
                                 UNIQUE(id_track, id_artist)
                                 )""")
         
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_albums(
                                 id_track text REFERENCES tracks(id),
-                                id_album text REFERENCES albums(id)
+                                id_album text REFERENCES albums(id),
                                 UNIQUE(id_track, id_album)
                                 )""")
         
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS albums_artists(
                                 id_album text REFERENCES albums(id),
-                                id_artist text REFERENCES artists(id)
+                                id_artist text REFERENCES artists(id),
                                 UNIQUE(id_album, id_artist)
                                 )""")
 

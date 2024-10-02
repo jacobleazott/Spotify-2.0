@@ -249,9 +249,10 @@ class SpotifyFeatures(LogAllMethods):
 
 
 def main():
+    SpotifyFeatures().backup_spotify_library()
     # SpotifyFeatures().generate_monthly_release() #
     # https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw?si=2622a7bb129a498a
-    SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
+    # SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
     # sanity_tester = SanityTest(self.spotify, logger=self.logger)
     # print(sanity_tester.sanity_diffs_in_major_playlist_sets())
     
