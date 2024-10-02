@@ -20,12 +20,14 @@
 #               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
 #               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import os
 import logging
 import random
 import sqlite3
 
 from datetime import datetime
 from enum import unique, Enum
+from glob import glob
 
 import General_Spotify_Helpers as gsh
 from decorators import *
@@ -65,8 +67,6 @@ class Shuffler(LogAllMethods):
 
         # Grab all the track_counts for our track_ids, we default to 0 listens if we don't find it
         for track_id in track_ids:
-            if track_id == gsh.SHUFFLE_MACRO_ID:
-                continue
             track_query = track_counts_conn.execute(
                 f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
 
@@ -113,11 +113,8 @@ class Shuffler(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
-        self.spotify.change_playback(skip="next", shuffle=True)
-        
-        tracks = [track['id'] for track in self.spotify.get_playlist_tracks(playlist_id) 
-                  if track['id'] is not None and track['id'] not in gsh.MACRO_LIST]
-        
+        tracks = self.spotify.db_get_tracks_from_playlist(playlist_id)
+
         match shuffle_type:
             case ShuffleType.RANDOM:
                 random.seed(datetime.now().timestamp())
@@ -127,9 +124,9 @@ class Shuffler(LogAllMethods):
             case _:
                 raise Exception(f"Unknown Shuffle Type: {shuffle_type}")
                 
-                
-        tracks = tracks[:(min(len(tracks), self.QUEUE_LENGTH))]
-        self.spotify.write_to_queue(tracks)
+        self.spotify.write_to_queue([tracks[0]])
+        self.spotify.change_playback(skip="next", shuffle=True)
+        self.spotify.write_to_queue(tracks[1:(min(len(tracks), self.QUEUE_LENGTH))])
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

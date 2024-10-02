@@ -158,7 +158,7 @@ class SpotifyFeatures(LogAllMethods):
            shuffle_type - ShuffleType Enum of how we will shuffle the playlist (ref Shuffle_Styles.py).
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def shuffle_playlist(self, playlist_id: str="", shuffle_type: ShuffleType=ShuffleType.RANDOM) -> None:
+    def shuffle_playlist(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         Shuffler(self.spotify, logger=self.logger).shuffle(playlist_id, shuffle_type)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -248,4 +248,12 @@ class SpotifyFeatures(LogAllMethods):
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
+def main():
+    # SpotifyFeatures().generate_monthly_release() #
+    # https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw?si=2622a7bb129a498a
+    SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
+    
+
+if __name__ == "__main__":
+    main()
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
