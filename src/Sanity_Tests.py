@@ -28,9 +28,14 @@
 #   - Basically just give the user a list of __ playlists that the user is not following currently
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import os
 import re
+import sqlite3
+from glob import glob
 
 import General_Spotify_Helpers as gsh
+
+from Database_Helpers import DatabaseHelpers
 from decorators import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -50,14 +55,15 @@ class SanityTest(LogAllMethods):
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
+    user_playlists = []
+    user_followed_artists = []
 
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify
-        self.spotify.scopes = self.FEATURE_SCOPES
+        # self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         
-        self.user_playlists = self.spotify.get_user_playlists(info=["id", "name"])
-        self.user_followed_artists = self.spotify.get_user_artists(info=["name", "id"])
+        self.dh = DatabaseHelpers(self.spotify, self.logger)
         self._gather_playlist_data()
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -69,33 +75,31 @@ class SanityTest(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _gather_playlist_data(self):
-        for playlist in self.user_playlists:
-            if playlist["name"].startswith('__'):
-                # print(f"Grabbing {playlist['name']}")
-                self.individual_artist_playlists.append((playlist['name'][2:], 
-                                                         self._get_playlist_tracks_info(playlist["id"])))
+        self.user_followed_artists = self.dh.backup_db_conn.execute("""SELECT artists.id, artists.name
+                                                        FROM 'followed_artists' 
+                                                        JOIN artists on artists.id = followed_artists.id """).fetchall()
+        
+        self.user_playlists = self.dh.backup_db_conn.execute("""SELECT playlists.id, playlists.name
+                                                        FROM 'playlists'""").fetchall()
+        
+        for playlist_id, playlist_name in self.user_playlists:
+            tracks = self.dh.backup_db_conn.execute(f"""SELECT tracks.*
+                                                FROM tracks
+                                                JOIN playlists_tracks ON tracks.id = playlists_tracks.id_track
+                                                WHERE playlists_tracks.id_playlist = '{playlist_id}'
+                                                """).fetchall()
+            
+            if playlist_name.startswith('__'):
+                self.individual_artist_playlists.append((playlist_name[2:], tracks))
                 
-            if playlist["name"].startswith('20'):
-                # print(f"Grabbing {playlist['name']}")
-                self.years_playlists.append((playlist['name'], self._get_playlist_tracks_info(playlist["id"])))
+            if playlist_name.startswith('20'):
+                self.years_playlists.append((playlist_name, tracks))
                 
-            if playlist["name"].startswith('The Good - Master Mix'):
-                # print(f"Grabbing {playlist['name']}")
-                self.master_playlist.append((playlist['name'], self._get_playlist_tracks_info(playlist["id"])))
+            if playlist_name.startswith('The Good - Master Mix'):
+                self.master_playlist.append((playlist_name, tracks))
                 
-            if playlist["id"] in self.PLAYLIST_IDS_FOR_IGNORED_TRACKS:
-                self.track_list_to_disregard += [track[0] for track in self._get_playlist_tracks_info(playlist["id"])]
-
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Wrapper on get_playlist_tracks from gsh. Simply to help formatting to compare.
-    INPUT: playlist_id - Id for the playlist we want tracks from.
-    OUTPUT: Returns a list of the 'id', 'name' and 'artists' 'name' and 'id' of the tracks from the playlist.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def _get_playlist_tracks_info(self, playlist_id):
-        tracks = self.spotify.get_playlist_tracks(playlist_id
-                                             , track_info=["id", "name"]
-                                             , artist_info=["id", "name"])
-        return [[x["id"], x["name"], x["artists"]] for x in tracks]
+            if playlist_id in self.PLAYLIST_IDS_FOR_IGNORED_TRACKS:
+                self.track_list_to_disregard += [track[0] for track in tracks]
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Given a list of tracks, find any duplicates. Only works with 'id'.
@@ -114,7 +118,7 @@ class SanityTest(LogAllMethods):
                 continue
             checked_list.append(track[0])
             
-        return [f"{str(dupe[1])} -- {str(dupe[2][0]['name'])}" for dupe in duplicates]
+        return [f"{dupe[1]} -- {self.dh.db_get_track_artists(track[0])}" for dupe in duplicates]
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Verifies every track in 'key_track_list' is present in 'to_verify_track_list'. Will ignore 
@@ -127,8 +131,10 @@ class SanityTest(LogAllMethods):
     def _compare_track_lists(self, key_track_list, to_verify_track_list, disregard_tracks=False):
         res_list = []
         for track in key_track_list:
-            if disregard_tracks and track[0] in self.track_list_to_disregard: continue
-            if track not in to_verify_track_list: res_list.append(f"{str(track[1])} -- {str(track[2][0]['name'])}")
+            if disregard_tracks and track[0] in self.track_list_to_disregard: 
+                continue
+            if track not in to_verify_track_list: 
+                res_list.append(f"{track[1]} -- {self.dh.db_get_track_artists(track[0])}")
         
         return res_list
                 
@@ -148,14 +154,12 @@ class SanityTest(LogAllMethods):
         
         # Prep track collections
         years_track_list = [track for playlist in self.years_playlists for track in playlist[1]]
-        # print(years_track_list)
         master_track_list = [track for playlist in self.master_playlist for track in playlist[1]]
-        # print(self.master_playlist)
         
         individual_artists_track_list = []
         # Skip any '__' playlist that we aren't following yet as we don't expect them to be in years or master
         for playlist in self.individual_artist_playlists:
-            if not any(playlist[0] == artist["name"] for artist in self.user_followed_artists): continue
+            if not any(playlist[0] == artist[1] for artist in self.user_followed_artists): continue
             individual_artists_track_list += playlist[1]
         
         # We skip the disregard tracks when comparing against the '__' playlists, we don't care about them
@@ -187,10 +191,10 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_in_progress_artists(self):
         res_list = []
-        for playlist in self.user_playlists:
-            if playlist['name'].startswith("__") and not any(playlist['name'][2:] == artist["name"] 
+        for playlist_id, playlist_name in self.user_playlists:
+            if playlist_name.startswith("__") and not any(playlist_name[2:] == artist[1]
                                                              for artist in self.user_followed_artists):
-                res_list.append(f"{playlist['name']}")
+                res_list.append(f"{playlist_name}")
         return res_list
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -200,7 +204,6 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_duplicates(self):
         res_list = []
-
         # Find duplicates in every year, '__', and master playlist
         for playlist in self.individual_artist_playlists + self.years_playlists + self.master_playlist:
             tmp_dupe_list = self._find_duplicates(playlist[1])
@@ -227,12 +230,22 @@ class SanityTest(LogAllMethods):
         for playlist in self.individual_artist_playlists:
             for track in playlist[1]:
                 # Find Number of artists I follow in the list of artists for this track
-                artist_list = [artist["name"] for artist in track[2] if any(artist["id"] == followed_artist["id"] 
-                                                for followed_artist in self.user_followed_artists)]
-                if playlist[0] in artist_list: artist_list.remove(playlist[0])
+                artist_list = [artist[0] for artist in self.dh.backup_db_conn.execute(f"""SELECT artists.name 
+                                FROM 'artists'
+                                JOIN 'tracks_artists' ON artists.id = tracks_artists.id_artist
+                                WHERE tracks_artists.id_track = '{track[0]}'
+                                AND EXISTS (
+                                    SELECT 1 
+                                    FROM 'followed_artists' 
+                                    JOIN artists on artists.id = followed_artists.id
+                                    WHERE followed_artists.id = artists.id)""").fetchall()]
+
+                if playlist[0] in artist_list: 
+                    artist_list.remove(playlist[0])
                 
                 if len(artist_list) > 0:
-                    if track[0] in checked_list: continue
+                    if track[0] in checked_list: 
+                        continue
                     checked_list.append(track[0])
 
                     # Go find all the artist playlists in the artist_list
@@ -256,12 +269,13 @@ class SanityTest(LogAllMethods):
         for playlist in self.individual_artist_playlists:
             for track in playlist[1]:
                 valid_track = False
-                for artist in track[2]:
-                    if playlist[0] == artist["name"]:
+                artist_names = self.dh.db_get_track_artists(track[0])
+                for artist in artist_names:
+                    if playlist[0] == artist:
                         valid_track = True
                         break
                 if not valid_track:
-                    res_list.append(f"__{playlist[0]} == {track[1]} - {track[2][0]['name']}")
+                    res_list.append(f"__{playlist[0]} == {track[1]} - {artist_names}")
 
         return res_list
             
@@ -270,6 +284,23 @@ class SanityTest(LogAllMethods):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def print_the_results(self):
         print("unimplemented")
+        
+        
+def main():
+    # SpotifyFeatures().generate_monthly_release() #
+    # https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw?si=2622a7bb129a498a
+    # SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
+    spotify = None
+    sanity_tester = SanityTest(spotify)
+    print(sanity_tester.sanity_diffs_in_major_playlist_sets())
+    print(sanity_tester.sanity_in_progress_artists())
+    print(sanity_tester.sanity_duplicates())
+    print(sanity_tester.sanity_artist_playlist_integrity())
+    print(sanity_tester.sanity_contributing_artists())
+    
+
+if __name__ == "__main__":
+    main()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
