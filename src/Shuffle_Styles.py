@@ -30,7 +30,9 @@ from enum import unique, Enum
 from glob import glob
 
 import General_Spotify_Helpers as gsh
+
 from decorators import *
+from Database_Helpers import DatabaseHelpers
 from Log_Playback import LogPlayback
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -54,6 +56,7 @@ class Shuffler(LogAllMethods):
         self.spotify = spotify
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
+        self.dbh = DatabaseHelpers(logger=self.logger)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
@@ -113,20 +116,21 @@ class Shuffler(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
-        tracks = self.spotify.db_get_tracks_from_playlist(playlist_id)
+        track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 
+                     if track['id'] not in gsh.MACRO_LIST]
 
         match shuffle_type:
             case ShuffleType.RANDOM:
                 random.seed(datetime.now().timestamp())
-                random.shuffle(tracks)
+                random.shuffle(track_ids)
             case ShuffleType.WEIGHTED:
-                tracks = self._weighted_shuffle(tracks)
+                track_ids = self._weighted_shuffle(track_ids)
             case _:
                 raise Exception(f"Unknown Shuffle Type: {shuffle_type}")
                 
-        self.spotify.write_to_queue([tracks[0]])
+        self.spotify.write_to_queue([track_ids.pop(0)])
         self.spotify.change_playback(skip="next", shuffle=True)
-        self.spotify.write_to_queue(tracks[1:(min(len(tracks), self.QUEUE_LENGTH))])
+        self.spotify.write_to_queue(track_ids[:self.QUEUE_LENGTH])
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

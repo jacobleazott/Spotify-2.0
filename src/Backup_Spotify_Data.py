@@ -22,6 +22,7 @@ DESCRIPTION: Class that handles creating a backup of the user's followed artists
 class BackupSpotifyData(LogAllMethods):
     FEATURE_SCOPES = ["user-follow-read"
                     , "playlist-read-private"]
+    DATABASE_LOCATION = "databases/backups/"
     db_conn = None
     
     def __init__(self, spotify, logger=None):
@@ -170,7 +171,7 @@ class BackupSpotifyData(LogAllMethods):
     Output: 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
-        self.db_conn = sqlite3.connect(f"databases/backups/{datetime.today().date()}.db")
+        self.db_conn = sqlite3.connect(f"{DATABASE_LOCATION}{datetime.today().date()}.db")
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
         with self.db_conn:
             self.create_backup_data_db()

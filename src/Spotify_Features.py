@@ -244,7 +244,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_latest_backup_to_drive(self) -> None:
-        latest_backup = max(glob('databases/backups/*'), key=os.path.getmtime)
+        latest_backup = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
