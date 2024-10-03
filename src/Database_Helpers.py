@@ -57,7 +57,7 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: playlist_id - Id of playlist we will be grabbing tracks from.
     OUTPUT: List of track dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def db_get_tracks_from_playlist(playlist_id: str) -> list[dict]:
+    def db_get_tracks_from_playlist(self, playlist_id: str) -> list[dict]:
         query = f"""
             SELECT tracks.*
             FROM tracks

@@ -221,7 +221,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
-        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        sanity_tester = SanityTest(logger=self.logger)
         WeeklyReport(self.spotify, sanity_tester, logger=self.logger).gen_weekly_report()
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -230,7 +230,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
-        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        sanity_tester = SanityTest(logger=self.logger)
         logger.info("SANITY TESTS ==========================================================")
         logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
         logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
@@ -248,15 +248,4 @@ class SpotifyFeatures(LogAllMethods):
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
-def main():
-    SpotifyFeatures().backup_spotify_library()
-    # SpotifyFeatures().generate_monthly_release() #
-    # https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw?si=2622a7bb129a498a
-    # SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
-    # sanity_tester = SanityTest(self.spotify, logger=self.logger)
-    # print(sanity_tester.sanity_diffs_in_major_playlist_sets())
-    
-
-if __name__ == "__main__":
-    main()
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

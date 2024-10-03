@@ -115,9 +115,9 @@ class BackupSpotifyData(LogAllMethods):
         
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION:
-    INPUT: 
-    Output: 
+    DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
+    INPUT: playlist_id - Id that we will be using to grab tracks and link together in our db.
+    Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
         # Regular Object Table Entries
@@ -150,9 +150,9 @@ class BackupSpotifyData(LogAllMethods):
         self.insert_many("albums_artists", album_artists_entries)
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION:
-    INPUT: 
-    Output: 
+    DESCRIPTION: Adds all user playlists into our database.
+    INPUT: NA
+    Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_user_playlists_to_db(self) -> None:
         user_playlists = self.spotify.get_user_playlists(info=["id", "name", "description"])
@@ -166,9 +166,10 @@ class BackupSpotifyData(LogAllMethods):
         self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: 
-    INPUT: 
-    Output: 
+    DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
+                 our playlists including all track and artist data from anything in those playlists.
+    INPUT: NA
+    Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
         self.db_conn = sqlite3.connect(f"{DATABASE_LOCATION}{datetime.today().date()}.db")

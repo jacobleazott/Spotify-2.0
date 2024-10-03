@@ -43,10 +43,6 @@ DESCRIPTION: Collection of sanity tests to verify integrity and completion of th
              dependent on having a library setup in my fashion.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SanityTest(LogAllMethods):
-    FEATURE_SCOPES = ["user-follow-read"
-                    , "playlist-read-collaborative"
-                    , "playlist-read-private"]
-    
     PLAYLIST_IDS_FOR_IGNORED_TRACKS = ["7Mgr45oWF0fzRzdlz0NNgT"]
 
     # List of tracks to disregard for our comparisons, this currently includes our "shuffle macro" as well as our 
@@ -58,12 +54,10 @@ class SanityTest(LogAllMethods):
     user_playlists = []
     user_followed_artists = []
 
-    def __init__(self, spotify, logger: logging.Logger=None) -> None:
-        self.spotify = spotify
-        # self.spotify.scopes = self.FEATURE_SCOPES
+    def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
-        
         self.dbh = DatabaseHelpers(self.logger)
+        
         self._gather_playlist_data()
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -268,23 +262,6 @@ class SanityTest(LogAllMethods):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def print_the_results(self):
         print("unimplemented")
-        
-        
-def main():
-    # SpotifyFeatures().generate_monthly_release() #
-    # https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw?si=2622a7bb129a498a
-    # SpotifyFeatures().shuffle_playlist("6kGQQoelXM2YDOSmqUUzRw", shuffle_type=ShuffleType.WEIGHTED)
-    spotify = None
-    sanity_tester = SanityTest(spotify)
-    print(sanity_tester.sanity_diffs_in_major_playlist_sets())
-    print(sanity_tester.sanity_in_progress_artists())
-    print(sanity_tester.sanity_duplicates())
-    print(sanity_tester.sanity_artist_playlist_integrity())
-    print(sanity_tester.sanity_contributing_artists())
-    
-
-if __name__ == "__main__":
-    main()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
