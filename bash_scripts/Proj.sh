@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # PROJ_PATH should be defined in the cron.jobs file
-cd $PROJ_PATH
+if [ -n "$PROJ_PATH" ]; then
+    cd "$PROJ_PATH"
+fi
+export PYTHONPATH=$(pwd)/src:$PYTHONPATH
 source .venv/bin/activate
 source tokens/spotify_token.sh
 python3 src/Implementations.py

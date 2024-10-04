@@ -136,7 +136,7 @@ class GeneralSpotifyHelpers:
     def __init__(self, scopes: Optional[list[str]]=None) -> None:
         self.scopes = scopes if scopes is not None else MAX_SCOPE_LIST
         cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
-        self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
+        self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
                                                                             open_browser=False,
                                                                             cache_handler=cache_handler)
                                   , requests_timeout=10

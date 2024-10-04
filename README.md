@@ -54,5 +54,5 @@ These steps are only necessary if you wish to setup google drive upload function
 2. Uncomment your second callback uri, the one that is a non localhost. We need to login and authorize access.
 3. Run 'Proj.sh' 
    - You should be greeted with a url in your console, copy that to a browser.
-   - AFter following the on screen directions copy the url from the address bar and copy it back into the command line.
+   - After following the on screen directions copy the url from the address bar and copy it back into the command line.
 4. Once you have verified it is working properly you can comment that second redirect uri. From now on spotipy will automatically use the localhost one to refresh your token and you shouldn't need to reauthenticate.

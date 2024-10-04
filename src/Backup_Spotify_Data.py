@@ -172,7 +172,7 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
-        self.db_conn = sqlite3.connect(f"{DATABASE_LOCATION}{datetime.today().date()}.db")
+        self.db_conn = sqlite3.connect(f"{self.DATABASE_LOCATION}{datetime.today().date()}.db")
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
         with self.db_conn:
             self.create_backup_data_db()
