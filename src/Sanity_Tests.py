@@ -26,6 +26,10 @@
 #
 # In Progress Sanity Test -
 #   - Basically just give the user a list of __ playlists that the user is not following currently
+#
+# Non-Playable Tracks Sanity Test -
+#   - Based off of the 'preview_url' in a track but goal is to make sure every song in our main playlist is 'playable'
+#       since Spotify just 'grays' them out without notification.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import os
