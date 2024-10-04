@@ -20,7 +20,6 @@ import api_response_test_messages as artm
 # Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
 sys.modules['spotipy'] = __import__('mocked_spotipy')
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import General_Spotify_Helpers as gsh
 
 
