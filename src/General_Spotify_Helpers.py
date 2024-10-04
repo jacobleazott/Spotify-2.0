@@ -18,7 +18,6 @@ import spotipy
 import time
 
 from datetime import datetime, timedelta
-from Levenshtein import distance
 from typing import Optional
 
 SHUFFLE_MACRO_ID = "2DlsEWns58UPs5X7PXrPJI"
@@ -136,7 +135,7 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, scopes: Optional[list[str]]=None) -> None:
         self.scopes = scopes if scopes is not None else MAX_SCOPE_LIST
-        cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_jacob_spotipy_token")
+        cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
                                                                             open_browser=False,
                                                                             cache_handler=cache_handler)

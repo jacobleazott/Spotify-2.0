@@ -13,9 +13,10 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import api_response_test_messages as artm
 import logging as log
+import os
 import sys
 
-sys.path.insert(1, '/home/jaleazo/projects/Spotify_Release_Pi/src')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from decorators import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -32,7 +33,7 @@ class Spotify(LogAllMethods):
     
     playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
 
-    def __init__(self, auth_manager=None):
+    def __init__(self, auth_manager=None, requests_timeout=None, retries=None):
         return None
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -111,7 +112,6 @@ class Spotify(LogAllMethods):
         return self.playlist_items_response[playlist_id]
         
     def user_playlist_create(self, user, name, public=True, collaborative=False, description=''):
-                  description={description})")
         tmp_playlist = artm.playlist_test.copy()
         tmp_playlist['id'] = f"Pl{len(self.playlists):03d}"
         tmp_playlist['owner']['id'] = user
@@ -179,8 +179,13 @@ class Spotify(LogAllMethods):
         return next((playlist for playlist in self.playlists if playlist_id == playlist['id']), None)
 
 
-class oauth2:
-    def SpotifyOAuth(scope=None, username=None, open_browser=None):
+class oauth2(LogAllMethods):
+    def SpotifyOAuth(scope=None, username=None, open_browser=None, cache_handler=None):
         return None
+    
+class CacheFileHandler(LogAllMethods):
+    def __init__(self, cache_path=None):
+        return None
+    
     
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

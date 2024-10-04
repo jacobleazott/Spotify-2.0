@@ -36,8 +36,8 @@ from Log_Playback import LogPlayback
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class WeeklyReport(LogAllMethods):
-    SENDER_EMAIL = "jacobs.spotify.email@gmail.com"
-    RECIPIENT_EMAIL = "jacob.leazott@gmail.com"
+    SENDER_EMAIL = os.environ['GMAIL_USERNAME']
+    RECIPIENT_EMAIL = os.environ['GMAIL_RECIPIENT']
     EMAIL_TOKEN_LOCATION = "tokens/email_token.txt"
 
     db_conn = None
@@ -72,7 +72,7 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msgImage)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            smtp_server.login(self.SENDER_EMAIL, os.environ['EMAIL_TOKEN'])
+            smtp_server.login(self.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             smtp_server.sendmail(self.SENDER_EMAIL, self.RECIPIENT_EMAIL, msgRoot.as_string())
             
             

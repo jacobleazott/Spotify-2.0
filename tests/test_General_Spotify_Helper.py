@@ -20,7 +20,7 @@ import api_response_test_messages as artm
 # Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
 sys.modules['spotipy'] = __import__('mocked_spotipy')
 
-sys.path.insert(1, '/home/jaleazo/projects/Spotify_Release_Pi/src')
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import General_Spotify_Helpers as gsh
 
 
@@ -291,7 +291,7 @@ class TestGSH(unittest.TestCase):
         print("\n\tNot Implemented")
         
     def test_get_track_data(self):
-        spotify = gsh.GeneralSpotifyHelpers([])
+        spotify = gsh.GeneralSpotifyHelpers()
         default_env(spotify)
         
         with self.assertRaises(Exception): spotify.get_track_data([""], "")
@@ -308,7 +308,7 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_track_data('Tr001', info=[]), [])
         
     def test_get_artist_data(self):
-        spotify = gsh.GeneralSpotifyHelpers([])
+        spotify = gsh.GeneralSpotifyHelpers()
         default_env(spotify)
         
         with self.assertRaises(Exception): spotify.get_artist_data([""], info="")

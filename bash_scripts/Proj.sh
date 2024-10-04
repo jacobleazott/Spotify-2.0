@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source ~/projects/.venv/bin/activate
-cd ~/projects/Spotify-2.0/
+# PROJ_PATH should be defined in the cron.jobs file
+cd $PROJ_PATH
+source .venv/bin/activate
 source tokens/spotify_token.sh
 python3 src/Implementations.py
