@@ -11,10 +11,18 @@
 #   verified through some simple sqlite queries and be uploaded/ saved off somewhere safe. 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import os
+import smtplib
+
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from glob import glob
 
 import General_Spotify_Helpers as gsh
 
 from Backup_Spotify_Data import BackupSpotifyData
+from Google_Drive_Uploader import DriveUploader
 from Shuffle_Styles import Shuffler, ShuffleType
 from decorators import *
 
@@ -91,13 +99,51 @@ def shuffle_current_playlist() -> None:
     shuffle_obj = Shuffler(spotify_obj, logger=logger)
     logger.info(f"Shuffling '{playlist_name[1]}'...")
     shuffle_obj.shuffle(playlist_id, ShuffleType.RANDOM)
+    
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: This relies having the user already setting up their GMail API according to the README. This function
+             just sends a simple test email with the current playing song name.
+INPUT: NA
+OUTPUT: NA
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def email_tester() -> None:
+    SENDER_EMAIL = os.environ['GMAIL_USERNAME']
+    RECIPIENT_EMAIL = os.environ['GMAIL_RECIPIENT']
+    
+    scopes = ["user-read-playback-state"]
+    spotify_obj = gsh.GeneralSpotifyHelpers(scopes=scopes)
+    cur_track_id, shuffle_state, playlist_id = spotify_obj.get_playback_state()
+    track_name = spotify_obj.get_track_data(cur_track_id, info=['name'])[0]
+
+    email_text = f"You're currently listening to '{track_name}'."
+    msgRoot = MIMEText(email_text)
+    msgRoot['Subject'] = "Test GMail API Messaging"
+    msgRoot['From'] = SENDER_EMAIL
+    msgRoot['To'] = RECIPIENT_EMAIL
+    
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
+        smtp_server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msgRoot.as_string())
+        
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: This relies having the user already setting up their Google Drive API according to the README. This
+             function uploads the latest file in your databases/backups directory.
+INPUT: NA
+OUTPUT: NA
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def google_drive_tester() -> None:
+    latest_backup = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
+    DriveUploader(logger=logger).upload_file(latest_backup)
 
 
 def main():
-    # backup_entire_spotify_library()
+    backup_entire_spotify_library()
     # grab_current_playback_and_display_info()
-    shuffle_current_playlist()
-
+    # shuffle_current_playlist()
+    # email_tester()
+    # google_drive_tester()
 
 if __name__ == "__main__":
     main()
