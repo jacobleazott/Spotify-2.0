@@ -31,7 +31,9 @@ import logging
 import os
 import re
 import sqlite3
+
 from glob import glob
+from pprint import PrettyPrinter
 
 import General_Spotify_Helpers as gsh
 
@@ -256,12 +258,39 @@ class SanityTest(LogAllMethods):
                     res_list.append(f"__{playlist['name']} == {track['name']} - {artist_names}")
 
         return res_list
-            
-    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # MISC  ═══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    def print_the_results(self):
-        print("unimplemented")
 
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    DESCRIPTION: Goes through all of our tracks and lets us know if a track is no longer 'playable' by Spotify.
+    INPUT: NA
+    OUTPUT: List of tracks that cannot be currently played but are not local.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def sanity_playable_tracks(self) -> list[dict]:
+        res_list = []
+        
+        for track in self.master_playlist[0]['tracks']:
+            if not track['is_playable'] and not track['is_local']:
+                artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
+                res_list.append(f"{track['name']} - {str(', '.join(artist_names))}")
+                
+        return res_list
+            
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # MISC  ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    def run_suite(self) -> None:
+        pp = PrettyPrinter(width=150)
+        print("Playlist Collection Differences ========")
+        pp.pprint(self.sanity_diffs_in_major_playlist_sets())
+        print("Current In Progress Artists ============")
+        pp.pprint(self.sanity_in_progress_artists())
+        print("Duplicates =============================")
+        pp.pprint(self.sanity_duplicates())
+        print("Contributing Artists ===================")
+        pp.pprint(self.sanity_contributing_artists())
+        print("Artist Playlist Integrity ==============")
+        pp.pprint(self.sanity_artist_playlist_integrity())
+        print("Non-Playable Tracks ====================")
+        pp.pprint(self.sanity_playable_tracks())
+        
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
