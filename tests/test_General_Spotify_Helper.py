@@ -53,13 +53,30 @@ def default_env(spotify):
             track_tmp['album'] = album.copy()
             track_tmp['artists'] = track_tmp['album']['artists'].copy()
             spotify.sp.tracks.append(track_tmp)
+            
+    for i in range(0, 5):
+        playlist_tmp = artm.playlist_test.copy()
+        playlist_tmp['name'] = f"fake playlist {len(spotify.sp.playlists)+1}"
+        playlist_tmp['id'] = f"Pl{(len(spotify.sp.playlists)+1):03d}"
+
+        if i == 0:
+            playlist_tmp['tracks'] = [] # Empty Playlist
+        elif i == 1:
+            playlist_tmp['tracks'] = [spotify.sp.tracks[0]]  # First track
+        elif i == 2:
+            playlist_tmp['tracks'] = [spotify.sp.tracks[0], spotify.sp.tracks[5]]  # Different albums
+        elif i == 3:
+            playlist_tmp['tracks'] = [spotify.sp.tracks[0], spotify.sp.tracks[0]]  # Duplicate track
+        else:
+            playlist_tmp['tracks'] = spotify.sp.tracks
+
+        spotify.sp.playlists.append(playlist_tmp)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestGSH(unittest.TestCase):
-    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # NON CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -235,12 +252,26 @@ class TestGSH(unittest.TestCase):
         print("\n\tNot Implemented")
         
     def test_validate_scope(self):
-        print("\n\tNot Implemented")
+        test_scopes = [ "user-read-private"
+                        , "playlist-modify-public"
+                        , "playlist-modify-private"
+                        , "user-library-read"]
+        
+        spotify = gsh.GeneralSpotifyHelpers(scopes=test_scopes)
+
+        with self.assertRaises(Exception): spotify._validate_scope()
+        with self.assertRaises(Exception): spotify._validate_scope("user-read-private")
+        with self.assertRaises(Exception): spotify._validate_scope(["invalid-scope"])
+        with self.assertRaises(Exception): spotify._validate_scope(["user-read-private", "invalid-scope", "playlist-modify-private"])
+        
+        spotify._validate_scope([])
+        spotify._validate_scope(["user-read-private", "playlist-modify-public"])
+        spotify._validate_scope(["user-library-read"])
+        spotify._validate_scope(["user-read-private", "playlist-modify-public", "playlist-modify-private", "user-library-read"])
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-        
     def test_get_user_artists(self):
         print("\n\tNot Implemented")
         
@@ -286,6 +317,23 @@ class TestGSH(unittest.TestCase):
     def test_get_track_artists(self):
         print("\n\tNot Implemented")
         
+    def test_get_track_artists(self):
+        spotify = gsh.GeneralSpotifyHelpers()
+        
+        # Test for invalid inputs
+        with self.assertRaises(Exception): spotify.get_track_artists("", info="")
+        with self.assertRaises(Exception): spotify.get_track_artists("1", info=["id"])
+        with self.assertRaises(Exception): spotify.get_track_artists("Pl001", info=[""])
+        with self.assertRaises(Exception): (spotify.get_track_artists('non_existent_id'))
+        with self.assertRaises(KeyError): spotify.get_track_artists('Tr001', info=['id', 'non_existent_key'])
+
+        self.assertEqual(spotify.get_track_artists('Tr001', info=['id']), [['Ar001']])
+        self.assertEqual(spotify.get_track_artists('Tr001', info=['name']), [['fake artist 1']]) 
+        self.assertEqual(spotify.get_track_artists('Tr001', info=['id', 'name']), [['Ar001', 'fake artist 1']])
+        self.assertEqual(spotify.get_track_artists('Tr001', info=[]), [[]])
+        
+        # TODO: Need to add tracks with multiple artists
+
     def test_verify_appears_on_tracks(self):
         print("\n\tNot Implemented")
         
@@ -322,10 +370,38 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_artist_data('Ar001', info=[]), [])
         
     def test_get_album_data(self):
-        print("\n\tNot Implemented")
-    
+        spotify = gsh.GeneralSpotifyHelpers()
+        default_env(spotify)
+        
+        # Test for invalid inputs
+        with self.assertRaises(Exception): spotify.get_album_data("", info="")
+        with self.assertRaises(Exception): spotify.get_album_data("1", info=["id"])
+        with self.assertRaises(Exception): spotify.get_artist_data("Al001", info=[""])
+        
+        # Test for valid input, checking various album fields
+        self.assertEqual(spotify.get_album_data('Al001', info=['name']), ['fake album 1'])
+        self.assertEqual(spotify.get_album_data('Al001', info=['id', 'name']), ['Al001', 'fake album 1'])
+        self.assertEqual(spotify.get_album_data('Al001', info=['id', ['external_urls', 'spotify']]), ['Al001', 'album_spotify_url'])
+        self.assertEqual(spotify.get_album_data('Al001', info=['release_date']), ['0000-01-01'])
+        self.assertEqual(spotify.get_album_data('Al001', info=['available_markets']), [['US']])
+        self.assertEqual(spotify.get_album_data('Al001', info=[]), [])
+        
     def test_get_playlist_data(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        default_env(spotify)
+
+        # Test for invalid inputs
+        with self.assertRaises(Exception): spotify.get_playlist_data("", info="")
+        with self.assertRaises(Exception): spotify.get_playlist_data("1", info=["id"])
+        with self.assertRaises(Exception): spotify.get_artist_data("Pl001", info=[""])
+
+        # Test for valid input, checking playlist fields
+        self.assertEqual(spotify.get_playlist_data('Pl001', info=['name']), ['fake playlist 1'])
+        self.assertEqual(spotify.get_playlist_data('Pl001', info=['id', 'name']), ['Pl001', 'fake playlist 1'])
+        self.assertEqual(spotify.get_playlist_data('Pl001', info=['id', ['owner', 'href']]), ['Pl001', 'playlist_owner_href'])
+        self.assertEqual(spotify.get_playlist_data('Pl001', info=['images']), [[]])
+        self.assertEqual(spotify.get_playlist_data('Pl001', info=[]), [])
+        
 
 if __name__ == "__main__":
     unittest.main()
