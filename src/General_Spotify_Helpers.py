@@ -122,7 +122,7 @@ def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_d
 DESCRIPTION: Abstract helper that uses spotipy. Handles are token authorization and offers abstract methods
              to better access spotify's api.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class GeneralSpotifyHelpers:
+class GeneralSpotifyHelpers():
     sp = None
     username = ""
     scopes = ""

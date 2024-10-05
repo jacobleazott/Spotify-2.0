@@ -62,7 +62,7 @@ artist_full_test = {
     'uri': 'spotify:artist:'}
 
 album_test = {
-    'album_type': 'album',
+    'album_type': 'album',      # "album", "single", "compilation"
     'artists': [full_artist_to_simple(artist_full_test)],
     'available_markets': ['US'],
     'external_urls': {'spotify': 'album_spotify_url'},

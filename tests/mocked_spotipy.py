@@ -15,6 +15,7 @@ import api_response_test_messages as artm
 import logging as log
 import os
 import sys
+from pprint import pprint
 
 from decorators import *
 
@@ -22,17 +23,19 @@ from decorators import *
 DESCRIPTION: Class that can be used to override 'spotipy' import. Not all functions are implemented or even present.
              Any additional features added into GSH should be added here for unit testing.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class Spotify(LogAllMethods):
-    user_id = 'Us000'
-    user_queue, prev_songs, user_artists, artists, albums, tracks, playlists = [], [], [], [], [], [], []
-    
-    current_user_followed_artists_response = artm.current_user_followed_artists_test_message.copy()
-    current_user_playlists_response = artm.current_user_playlists_test_message.copy()
-    current_playback_response = artm.current_playback_test_message.copy()
-    
-    playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
+class Spotify():
 
     def __init__(self, auth_manager=None, requests_timeout=None, retries=None):
+        self.user_id = 'Us000'
+        self.user_queue, self.prev_songs, self.user_artists, self.artists, \
+            self.env_albums, self.tracks, self.playlists = [], [], [], [], [], [], []
+        
+        self.current_user_followed_artists_response = artm.current_user_followed_artists_test_message.copy()
+        self.current_user_playlists_response = artm.current_user_playlists_test_message.copy()
+        self.current_playback_response = artm.current_playback_test_message.copy()
+        
+        self.playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
+
         return None
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -147,7 +150,7 @@ class Spotify(LogAllMethods):
     # TODO - We do not have a current way to tell 
     def artist_albums(self, artist_id, album_type=None, include_groups=None, country=None, limit=20, offset=0):
         artist_album_list = []
-        for album in self.albums:
+        for album in self.env_albums:
             if album_type is not None and not album['album_type'] in album_type:
                 continue
             for artist in album['artists']:
@@ -172,7 +175,17 @@ class Spotify(LogAllMethods):
         return next((artist for artist in self.artists if artist_id == artist['id']), None)
         
     def album(self, album_id, market=None):
-        return next((album for album in self.albums if album_id == album['id']), None)
+        return next((album for album in self.env_albums if album_id == album['id']), None)
+    
+    def albums(self, albums, market=None):
+        # need to add a 'tracks' and 'items' sub folder into this that contains the track objects for this album
+        albums_list = []
+        for album_id in albums:
+            tmp_album = self.album(album_id).copy()
+            tmp_album['tracks'] = {}
+            tmp_album['tracks']['items'] = [self.track(track['id']) for track in self.tracks if track['album']['id'] == album_id]
+            albums_list.append(tmp_album)
+        return {'albums': albums_list}
         
     def playlist(self, playlist_id, fields=None, market=None, additional_types=('track',)):
         return next((playlist for playlist in self.playlists if playlist_id == playlist['id']), None)
