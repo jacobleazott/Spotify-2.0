@@ -147,18 +147,19 @@ class Spotify():
         
         return None
         
-    # TODO - We do not have a current way to tell 
     def artist_albums(self, artist_id, album_type=None, include_groups=None, country=None, limit=20, offset=0):
+        # (album, single, compilation, appears_on)
         artist_album_list = []
         for album in self.env_albums:
-            if album_type is not None and not album['album_type'] in album_type:
+            album_group = album['album_group'] if 'album_group' in album else album['album_type']
+            if include_groups is not None and not album_group in include_groups:
                 continue
             for artist in album['artists']:
                 if artist['id'] == artist_id:
                     artist_album_list.append(album)
                     break
         artist_album_response = artm.artist_albums_test_message.copy()
-        artist_album_response['items'] = [artm.full_album_to_simple(album, album_group=album['album_group']) 
+        artist_album_response['items'] = [artm.full_album_to_simple(album, album_group=album_group) 
                                           for album in artist_album_list]
 
         return artist_album_response

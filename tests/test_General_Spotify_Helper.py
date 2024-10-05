@@ -350,9 +350,52 @@ class TestGSH(unittest.TestCase):
         print("\n\tNot Implemented")
         
     def test_get_artist_albums(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        
+        with self.assertRaises(Exception): spotify.get_artist_albums('Ar002', info=['fake field'])
+        
+        # Fake Artist
+        self.assertEqual(spotify.get_artist_albums('Fake Artist'), [])
+        # Fake Album Type
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=['fake type']), [])
+        # No Info Given
+        self.assertEqual(spotify.get_artist_albums('Ar002', info=[]), [{}])
+        # No Album Types Given
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=[]), [])
+        # Artist With No Albums
+        self.assertEqual(spotify.get_artist_albums('Ar001'), [])
+        # Default 'albums' Search
+        self.assertEqual(spotify.get_artist_albums('Ar002'), [{'id': 'Al002'}])
+        # Artist Has Albums But Not Of This Type
+        self.assertEqual(spotify.get_artist_albums('Ar003', album_types=['single']), [])
+        # Including Multiple Album Types (All Exist)
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=['album', 'single']), 
+                         [{'id': 'Al002'}, {'id': 'Al003'}])
+        # Including Multiple Album Types (Some Exist)
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=['album', 'single', 'appears_on']), 
+                         [{'id': 'Al002'}, {'id': 'Al003'}])
+        # Different Album Type
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=['compilation']), [{'id': 'Al004'}])
+        # Various Album Types
+        self.assertEqual(spotify.get_artist_albums('Ar002', album_types=['album', 'single', 'compilation'], 
+                                                   info=['id', 'name']), 
+                         [{'id': 'Al002', 'name': 'Fake Album 2'}, 
+                          {'id': 'Al003', 'name': 'Fake Album 3'}, 
+                          {'id': 'Al004', 'name': 'Fake Album 4'}])
+        
+        # Add an appears on to an album the artist has creds for
+        next(album for album in spotify.sp.env_albums if album['id'] == 'Al006')['album_group'] = 'appears_on'
+        # Appears_on album doesn't show up
+        self.assertEqual(spotify.get_artist_albums('Ar004'), [{'id': 'Al007'}, {'id': 'Al008'}])
+        # Appears_on does show up
+        self.assertEqual(spotify.get_artist_albums('Ar004', album_types=['appears_on']), [{'id': 'Al006'}])
+        # Artist with full Creds On Shared Album
+        self.assertEqual(spotify.get_artist_albums('Ar005'), [{'id': 'Al008'}, {'id': 'Al010'}])
         
     def test_gather_tracks_by_artist(self):
+        # Don't really need to test the start and end date since we test 'get_elements_in_date_range' well.
+        # Can't do this until 'verify_appears_on_tracks' is mocked. BRO-76
         print("\n\tNot Implemented")
         
     def test_get_albums_tracks(self):
@@ -448,6 +491,7 @@ class TestGSH(unittest.TestCase):
                                                                                    ['Ar004', 'Fake Artist 4']])
 
     def test_verify_appears_on_tracks(self):
+        # We will need search functionality mocked for this, BRO-76
         print("\n\tNot Implemented")
         
     def test_get_track_data(self):
