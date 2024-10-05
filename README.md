@@ -108,4 +108,4 @@ These steps are necessary only if you want to use Google Drive upload functional
     - Follow the prompts and authorize access to your Google Drive by copying the URL into your browser. 
     - Paste the authorization code back into the command line.
 
-Congrats. Now you can switch over to triggering events through Cron and 'Implementations.py' Have fun and enjoy!
+Congrats. Now you can switch over to triggering events through Cron and `Implementations.py` Have fun and enjoy!
