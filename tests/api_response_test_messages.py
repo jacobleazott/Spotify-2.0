@@ -156,7 +156,7 @@ current_playback_test_message = {
                 'type': 'playlist',
                 'uri': 'spotify:playlist:id'},
     # 'currently_playing_type': 'track',
-    # # 'device': {'id': 'De000',
+    # 'device': {'id': 'De000',
     #             'is_active': True,
     #             'is_private_session': False,
     #             'is_restricted': False,
