@@ -34,7 +34,7 @@ class Spotify():
         self.current_user_playlists_response = artm.current_user_playlists_test_message.copy()
         self.current_playback_response = artm.current_playback_test_message.copy()
         
-        self.playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
+        # self.playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
 
         return None
         
@@ -54,8 +54,7 @@ class Spotify():
         return self.current_user_followed_artists_response
     
     def current_user_playlists(self, limit=50, offset=0):
-        user_playlists = [playlist for playlist in self.playlists if playlist['owner']['id'] == user_id]
-        self.current_user_playlists_response['items'] = user_playlists
+        self.current_user_playlists_response['items'] = self.playlists
         return self.current_user_playlists_response
         
     def current_playback(self, market=None, additional_types=None):
@@ -101,7 +100,7 @@ class Spotify():
         if len(track_objects) != len(items):
             raise Exception(f"playlist_add_items: not all tracks found, track_objects: {len(track_objects)}, items: {len(items)}")
         
-        playlist_items_list = self.playlist_items_lookup_table[playlist_id]
+        # playlist_items_list = self.playlist_items_lookup_table[playlist_id]
         
         for track_obj in track_objects:
             playlist_item_tmp = artm.playlist_item_test.copy()
@@ -111,40 +110,45 @@ class Spotify():
         return None
         
     def playlist_items(self, playlist_id, fields=None, limit=100, offset=0, market=None, additional_types=('track', 'episode')):
-        return self.playlist_items_response[playlist_id]
+        response = artm.playlist_items_test_message.copy()
+        for track in self.playlist(playlist_id)['tracks']:
+            tmp_item = artm.playlist_item_test.copy()
+            tmp_item['track'] = track.copy()
+            response['items'] = response['items'] + [tmp_item]
+            
+        return response
         
     def user_playlist_create(self, user, name, public=True, collaborative=False, description=''):
         tmp_playlist = artm.playlist_test.copy()
         tmp_playlist['id'] = f"Pl{len(self.playlists):03d}"
-        tmp_playlist['owner']['id'] = user
         tmp_playlist['name'] = name
         tmp_playlist['public'] = public
         tmp_playlist['collaborative'] = collaborative
         tmp_playlist['description'] = description
         
         self.playlists.append(tmp_playlist)
-        self.playlist_items_lookup_table[tmp_playlist['id']] = []
+        # self.playlist_items_lookup_table[tmp_playlist['id']] = []
         
-        return tmp_playlist['id']
+        return tmp_playlist
         
-    def user_playlist_change_details(self, user, playlist_id, name=None, public=None, collaborative=None, description=None):
+    def playlist_change_details(self, playlist_id, name=None, public=None, collaborative=None, description=None):
         playlist = self.playlist(playlist_id)
         
         if name is not None:
-            self.playlist['name'] = name
+            playlist['name'] = name
         if public is not None:
-            self.playlist['public'] = public
+            playlist['public'] = public
         if collaborative is not None:
-            self.playlist['collaborative'] = collaborative
+            playlist['collaborative'] = collaborative
         if description is not None:
-            self.playlist['description'] = description
+            playlist['description'] = description
             
         return None
         
     def playlist_remove_all_occurrences_of_items(self, playlist_id, items, snapshot_id=None):
-        playlist_items = self.playlist_items_lookup_table[playlist_id]
-        playlist_items = [item for item in playlist_items if not item['track']['id'] in items]
-        
+        # playlist_items = self.playlist_items_lookup_table[playlist_id]
+        playlist_items = self.playlist(playlist_id)['tracks']
+        self.playlist(playlist_id)['tracks'] = [item for item in playlist_items if not item['id'] in items]
         return None
         
     def artist_albums(self, artist_id, album_type=None, include_groups=None, country=None, limit=20, offset=0):

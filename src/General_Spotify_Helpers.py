@@ -393,7 +393,7 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def create_playlist(self, name: str, description: str='', public: bool=False) -> str:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
-        if len(self.get_user_playlists()) > 400:
+        if len(self.get_user_playlists()) >= 400:
             raise Exception(f"User has more than 400 playlists, skipping creation")
         validate_inputs([name, description, public], [str, str, bool])
         

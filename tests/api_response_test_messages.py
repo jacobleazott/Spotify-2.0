@@ -114,6 +114,7 @@ playlist_test = {
     # 'tracks': {'href': 'playlist_tracks_href','total': 1},
     # 'type': 'playlist',
     # 'uri': 'spotify:playlist:'
+    'tracks': []                    # THIS FIELD DOESN'T EXIST, JUST FOR TESTING
     }
 
 playlist_item_test = {
@@ -175,7 +176,7 @@ current_playback_test_message = {
 
 playlist_items_test_message = {
     # 'href': 'playlist_items_href',
-    'items': [playlist_item_test],
+    'items': [],    # playlist_item_test
     # 'limit': 1,
     'next': None,
     # 'offset': 0,
@@ -196,6 +197,6 @@ artist_albums_test_message = {
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 # LOOKUP TABLES ═══════════════════════════════════════════════════════════════════════════════════════════════════════
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-playlist_items_lookup_table_test = {"Pl000": [playlist_items_test_message]}
+# playlist_items_lookup_table_test = {"Pl000": [playlist_items_test_message]}
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

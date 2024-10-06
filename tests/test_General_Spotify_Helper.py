@@ -341,13 +341,65 @@ class TestGSH(unittest.TestCase):
         print("\n\tNot Implemented")
         
     def test_create_playlist(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
         
+        empty_id = spotify.create_playlist("")
+        self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["", ""])
+        
+        empty_desc_id = spotify.create_playlist("", description="")
+        self.assertEqual(spotify.get_playlist_data(empty_desc_id, info=['name', 'description', 'public']), ["", "", False])
+        
+        public_true_id = spotify.create_playlist("Test", public=True)
+        self.assertEqual(spotify.get_playlist_data(public_true_id, info=['name', 'public']), ["Test", True])
+
+        for count in range(len(spotify.sp.playlists), 410):
+            if count < 400:
+                self.assertEqual(spotify.create_playlist("Test Playlist", description="tmp"), f"Pl{count:03d}")
+            else:
+                with self.assertRaises(Exception): spotify.create_playlist("Test Over Count", description="tmp tmp")
+                self.assertEqual(len(spotify.sp.playlists), 400)
+
     def test_change_playlist_details(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        
+        empty_id = spotify.create_playlist("")
+        spotify.change_playlist_details(empty_id, name="Tester")
+        self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["Tester", ""])
+        
+        playlist_id = spotify.create_playlist("Default", description="set")
+        spotify.change_playlist_details(playlist_id, description="Test2")
+        self.assertEqual(spotify.get_playlist_data(playlist_id, info=['name', 'description']), ["Default", "Test2"])
+        
+        playlist_id = spotify.create_playlist("Default", description="set")
+        spotify.change_playlist_details(playlist_id, name="Test1", description="Test2")
+        self.assertEqual(spotify.get_playlist_data(playlist_id, info=['name', 'description']), ["Test1", "Test2"])
         
     def test_remove_all_playlist_tracks(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        
+        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl002")
+
+        spotify.scopes.append("DELETE-DELETE-DELETE")
+        
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        
+        spotify.remove_all_playlist_tracks("Pl002")
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        
+        spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=5)
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        
+        gsh.PLAYLISTS_WE_CAN_DELETE_FROM.append("Pl002")
+        
+        spotify.remove_all_playlist_tracks("Pl002")
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        
+        spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=2)
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        
+        spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=3)
+        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 0)
         
     def test_get_artist_albums(self):
         spotify = gsh.GeneralSpotifyHelpers()
