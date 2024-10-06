@@ -100,12 +100,8 @@ class Spotify():
         if len(track_objects) != len(items):
             raise Exception(f"playlist_add_items: not all tracks found, track_objects: {len(track_objects)}, items: {len(items)}")
         
-        # playlist_items_list = self.playlist_items_lookup_table[playlist_id]
-        
         for track_obj in track_objects:
-            playlist_item_tmp = artm.playlist_item_test.copy()
-            playlist_item_tmp['track'] = track_obj
-            playlist_items_list.append(playlist_item_tmp)
+            self.playlist(playlist_id)['tracks'].append(track_obj)
             
         return None
         

@@ -85,7 +85,9 @@ def create_env(spotify_mocked):
     spotify_mocked.sp.env_albums += [al001, al002, al003, al004, al005, al006, al007, al008, al009, al010]
 
     # Create Tracks
-    local_track = create_track('', 'Fake Local Track 1', {}, [], is_local=True)
+    local_artist = create_artist(None, 'Fake Local Artist 1')
+    local_album = create_album(None, 'Fake Local Album 1', [], None)
+    local_track = create_track(None, 'Fake Local Track 1', local_album, [local_artist], is_local=True)
     
     tr001 = create_track('Tr001', 'Fake Track 1', al002, [artist_only_theirs])
     tr002 = create_track('Tr002', 'Fake Track 2', al002, [artist_only_theirs])
@@ -106,7 +108,7 @@ def create_env(spotify_mocked):
     tr014 = create_track('Tr014', 'Fake Track 14', al010, [artist_unfollowed_appears_on])
     tr015 = create_track('Tr015', 'Fake Track 15', al010, [artist_unfollowed_appears_on, artist_followed_appears_on])
 
-    spotify_mocked.sp.tracks += [tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008, tr009, tr010, tr011, tr012, tr013, tr014, tr015]
+    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008, tr009, tr010, tr011, tr012, tr013, tr014, tr015]
 
     # Create Playlists
     spotify_mocked.sp.playlists.append(create_playlist('Pl001', 'Fake Playlist 1', 'description 1', []))
@@ -317,6 +319,9 @@ class TestGSH(unittest.TestCase):
     # CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def test_get_user_artists(self):
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl002")
         print("\n\tNot Implemented")
         
     def test_get_user_playlists(self):
@@ -332,13 +337,93 @@ class TestGSH(unittest.TestCase):
         print("\n\tNot Implemented")
         
     def test_add_tracks_to_playlist(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        # Verify Playlist Is Empty
+        self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("InvalidPlaylist", ["Tr001"])
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("Pl001", ["InvalidTrack"])
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("Pl001", "NonList Track")
+        
+        # Adding No Tracks
+        spotify.add_tracks_to_playlist("Pl001", [])
+        self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        # Added A Few Tracks
+        spotify.add_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
+        tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
+        self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
+        # Adding Duplicate Tracks
+        spotify.add_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
+        tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
+        self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004", "Tr001", "Tr002", "Tr004"])
         
     def test_add_unique_tracks_to_playlist(self):
-        print("\n\tNot Implemented")
+        # Same test as 'test_add_tracks_to_playlist()' except that duplicates shouldn't be added.
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        # Verify Playlist Is Empty
+        self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("InvalidPlaylist", ["Tr001"])
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("Pl001", ["InvalidTrack"])
+        with self.assertRaises(Exception): spotify.add_tracks_to_playlist("Pl001", "NonList Track")
+        
+        # Adding No Tracks
+        spotify.add_unique_tracks_to_playlist("Pl001", [])
+        self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        # Added A Few Tracks
+        spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
+        tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
+        self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
+        # Adding Duplicate Tracks
+        spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
+        tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
+        self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
         
     def test_get_playlist_tracks(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        
+        # Empty Playlist
+        self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        # "Regular" Playlist Default Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl002"), 
+                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
+                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
+                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
+        # No Track Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[]), 
+                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}]},
+                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}]},
+                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}]}])
+        # No Track or Artist Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[]), 
+                         [{'album_id': 'Al002', 'artists': [{}]},
+                          {'album_id': 'Al003', 'artists': [{}]},
+                          {'album_id': 'Al004', 'artists': [{}]}])
+        # No Track, Artist, or Album Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), 
+                         [{'artists': [{}]},
+                          {'artists': [{}]},
+                          {'artists': [{}]}])
+        # Different Info From Default
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=['name'], artist_info=['name'], album_info=['name']), 
+                         [{'album_name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'},
+                          {'album_name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'},
+                          {'album_name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+        # Duplicate Tracks and Local Tracks Default Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl004"), 
+                         [{'album_id': None, 'artists': [{'id': None}], 'id': None},
+                          {'album_id': None, 'artists': [{'id': None}], 'id': None},
+                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
+                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
+        # Duplicate Tracks and Local Tracks Extra Info
+        self.assertEqual(spotify.get_playlist_tracks("Pl004", track_info=['id', 'name'], artist_info=['id', 'name'], album_info=['id', 'name']), 
+                         [{'album_id': None, 'album_name': 'Fake Local Album 1', 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 'id': None, 'name': 'Fake Local Track 1'},
+                          {'album_id': None, 'album_name': 'Fake Local Album 1', 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 'id': None, 'name': 'Fake Local Track 1'},
+                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'},
+                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'}])
         
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
