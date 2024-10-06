@@ -23,14 +23,28 @@ sys.modules['spotipy'] = __import__('mocked_spotipy')
 
 import General_Spotify_Helpers as gsh
 
-
-def create_artist(artist_id, name):
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: artist_id - Id of our 'fake' artist.
+       name - Name of our 'fake' artist/
+OUTPUT: Artist dict
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def create_artist(artist_id: str, name: str) -> dict:
     return {
         'id': artist_id,
         'name': name
     }
 
-def create_album(album_id, name, artists, album_type):
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: album_id - Id of our 'fake' album.
+       name - Name of our 'fake' album.
+       artists - List of artist dictionaries see 'create_artist()'.
+       album_type - Type of album values - "album", "single", "compilation"
+OUTPUT: Album dict
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def create_album(album_id: str, name: str, artists: list[dict], album_type: str) -> dict:
     return {
         'id': album_id,
         'name': name,
@@ -38,7 +52,17 @@ def create_album(album_id, name, artists, album_type):
         'album_type': album_type   # "album", "single", "compilation"
     }
 
-def create_track(track_id, name, album, artists, is_local: bool=False):
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: track_id - Id of our 'fake' track.
+       name - Name of our 'fake' track.
+       album - Album dict our track belongs to, see 'create_album()'.
+       artists - List of artist dictionaries see 'create_artist()'.
+       is_local - Bool on whether our track is local or not.
+OUTPUT: Track dict
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def create_track(track_id: str, name: str, album: str, artists: list[dict], is_local: bool=False) -> dict:
     return {
         'id': track_id,
         'name': name,
@@ -46,16 +70,32 @@ def create_track(track_id, name, album, artists, is_local: bool=False):
         'artists': artists,
         'is_local': is_local
     }
-    
-def create_playlist(playlist_id, name, description, tracks):
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: playlist_id - Id of our 'fake' playlist.
+       name - Name of our 'fake' playlist.
+       description - Description of our 'fake' playlist.
+       tracks - List of track dicts, see 'create_track()'. This field is not in the actual response but is helpful for
+                testing.
+OUTPUT: Playlist dict
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def create_playlist(playlist_id: str, name: str, description: str, tracks: list[dict]) -> dict:
     return {
         'id': playlist_id,
         'name': name,
         'description': description,
         'tracks': tracks                # Note this isn't actually part of the playlist obj
     }
-    
-    
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Validates that the given 'args' are of type 'types'.
+INPUT: args - List of variables we wish to validate.
+       types - List of python types the 'args' should be.
+OUTPUT: NA
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def create_env(spotify_mocked):
     # Create Artists
     artist_no_tracks = create_artist('Ar001', 'Fake Artist 1')
@@ -124,6 +164,7 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # NON CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_validate_inputs(self):
         with self.assertRaises(Exception): gsh.validate_inputs([1, "1"], [int])
         with self.assertRaises(Exception): gsh.validate_inputs([1], [int, dict])
@@ -135,7 +176,7 @@ class TestGSH(unittest.TestCase):
         
         gsh.validate_inputs(["test", 10], [str, int])
         gsh.validate_inputs([], [])
-        
+    
     def test_chunks(self):
         with self.assertRaises(Exception): gsh.chunks(None, 10)
         with self.assertRaises(Exception): gsh.chunks(['1'], "10")
@@ -155,7 +196,7 @@ class TestGSH(unittest.TestCase):
         
         self.assertEqual(gsh.chunks([], 0),   [])
         self.assertEqual(gsh.chunks([], 5),   [])
-        
+    
     def test_get_generic_field(self):
         with self.assertRaises(Exception): gsh.get_generic_field("data", ["id", "name"])
         with self.assertRaises(Exception): gsh.get_generic_field(None, ["id"])
@@ -170,7 +211,7 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(gsh.get_generic_field({"test": {}, "id": []}, ["test", "id"]), [{}, []])
         self.assertEqual(gsh.get_generic_field({"test": {"world": 2}, "id": ["val1", "val2"]}, ["test", "id"]), [{"world": 2}, ["val1", "val2"]])
         self.assertEqual(gsh.get_generic_field({}, []), [])
-           
+   
     def test_get_elements_in_date_range(self):
         print("")
         
@@ -284,19 +325,47 @@ class TestGSH(unittest.TestCase):
                                                                  True , True , True , True , True , 
                                                                  True , True , False, False, True , 
                                                                  True])
-        
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # "PRIVATE" CLASS FUNCTIONS ═══════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_get_next_response(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        
+        # No 'next'
+        test_response = {'id': '0', 'name': 'bob'}
+        self.assertEqual(spotify._get_next_response(test_response), None)
+        # 'next' value in base dict
+        test_response['next'] = 'value'
+        self.assertEqual(spotify._get_next_response(test_response), 'value')
+        # Remove and verify
+        del test_response['next']
+        self.assertEqual(spotify._get_next_response(test_response), None)
+        # 'next' in dict in values
+        test_response['items'] = {'tracks': [], 'next': 'test_next'}
+        self.assertEqual(spotify._get_next_response(test_response), "test_next")
+        # Remove and verify
+        del test_response['items']
+        self.assertEqual(spotify._get_next_response(test_response), None)
+        # 'next' in dict but not 'items'
+        test_response['not_items'] = {'tracks': [], 'next': 'second_test'}
+        self.assertEqual(spotify._get_next_response(test_response), "second_test")
+        # Remove and verify
+        del test_response['not_items']
+        self.assertEqual(spotify._get_next_response(test_response), None)
+        # 'next' value present, but too deep into dict
+        test_response['TooDeep'] = {'tracks': [], 'second_next': {'next': 'not_found'}}
+        self.assertEqual(spotify._get_next_response(test_response), None)
     
     def test_iterate_and_grab_data(self):
+        # Rework is planned for these functions, BRO-94
         print("\n\tNot Implemented")
-        
+    
     def test_gather_data(self):
+        # Rework is planned for these functions, BRO-94
         print("\n\tNot Implemented")
-        
+    
     def test_validate_scope(self):
         test_scopes = [ "user-read-private"
                         , "playlist-modify-public"
@@ -314,28 +383,99 @@ class TestGSH(unittest.TestCase):
         spotify._validate_scope(["user-read-private", "playlist-modify-public"])
         spotify._validate_scope(["user-library-read"])
         spotify._validate_scope(["user-read-private", "playlist-modify-public", "playlist-modify-private", "user-library-read"])
-        
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_get_user_artists(self):
+        # Currently don't have any way to add or remove followed artists since I never want the project to do this.
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
-        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl002")
-        print("\n\tNot Implemented")
         
+        self.assertEqual(spotify.get_user_artists(), [{'id': 'Ar002'}, {'id': 'Ar003'}, {'id': 'Ar004'}])
+        self.assertEqual(spotify.get_user_artists(info=['id', 'name']), [{'id': 'Ar002', 'name': 'Fake Artist 2'},
+                                                                         {'id': 'Ar003', 'name': 'Fake Artist 3'},
+                                                                         {'id': 'Ar004', 'name': 'Fake Artist 4'}])
+    
     def test_get_user_playlists(self):
-        print("\n\tNot Implemented")
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
         
+        self.assertEqual(spotify.get_user_playlists(), [{'id': 'Pl001'}, {'id': 'Pl002'}, {'id': 'Pl003'}, {'id': 'Pl004'}])
+        self.assertEqual(spotify.get_user_playlists(info=['name', 'id']), [{'id': 'Pl001', 'name': 'Fake Playlist 1'},
+                                                                           {'id': 'Pl002', 'name': 'Fake Playlist 2'},
+                                                                           {'id': 'Pl003', 'name': 'Fake Playlist 3'},
+                                                                           {'id': 'Pl004', 'name': 'Fake Playlist 4'}])
+        
+        spotify.create_playlist("Tested Playlist")
+        self.assertEqual(spotify.get_user_playlists(info=['name', 'id']), [{'id': 'Pl001', 'name': 'Fake Playlist 1'},
+                                                                           {'id': 'Pl002', 'name': 'Fake Playlist 2'},
+                                                                           {'id': 'Pl003', 'name': 'Fake Playlist 3'},
+                                                                           {'id': 'Pl004', 'name': 'Fake Playlist 4'},
+                                                                           {'id': 'Pl005', 'name': 'Tested Playlist'}])
+    
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_get_playback_state(self):
-        print("\n\tNot Implemented")
-        
+        # This method is tested under 'test_change_playback'
+        assert True
+    
     def test_write_to_queue(self):
-        print("\n\tNot Implemented")
-        
+        # Note there is a 0.2s delay per track we add to the queue, so don't go overboard.
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        # Verify Queue Is Empty Before Testing
+        self.assertEqual(spotify.sp.user_queue, [])
+        # Adding Empty Track Id List
+        spotify.write_to_queue([])
+        self.assertEqual(spotify.sp.user_queue, [])
+        # Adding One Track
+        spotify.write_to_queue(["Tr001"])
+        self.assertEqual(spotify.sp.user_queue, ["Tr001"])
+        # Adding Multiple Tracks With Duplicate
+        spotify.write_to_queue(["Tr001", "Tr010"])
+        self.assertEqual(spotify.sp.user_queue, ["Tr001", "Tr001", "Tr010"])
+    
     def test_change_playback(self):
-        print("\n\tNot Implemented")
-        
+        spotify = gsh.GeneralSpotifyHelpers()
+        create_env(spotify)
+        # No Changes
+        spotify.change_playback()
+        # Verify default values
+        self.assertEqual(spotify.get_playback_state(), ('Tr000', False, 'Pl001'))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        # Pause Playback
+        spotify.change_playback(pause=True)
+        self.assertEqual(spotify.get_playback_state(), ('', False, ''))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], False)
+        # Add Tracks To Internal Queue and SKip
+        spotify.sp.user_queue += [spotify.sp.track('Tr001'), spotify.sp.track('Tr009'), spotify.sp.track('Tr005')]
+        spotify.change_playback(skip="next")
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        # Verify Skip
+        spotify.change_playback(skip="next")
+        self.assertEqual(spotify.get_playback_state(), ('Tr009', False, 'Pl001'))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        # Verify Prev
+        spotify.change_playback(skip="prev")
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        # Verify repeat state before changing
+        self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'off')
+        # Multiple changes
+        spotify.change_playback(skip="next", shuffle=True, repeat='track')
+        self.assertEqual(spotify.get_playback_state(), ('Tr005', True, 'Pl001'))
+        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'track')
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # PLAYLISTS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
     def test_add_tracks_to_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -357,7 +497,7 @@ class TestGSH(unittest.TestCase):
         spotify.add_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004", "Tr001", "Tr002", "Tr004"])
-        
+    
     def test_add_unique_tracks_to_playlist(self):
         # Same test as 'test_add_tracks_to_playlist()' except that duplicates shouldn't be added.
         spotify = gsh.GeneralSpotifyHelpers()
@@ -380,7 +520,7 @@ class TestGSH(unittest.TestCase):
         spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
-        
+    
     def test_get_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -424,7 +564,7 @@ class TestGSH(unittest.TestCase):
                           {'album_id': None, 'album_name': 'Fake Local Album 1', 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 'id': None, 'name': 'Fake Local Track 1'},
                           {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'},
                           {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'}])
-        
+    
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
         
@@ -439,11 +579,15 @@ class TestGSH(unittest.TestCase):
 
         for count in range(len(spotify.sp.playlists), 410):
             if count < 400:
-                self.assertEqual(spotify.create_playlist("Test Playlist", description="tmp"), f"Pl{count:03d}")
+                self.assertEqual(spotify.create_playlist("Test Playlist", description="tmp"), f"Pl{count+1:03d}")
             else:
                 with self.assertRaises(Exception): spotify.create_playlist("Test Over Count", description="tmp tmp")
                 self.assertEqual(len(spotify.sp.playlists), 400)
 
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_change_playlist_details(self):
         spotify = gsh.GeneralSpotifyHelpers()
         
@@ -458,7 +602,7 @@ class TestGSH(unittest.TestCase):
         playlist_id = spotify.create_playlist("Default", description="set")
         spotify.change_playlist_details(playlist_id, name="Test1", description="Test2")
         self.assertEqual(spotify.get_playlist_data(playlist_id, info=['name', 'description']), ["Test1", "Test2"])
-        
+    
     def test_remove_all_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -485,7 +629,7 @@ class TestGSH(unittest.TestCase):
         
         spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=3)
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 0)
-        
+    
     def test_get_artist_albums(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -529,12 +673,16 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_artist_albums('Ar004', album_types=['appears_on']), [{'id': 'Al006'}])
         # Artist with full Creds On Shared Album
         self.assertEqual(spotify.get_artist_albums('Ar005'), [{'id': 'Al008'}, {'id': 'Al010'}])
-        
+    
     def test_gather_tracks_by_artist(self):
         # Don't really need to test the start and end date since we test 'get_elements_in_date_range' well.
         # Can't do this until 'verify_appears_on_tracks' is mocked. BRO-76
         print("\n\tNot Implemented")
-        
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -607,6 +755,10 @@ class TestGSH(unittest.TestCase):
                            'name': 'Fake Album 3',
                            'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
 
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
     def test_get_track_artists(self):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
@@ -630,7 +782,11 @@ class TestGSH(unittest.TestCase):
     def test_verify_appears_on_tracks(self):
         # We will need search functionality mocked for this, BRO-76
         print("\n\tNot Implemented")
-        
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # MISC HELPERS ════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     def test_get_track_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
@@ -639,7 +795,7 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_track_data('Tr001', info=['name']), ['Fake Track 1'])
         self.assertEqual(spotify.get_track_data('Tr001', info=['id', 'name']), ['Tr001', 'Fake Track 1'])
         self.assertEqual(spotify.get_track_data('Tr001', info=['artists']), [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
-        
+    
     def test_get_artist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
@@ -647,7 +803,7 @@ class TestGSH(unittest.TestCase):
 
         self.assertEqual(spotify.get_artist_data('Ar001', info=['name']), ['Fake Artist 1'])
         self.assertEqual(spotify.get_artist_data('Ar001', info=['id', 'name']), ['Ar001', 'Fake Artist 1'])
-        
+    
     def test_get_album_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
@@ -659,7 +815,7 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_album_data('Al002', info=['artists']), [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
         self.assertEqual(spotify.get_album_data('Al006', info=['artists']), [[{'id': 'Ar003', 'name': 'Fake Artist 3'}
                                                                             , {'id': 'Ar004', 'name': 'Fake Artist 4'}]])
-        
+    
     def test_get_playlist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()

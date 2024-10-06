@@ -47,10 +47,18 @@ class Spotify():
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         
     def next(self, response):
-        return None
+        ret = None
+        if "next" in response:
+            ret = response['next']
+        else:
+            for key, field in list(response.items()):
+                if "next" in response[key]:
+                    ret = response[key]['next']
+                    break
+        return ret
         
     def current_user_followed_artists(self, limit=50, after=None):
-        self.current_user_followed_artists_response['artists']['items'] = user_artists
+        self.current_user_followed_artists_response['artists']['items'] = self.user_artists
         return self.current_user_followed_artists_response
     
     def current_user_playlists(self, limit=50, offset=0):
@@ -67,7 +75,7 @@ class Spotify():
     def next_track(self, device_id=None):
         self.prev_songs.append(self.current_playback_response['item'])
         self.current_playback_response['is_playing'] = True
-        if len(self.user_queue) > 1:
+        if len(self.user_queue) > 0:
             self.current_playback_response['item'] = self.user_queue.pop(0)
         else:
             self.current_playback_response['item'] = artm.track_test.copy()
@@ -76,7 +84,7 @@ class Spotify():
     
     def previous_track(self, device_id=None):
         self.current_playback_response['is_playing'] = True
-        if len(prev_songs) > 1:
+        if len(self.prev_songs) > 1:
             self.current_playback_response['item'] = self.prev_songs.pop(-1)
         else:
             self.current_playback_response['item'] = artm.track_test.copy()
@@ -116,7 +124,7 @@ class Spotify():
         
     def user_playlist_create(self, user, name, public=True, collaborative=False, description=''):
         tmp_playlist = artm.playlist_test.copy()
-        tmp_playlist['id'] = f"Pl{len(self.playlists):03d}"
+        tmp_playlist['id'] = f"Pl{len(self.playlists)+1:03d}"
         tmp_playlist['name'] = name
         tmp_playlist['public'] = public
         tmp_playlist['collaborative'] = collaborative

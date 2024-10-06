@@ -155,7 +155,7 @@ current_playback_test_message = {
                 # 'external_urls': {'spotify': 'current_playback_url'},
                 # 'href': 'current_playback_href',
                 'type': 'playlist',
-                'uri': 'spotify:playlist:id'},
+                'uri': 'spotify:playlist:Pl001'},
     # 'currently_playing_type': 'track',
     # 'device': {'id': 'De000',
     #             'is_active': True,
@@ -168,7 +168,7 @@ current_playback_test_message = {
     'is_playing': True,
     'item': track_test,
     # 'progress_ms': 0,
-    # 'repeat_state': 'off',
+    'repeat_state': 'off',
     'shuffle_state': False,
     # 'smart_shuffle': False,
     # 'timestamp': 0
