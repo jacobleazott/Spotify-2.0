@@ -9,7 +9,10 @@
 # As part of mocking 'spotipy' or the spotify API in general we need to create quite a few fake messages, artists,
 #   tracks, and the like. Here we just create some simple functions for translating 'full' objects to 'simple' objects
 #   and define the structure of all necessary API responses. These can then be used to create any number of fake 
-#   objects and responses for all of our unit testing needs
+#   objects and responses for all of our unit testing needs.
+# 
+# Note that a lot of the test messages have commented out fields. These are fields that Spotify does return but the
+#   code simply doesn't reference them. They have been commented out to make testing more direct and concise.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 from pprint import pprint
 
@@ -194,9 +197,5 @@ artist_albums_test_message = {
     # 'total': 0
     }
 
-# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-# LOOKUP TABLES ═══════════════════════════════════════════════════════════════════════════════════════════════════════
-# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-# playlist_items_lookup_table_test = {"Pl000": [playlist_items_test_message]}
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

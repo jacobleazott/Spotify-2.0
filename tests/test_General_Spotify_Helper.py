@@ -209,7 +209,8 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(gsh.get_generic_field({"test": 1, "id": "weak"}, ["id", "id"]), ["weak", "weak"])
         self.assertEqual(gsh.get_generic_field({"test": 1, "id": "weak"}, []), [])
         self.assertEqual(gsh.get_generic_field({"test": {}, "id": []}, ["test", "id"]), [{}, []])
-        self.assertEqual(gsh.get_generic_field({"test": {"world": 2}, "id": ["val1", "val2"]}, ["test", "id"]), [{"world": 2}, ["val1", "val2"]])
+        self.assertEqual(gsh.get_generic_field({"test": {"world": 2}, "id": ["val1", "val2"]}, 
+                                               ["test", "id"]), [{"world": 2}, ["val1", "val2"]])
         self.assertEqual(gsh.get_generic_field({}, []), [])
    
     def test_get_elements_in_date_range(self):
@@ -377,12 +378,14 @@ class TestGSH(unittest.TestCase):
         with self.assertRaises(Exception): spotify._validate_scope()
         with self.assertRaises(Exception): spotify._validate_scope("user-read-private")
         with self.assertRaises(Exception): spotify._validate_scope(["invalid-scope"])
-        with self.assertRaises(Exception): spotify._validate_scope(["user-read-private", "invalid-scope", "playlist-modify-private"])
+        with self.assertRaises(Exception): spotify._validate_scope(
+            ["user-read-private", "invalid-scope", "playlist-modify-private"])
         
         spotify._validate_scope([])
         spotify._validate_scope(["user-read-private", "playlist-modify-public"])
         spotify._validate_scope(["user-library-read"])
-        spotify._validate_scope(["user-read-private", "playlist-modify-public", "playlist-modify-private", "user-library-read"])
+        spotify._validate_scope(
+            ["user-read-private", "playlist-modify-public", "playlist-modify-private", "user-library-read"])
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
@@ -402,7 +405,8 @@ class TestGSH(unittest.TestCase):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
         
-        self.assertEqual(spotify.get_user_playlists(), [{'id': 'Pl001'}, {'id': 'Pl002'}, {'id': 'Pl003'}, {'id': 'Pl004'}])
+        self.assertEqual(spotify.get_user_playlists(), 
+                         [{'id': 'Pl001'}, {'id': 'Pl002'}, {'id': 'Pl003'}, {'id': 'Pl004'}])
         self.assertEqual(spotify.get_user_playlists(info=['name', 'id']), [{'id': 'Pl001', 'name': 'Fake Playlist 1'},
                                                                            {'id': 'Pl002', 'name': 'Fake Playlist 2'},
                                                                            {'id': 'Pl003', 'name': 'Fake Playlist 3'},
@@ -548,10 +552,11 @@ class TestGSH(unittest.TestCase):
                           {'artists': [{}]},
                           {'artists': [{}]}])
         # Different Info From Default
-        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=['name'], artist_info=['name'], album_info=['name']), 
-                         [{'album_name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'},
-                          {'album_name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'},
-                          {'album_name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=['name'], 
+                                                     artist_info=['name'], album_info=['name']), 
+                     [{'album_name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'},
+                      {'album_name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'},
+                      {'album_name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
         # Duplicate Tracks and Local Tracks Default Info
         self.assertEqual(spotify.get_playlist_tracks("Pl004"), 
                          [{'album_id': None, 'artists': [{'id': None}], 'id': None},
@@ -559,11 +564,20 @@ class TestGSH(unittest.TestCase):
                           {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
                           {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
         # Duplicate Tracks and Local Tracks Extra Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl004", track_info=['id', 'name'], artist_info=['id', 'name'], album_info=['id', 'name']), 
-                         [{'album_id': None, 'album_name': 'Fake Local Album 1', 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': None, 'album_name': 'Fake Local Album 1', 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 'id': 'Tr001', 'name': 'Fake Track 1'}])
+        self.assertEqual(spotify.get_playlist_tracks("Pl004", track_info=['id', 'name'], 
+                                                     artist_info=['id', 'name'], album_info=['id', 'name']), 
+                         [{'album_id': None, 'album_name': 'Fake Local Album 1', 
+                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
+                           'id': None, 'name': 'Fake Local Track 1'},
+                          {'album_id': None, 'album_name': 'Fake Local Album 1', 
+                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
+                           'id': None, 'name': 'Fake Local Track 1'},
+                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
+                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
+                           'id': 'Tr001', 'name': 'Fake Track 1'},
+                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
+                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
+                           'id': 'Tr001', 'name': 'Fake Track 1'}])
     
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
@@ -572,7 +586,8 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["", ""])
         
         empty_desc_id = spotify.create_playlist("", description="")
-        self.assertEqual(spotify.get_playlist_data(empty_desc_id, info=['name', 'description', 'public']), ["", "", False])
+        self.assertEqual(spotify.get_playlist_data(empty_desc_id, info=['name', 'description', 'public']), 
+                         ["", "", False])
         
         public_true_id = spotify.create_playlist("Test", public=True)
         self.assertEqual(spotify.get_playlist_data(public_true_id, info=['name', 'public']), ["Test", True])
@@ -794,7 +809,8 @@ class TestGSH(unittest.TestCase):
 
         self.assertEqual(spotify.get_track_data('Tr001', info=['name']), ['Fake Track 1'])
         self.assertEqual(spotify.get_track_data('Tr001', info=['id', 'name']), ['Tr001', 'Fake Track 1'])
-        self.assertEqual(spotify.get_track_data('Tr001', info=['artists']), [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
+        self.assertEqual(spotify.get_track_data('Tr001', info=['artists']), 
+                         [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
     
     def test_get_artist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
@@ -812,9 +828,11 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_album_data('Al001', info=['name']), ['Fake Album 1'])
         self.assertEqual(spotify.get_album_data('Al001', info=['id', 'name']), ['Al001', 'Fake Album 1'])
         self.assertEqual(spotify.get_album_data('Al001', info=['artists']), [[]])
-        self.assertEqual(spotify.get_album_data('Al002', info=['artists']), [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
-        self.assertEqual(spotify.get_album_data('Al006', info=['artists']), [[{'id': 'Ar003', 'name': 'Fake Artist 3'}
-                                                                            , {'id': 'Ar004', 'name': 'Fake Artist 4'}]])
+        self.assertEqual(spotify.get_album_data('Al002', info=['artists']), 
+                         [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
+        self.assertEqual(spotify.get_album_data('Al006', info=['artists']), 
+                         [[{'id': 'Ar003', 'name': 'Fake Artist 3'}
+                         , {'id': 'Ar004', 'name': 'Fake Artist 4'}]])
     
     def test_get_playlist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively

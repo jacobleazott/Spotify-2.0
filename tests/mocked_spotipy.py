@@ -150,7 +150,6 @@ class Spotify():
         return None
         
     def playlist_remove_all_occurrences_of_items(self, playlist_id, items, snapshot_id=None):
-        # playlist_items = self.playlist_items_lookup_table[playlist_id]
         playlist_items = self.playlist(playlist_id)['tracks']
         self.playlist(playlist_id)['tracks'] = [item for item in playlist_items if not item['id'] in items]
         return None
