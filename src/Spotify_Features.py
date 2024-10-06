@@ -54,7 +54,7 @@ from Log_Playback import LogPlayback
 from Shuffle_Styles import Shuffler, ShuffleType
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Collection of all of our Spotify API features. Handles and abstracts our GSH object.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SpotifyFeatures(LogAllMethods):
 
