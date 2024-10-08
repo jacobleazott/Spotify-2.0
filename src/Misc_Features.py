@@ -160,7 +160,8 @@ class MiscFeatures(LogAllMethods):
         album_track_sorted_list = []
         for key, value in album_sorted_dict.items():
             tmp_tracks = sorted(value, key=lambda element: (element['disc_number'], element['track_number']))
-            album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], [track['id'] for track in tmp_tracks]))
+            album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], 
+                                            [track['id'] for track in tmp_tracks]))
 
         # Order collection by release date
         album_track_sorted_list.sort()
@@ -194,7 +195,8 @@ class MiscFeatures(LogAllMethods):
         tracks = [Settings.SHUFFLE_MACRO_ID]
         offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
                     - Settings.LATEST_PLAYLIST_LENGTH
-        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, offset=offset)]
+        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
+                                                                             offset=offset)]
 
         self.spotify.remove_all_playlist_tracks(Settings.LATEST_DEST_PLAYLIST, 
                                                 max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH)
