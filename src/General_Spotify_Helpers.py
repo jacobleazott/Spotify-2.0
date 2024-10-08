@@ -20,24 +20,8 @@ import time
 from datetime import datetime, timedelta
 from typing import Optional
 
-SHUFFLE_MACRO_ID = "2DlsEWns58UPs5X7PXrPJI"
-GEN_ARTIST_MACRO_ID = "24NFf8j4Hc21IxQK7POU6f"
-DISTRIBUTE_TRACKS_MACRO_ID = "4HrvoPsIkc10m8WahhlRKg"
-ORGANIZE_PLAYLIST_MACRO_ID = "7mmImiqGDVDjH17htwQPeO"
-
-MACRO_LIST = [SHUFFLE_MACRO_ID, GEN_ARTIST_MACRO_ID, DISTRIBUTE_TRACKS_MACRO_ID, ORGANIZE_PLAYLIST_MACRO_ID]
-
-# "The 100" Playlist
-PLAYLISTS_WE_CAN_DELETE_FROM = ["3dZVHLVdpOGlSy8oH9WvBi"]
-
-MAX_SCOPE_LIST = ["user-read-playback-state"
-                , "user-modify-playback-state"
-                , "playlist-read-private"
-                , "user-follow-read"
-                , "playlist-modify-public"
-                , "playlist-modify-private"]
-            
-           
+from Settings import Settings
+          
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
 INPUT: args - List of variables we wish to validate.
@@ -130,7 +114,7 @@ class GeneralSpotifyHelpers:
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, scopes: Optional[list[str]]=None) -> None:
-        self.scopes = scopes if scopes is not None else MAX_SCOPE_LIST
+        self.scopes = scopes if scopes is not None else Settings.MAX_SCOPE_LIST
         cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
                                                                             open_browser=False,
@@ -429,7 +413,7 @@ class GeneralSpotifyHelpers:
     def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
         self._validate_scope(["playlist-modify-public", "playlist-modify-private", 'DELETE-DELETE-DELETE'])
 
-        if playlist_id in PLAYLISTS_WE_CAN_DELETE_FROM:
+        if playlist_id in Settings.PLAYLISTS_WE_CAN_DELETE_FROM:
             tracks = self.get_playlist_tracks(playlist_id)
             if len(tracks) > 0 and len(tracks) <= max_playlist_length:
                 self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])

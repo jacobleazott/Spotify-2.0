@@ -51,6 +51,7 @@ from typing import Union
 
 import General_Spotify_Helpers as gsh
 from decorators import *
+from Settings import Settings
 
 # FEATURES
 from Misc_Features import MiscFeatures
@@ -204,7 +205,7 @@ class SpotifyFeatures(LogAllMethods):
                                , "playlist-read-collaborative"
                                , "playlist-modify-public"
                                , "playlist-modify-private"
-                               , "DELETE-DELETE-DELETE"]
+                               , Settings.DELETE_SCOPE]
         self.mfeatures.update_daily_latest_playlist()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -244,7 +245,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_latest_backup_to_drive(self) -> None:
-        latest_backup = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
+        latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 

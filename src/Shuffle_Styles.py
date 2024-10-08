@@ -13,7 +13,7 @@
 # SHUFFLE TYPES -
 #   RANDOM - ...it's random, like actually random, not spotify's 'random'. (yes yes it's pseudo-random)
 #       
-#   WEIGHTED - This shuffle type requires the LogPlayback functionality which records the user's playback. From that
+#   WEIGHTED - This shuffle type requires the Log_Playback functionality which records the user's playback. From that
 #               logging we get a 'track counts db' that contains every song the user has listened to (since it's been
 #               running) and how many times they have listened to it. We then sort the entire playlist's contents in
 #               order of # of times listened. It grabs the lowest 'QUEUE_LENGTH' tracks (rounding up for ties of 
@@ -29,11 +29,9 @@ from datetime import datetime
 from enum import unique, Enum
 from glob import glob
 
-import General_Spotify_Helpers as gsh
-
 from decorators import *
 from Database_Helpers import DatabaseHelpers
-from Log_Playback import LogPlayback
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Enum to define our different shuffle styles for playlists.
@@ -47,7 +45,6 @@ class ShuffleType(Enum):
 DESCRIPTION: Feature class that implements various shuffle methodologies. Currently works only on full playlists.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Shuffler(LogAllMethods):
-    QUEUE_LENGTH = 80
     FEATURE_SCOPES = ["user-modify-playback-state"]
 
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
@@ -63,7 +60,7 @@ class Shuffler(LogAllMethods):
     OUTPUT: List of tracks partially randomized in the reverse weighted form.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
-        track_counts_conn = sqlite3.connect(LogPlayback.TRACK_COUNTS_DB)
+        track_counts_conn = sqlite3.connect(Settings.TRACK_COUNTS_DB)
         track_count_data = []
 
         # Grab all the track_counts for our track_ids, we default to 0 listens if we don't find it
@@ -91,7 +88,7 @@ class Shuffler(LogAllMethods):
                 track_count_groupings.append(tmp_track_count_group)
                 tmp_play_count = track[0]
                 tmp_track_count_group = []
-                if idx >= self.QUEUE_LENGTH:
+                if idx >= Settings.QUEUE_LENGTH:
                     break
             tmp_track_count_group.append(track[1])
         track_count_groupings.append(tmp_track_count_group)
@@ -115,7 +112,7 @@ class Shuffler(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 
-                     if track['id'] not in gsh.MACRO_LIST]
+                     if track['id'] not in Settings.MACRO_LIST]
 
         match shuffle_type:
             case ShuffleType.RANDOM:
@@ -128,7 +125,7 @@ class Shuffler(LogAllMethods):
                 
         self.spotify.write_to_queue([track_ids.pop(0)])
         self.spotify.change_playback(skip="next", shuffle=True)
-        self.spotify.write_to_queue(track_ids[:self.QUEUE_LENGTH])
+        self.spotify.write_to_queue(track_ids[:Settings.QUEUE_LENGTH])
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
