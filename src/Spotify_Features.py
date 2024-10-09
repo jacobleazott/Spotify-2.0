@@ -40,10 +40,11 @@
 #   Weekly Listening Report                     - reference Weekly_Report.py
 #
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging as log
+import logging
+import time
+
 from datetime import datetime, timedelta
 from typing import Union
-import time
 
 import General_Spotify_Helpers as gsh
 from decorators import *
@@ -57,7 +58,7 @@ from Weekly_Report import WeeklyReport
 from Sanity_Tests import SanityTest
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Collection of all of our Spotify API features. Handles and abstracts our GSH object.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SpotifyFeatures(LogAllMethods):
 

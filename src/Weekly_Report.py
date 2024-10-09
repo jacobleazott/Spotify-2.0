@@ -12,20 +12,21 @@
 # SANITY TESTS -
 #   All sanity tests under Sanity_Tests.py are currently being run and pushed to the user.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import Sanity_Tests
+import matplotlib.pyplot as plt 
+import os
 import smtplib
+import sqlite3
 import textwrap
+
+from datetime import datetime, timedelta
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
 from PIL import Image
-from datetime import datetime, timedelta
-import sqlite3
-import matplotlib.pyplot as plt 
 
+import Sanity_Tests
 from decorators import *
 from Log_Playback import LogPlayback
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
@@ -72,10 +73,7 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msgImage)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            f = open(self.EMAIL_TOKEN_LOCATION, 'r')
-            cred = f.readline().rstrip()
-            f.close()
-            smtp_server.login(self.SENDER_EMAIL, cred)
+            smtp_server.login(self.SENDER_EMAIL, os.environ['EMAIL_TOKEN'])
             smtp_server.sendmail(self.SENDER_EMAIL, self.RECIPIENT_EMAIL, msgRoot.as_string())
             
             

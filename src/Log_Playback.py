@@ -6,18 +6,27 @@
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# 
+# The use of this file is to simply log a given track_id not only to our 'listening_db' with a timestamp. But also to
+#   update 'track_counts.db' with "listened" songs. The 'listening_db' is great for calculating listening time, and 
+#   always having a clear log of all of our listening if we ever want to do something with it. The 'track_counts.db' 
+#   technically could always be recreated but it's just easier to build it as we go. The idea of this db is to hold how
+#   many times we have listened to a given track. For my implementation "listening" counts as having the same song
+#   being passed in back to back calls to this function. (To save this data between script runs we store it in a pickle
+#   file). This might one day be improved to include a timestamp in the pickle file so it's not dependent on frequency
+#   of calls. However, right now we query ever 15s so we count a track as listened if we've listened to 16-30s of it.
+#   This gives us an ability to immediately skip songs and not worry about it counting against us in later features.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import logging
 import pickle
 import sqlite3
-import logging
 from datetime import datetime, timedelta
 
-from decorators import *
 import General_Spotify_Helpers as gsh
+from decorators import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does
+                not require a GSH object as there is no spotify api call necessary.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class LogPlayback(LogAllMethods):
     PICKLE_FILENAME = "databases/lastTrack.pk"

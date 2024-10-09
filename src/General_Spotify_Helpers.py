@@ -10,13 +10,15 @@
 #   info and you just need to call the class with the scope you wish to use. It handles the rest. The class should
 #   only include "general" methods for grabbing data and formatting it.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import spotipy
-import inspect
-from datetime import datetime, timedelta
 import calendar
-from Levenshtein import distance
+import inspect
+import logging
+import os
+import spotipy
 import time
-import logging as log
+
+from datetime import datetime, timedelta
+from Levenshtein import distance
 from typing import Optional
 
 SHUFFLE_MACRO_ID = "2DlsEWns58UPs5X7PXrPJI"
@@ -132,14 +134,12 @@ class GeneralSpotifyHelpers:
            username - User id we use for auth and operations (requires prior authorization for scopes).
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def __init__(self, scopes: Optional[list[str]]=None, username: str="azm67mmfixu99v9idlpc6r9bs") -> None:
-        # validate_inputs([scopes, username], [list, str])
-        
-        self.username = username
+    def __init__(self, scopes: Optional[list[str]]=None) -> None:
         self.scopes = scopes if scopes is not None else MAX_SCOPE_LIST
+        cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_jacob_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
-                                                                            username=self.username,
-                                                                            open_browser=False))
+                                                                            open_browser=False,
+                                                                            cache_handler=cache_handler))
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.
