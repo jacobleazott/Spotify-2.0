@@ -114,7 +114,7 @@ class GeneralSpotifyHelpers:
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, scopes: Optional[list[str]]=None) -> None:
-        self.scopes = scopes if scopes is not None else Settings.MAX_SCOPE_LIST
+        self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
         cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
                                                                             open_browser=False,
@@ -411,7 +411,7 @@ class GeneralSpotifyHelpers:
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
-        self._validate_scope(["playlist-modify-public", "playlist-modify-private", 'DELETE-DELETE-DELETE'])
+        self._validate_scope(["playlist-modify-public", "playlist-modify-private", Settings.DELETE_SCOPE])
 
         if playlist_id in Settings.PLAYLISTS_WE_CAN_DELETE_FROM:
             tracks = self.get_playlist_tracks(playlist_id)
