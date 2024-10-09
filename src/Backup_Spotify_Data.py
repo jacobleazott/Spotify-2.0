@@ -135,15 +135,6 @@ class BackupSpotifyData(LogAllMethods):
         
         self.db_conn.commit()
         self.db_conn.close()
-        
-        
-def main():
-    spotify = gsh.GeneralSpotifyHelpers()
-    backup = BackupSpotifyData(spotify)
-    backup.backup_data()
 
-
-if __name__ == "__main__":
-    main()
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
