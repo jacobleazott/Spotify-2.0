@@ -23,6 +23,9 @@ SHUFFLE_MACRO_ID = "2DlsEWns58UPs5X7PXrPJI"
 GEN_ARTIST_MACRO_ID = "24NFf8j4Hc21IxQK7POU6f"
 DISTRIBUTE_TRACKS_MACRO_ID = "4HrvoPsIkc10m8WahhlRKg"
 ORGANIZE_PLAYLIST_MACRO_ID = "7mmImiqGDVDjH17htwQPeO"
+
+MACRO_LIST = [SHUFFLE_MACRO_ID, GEN_ARTIST_MACRO_ID, DISTRIBUTE_TRACKS_MACRO_ID, ORGANIZE_PLAYLIST_MACRO_ID]
+
 MAX_SCOPE_LIST = ["user-read-playback-state"
                 , "user-modify-playback-state"
                 , "playlist-read-private"
@@ -48,6 +51,7 @@ def validate_inputs(args, types):
     if len(bad_elements) != 0:
         raise Exception(f"{inspect.stack()[1][3]}: Input Validation Failed {bad_elements}")
     
+    
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: splits up 'items' into size 'size' chunks
 INPUT: items - list of values
@@ -58,6 +62,7 @@ def chunks(items: list, size: int) -> list:
     validate_inputs([items, size], [list, int])
     size = max(1, size)
     return [items[i:i + size] for i in range(0, len(items), size)]
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Generic handler for the spotify api response.
@@ -124,11 +129,11 @@ class GeneralSpotifyHelpers:
            username (optional) - user id we use for auth and operations (requires prior authorization for scopes)
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def __init__(self, scopes: list[str], username: str="azm67mmfixu99v9idlpc6r9bs") -> None:
-        validate_inputs([scopes, username], [list, str])
+    def __init__(self, scopes: Optional[list[str]]=None, username: str="azm67mmfixu99v9idlpc6r9bs") -> None:
+        # validate_inputs([scopes, username], [list, str])
         
         self.username = username
-        self.scopes = scopes
+        self.scopes = scopes if scopes is not None else MAX_SCOPE_LIST
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(MAX_SCOPE_LIST),
                                                                             username=self.username,
                                                                             open_browser=False))
@@ -387,6 +392,8 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def create_playlist(self, name: str, description: str='', public: bool=False) -> str:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
+        if len(self.get_user_playlists()) > 400:
+            raise Exception(f"User has more than 400 playlists, skipping creation")
         validate_inputs([name, description, public], [str, str, bool])
         
         return self.sp.user_playlist_create(self.username, name, description=description, public=public)['id']
@@ -411,25 +418,6 @@ class GeneralSpotifyHelpers:
         elif description is not None:
             self.sp.playlist_change_details(playlist_id, description=description)
             
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    DESCRIPTION: Removes all tracks from a playlist assuming it starts with "My Playlist #" aka the default name
-    INPUT: playlist_id - id of playlist we will delete all tracks from
-           max_playlist_length (optional)- second gate to always check how many tracks we "expect" to delete
-    OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
-        self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
-        validate_inputs([playlist_id, max_playlist_length], [str, int])
-        
-        playlist_name = self.get_playlist_data(playlist_id, info=["name"])[0]
-        if playlist_name.startswith('My Playlist #'):
-            print("gate 1")
-            tracks = self.get_playlist_tracks(playlist_id)
-            if len(tracks) <= max_playlist_length:
-                print("gate 2")
-                self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])
-        
-
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ARTISTS ════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -457,7 +445,7 @@ class GeneralSpotifyHelpers:
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Get all album, single, and appears_on tracks by the given artist between the start_date and end_date
-                 This will no longer work after 9999
+                 if no start or end date is given no filtering will be done
     INPUT: artist_id - id of the artist we will be grabbing tracks from
            start_date (optional) - (datetime) of the start of our range
            end_date (optional) - (datetime) of the end of our range
@@ -465,9 +453,9 @@ class GeneralSpotifyHelpers:
             order, the appears_on tracks are simply added on to the end
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def gather_tracks_by_artist(self, artist_id:str, 
-                                start_date: datetime=datetime(1, 1, 1), 
-                                end_date: datetime=datetime(9999, 1, 1)) -> list[str]:
-        validate_inputs([artist_id, start_date, end_date], [str, datetime, datetime])
+                                start_date: Optional[datetime]=None, 
+                                end_date: Optional[datetime]=None) -> list[str]:
+        # validate_inputs([artist_id, start_date, end_date], [str, datetime, datetime])
         
         # Gather all artists albums/ singles
         artist_albums = self.get_artist_albums(artist_id
@@ -480,7 +468,8 @@ class GeneralSpotifyHelpers:
         artist_albums.sort(key=lambda x: x['release_date'])
         
         # Grab those only within our date range
-        artist_albums = get_elements_in_date_range(artist_albums, start_date, end_date)
+        if start_date is not None and end_date is not None:
+            artist_albums = get_elements_in_date_range(artist_albums, start_date, end_date)
 
         # Gather the tracks from these albums
         album_tracks = [track["id"] for album in 
@@ -495,7 +484,8 @@ class GeneralSpotifyHelpers:
         artist_appears_on_albums = [album for album in artist_appears_on_albums 
                                     if album['album_type'] != 'compilation']
         # Grab those only within our date range
-        artist_appears_on_albums = get_elements_in_date_range(artist_appears_on_albums, start_date, end_date)
+        if start_date is not None and end_date is not None:
+            artist_appears_on_albums = get_elements_in_date_range(artist_appears_on_albums, start_date, end_date)
         # Gather the tracks from these albums
         appears_on_album_tracks = self.get_albums_tracks([album['id'] for album in artist_appears_on_albums]
                                                          , album_info=['id', 'release_date']

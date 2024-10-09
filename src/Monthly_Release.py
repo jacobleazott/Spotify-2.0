@@ -40,7 +40,6 @@ INPUT: spotify - GeneralSpotifyHelpers instance for that user
        end_date - (datetime) end of our date range we will return for
 OUTPUT: list of track ids found in the time range from all of the user's artists
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-@logfunc
 def gather_release_tracks(spotify, start_date, end_date):
     log.info(f"Gathering Releases For: {start_date.strftime('%b %d %Y')}-{end_date.strftime('%b %d %Y')}")
     tracks = list()
@@ -59,7 +58,6 @@ DESCRIPTION: Creates a 'release' playlist for the time range (previous month if 
 INPUT: spotify - GeneralSpotifyHelpers instance for that user
 OUTPUT: NA
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-@logfunc
 def monthly_release(spotify):
     global START_DATE, END_DATE
     playlist_name = ""
@@ -82,11 +80,10 @@ def monthly_release(spotify):
     log.info(f"Adding Tracks")
     spotify.add_tracks_to_playlist(playlist_id, tracks)
 
-@logfunc
 def main():
     f = open(r"tokens/usernames.txt", 'r')
-    users = [f.readline().rstrip(), f.readline().rstrip()]
-    # users = [f.readline().rstrip()]
+    # users = [f.readline().rstrip(), f.readline().rstrip()]
+    users = [f.readline().rstrip()]
 
     for username in users:
         spotify = gsh.GeneralSpotifyHelpers(SCOPE, username=username)

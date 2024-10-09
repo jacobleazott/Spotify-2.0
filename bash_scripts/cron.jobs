@@ -1,8 +1,8 @@
 # List of processes run by cron
 # To implement just run "crontab cron.jobs" this replaces the current cron configuration
 
-PROJ_PATH = /home/jaleazo/projects/Spotify_Release_Pi/bash_scripts
-LOG_PATH  = /home/jaleazo/projects/Spotify_Release_Pi/logs
+PROJ_PATH = /home/jaleazo/projects/Spotify-2.0/bash_scripts
+LOG_PATH  = /home/jaleazo/projects/Spotify-2.0/logs
 
 * * * * *  $PROJ_PATH/Proj.sh Playback_Tracker  >  $LOG_PATH/Playback-Tracker.log    2>&1    # Every Minute
 0 3 * * *  $PROJ_PATH/Proj.sh Backup_Data       >> $LOG_PATH/Backup-Data.log         2>&1    # Every Day at 3 AM
