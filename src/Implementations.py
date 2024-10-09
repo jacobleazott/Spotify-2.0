@@ -162,7 +162,10 @@ def main():
     features.update_latest_playlist() if check_date_time(start_time, hour=2, minute=0) else None
     
     # Weekly Report - Run Every Monday At 3 AM
-    features.generate_weekly_report() if check_date_time(start_time, weekday=1, hour=3, minute=0) else None
+    features.generate_weekly_report() if check_date_time(start_time, weekday=0, hour=3, minute=0) else None
+    
+    # Upload Library Backup To Google - Run Every Sunday At 2 AM
+    features.upload_latest_backup_to_drive() if check_date_time(start_time, weekday=6, hour=2, minute=0) else None
 
     # Monthly Release - Run The 1st of Every Month At 1 AM
     features.generate_monthly_release() if check_date_time(start_time, day=1, hour=1, minute=0) else None
