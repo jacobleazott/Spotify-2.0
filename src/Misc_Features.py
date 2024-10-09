@@ -200,5 +200,6 @@ class MiscFeatures(LogAllMethods):
 
         self.spotify.remove_all_playlist_tracks(self.DEST_PLAYLIST, max_playlist_length=self.PLAYLIST_LENGTH)
         self.spotify.add_tracks_to_playlist(self.DEST_PLAYLIST, tracks)
-    
+
+
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

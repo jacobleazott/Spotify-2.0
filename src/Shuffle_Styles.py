@@ -129,5 +129,6 @@ class Shuffler(LogAllMethods):
                 
         tracks = tracks[:(min(len(tracks), self.QUEUE_LENGTH))]
         self.spotify.write_to_queue(tracks)
-    
+
+
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

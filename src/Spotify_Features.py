@@ -33,7 +33,6 @@
 #   PLAYLIST ALTERATIONS ══════════════════════════════════════════════════════════════════════════════════════════════
 #   Distribute Tracks To 'Collections'          - reference Misc_Features.py distribute_tracks_to_collections...()
 #   Organize Playlist By Release Date           - reference Misc_Features.py reorganize_playlist()
-#   Update 'Daily Latest' Playlist              - reference Misc_Features.py update_daily_latest_playlist()
 #
 #   MISC FEATURES ═════════════════════════════════════════════════════════════════════════════════════════════════════
 #   Get Current Playback State                  - reference get_playback_state()
@@ -54,6 +53,8 @@ from Misc_Features import MiscFeatures
 from Backup_Spotify_Data import BackupSpotifyData
 from Log_Playback import LogPlayback
 from Shuffle_Styles import Shuffler, ShuffleType
+from Weekly_Report import WeeklyReport
+from Sanity_Tests import SanityTest
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -215,7 +216,8 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
-        print("not imported")
+        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        WeeklyReport(self.spotify, sanity_tester, logger=self.logger).gen_weekly_report()
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Runs various santiy checks against the user's collection to verify nothing has been mismanaged.
@@ -223,7 +225,13 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
-        print("not imported")
+        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        logger.info("SANITY TESTS ==========================================================")
+        logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
+        logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
+        logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
+        logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
+        logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

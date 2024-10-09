@@ -17,7 +17,7 @@ from decorators import *
 import General_Spotify_Helpers as gsh
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
+DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class BackupSpotifyData(LogAllMethods):
     FEATURE_SCOPES = ["user-follow-read"
