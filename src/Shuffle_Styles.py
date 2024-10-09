@@ -1,11 +1,11 @@
-# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
-# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
-# ╠══╣                                                                                                            ╠══╣
-# ║  ║    SHUFFLE STYLES                          CREATED: 2021-07-20          https://github.com/jacobleazott    ║  ║
-# ║══║                                                                                                            ║══║
-# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
-# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
-# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    SHUFFLE STYLES                           CREATED: 2021-07-20          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Spotify's shuffle sucks... like a lot. This file exists to give the user their own choice in how they want their
 #   playlists shuffled. Currently only works with given playlist_id's but may one day be improved to simply take a 
 #   collection of 'tracks' to be more dynamic.
@@ -19,7 +19,7 @@
 #               order of # of times listened. It grabs the lowest 'QUEUE_LENGTH' tracks (rounding up for ties of 
 #               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
 #               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import random
 import logging
 import sqlite3
@@ -50,14 +50,14 @@ class Shuffler(LogAllMethods):
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.spotify.scopes = self.FEATURE_SCOPES
-        self.logger = logger if not None else logger.getLogger()
+        self.logger = logger if logger is not None else logging.getLogger()
         
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
                  randomizes the queue based upon how many times specifically we have listened to each track.
-    INPUT: track_ids - list of tracks we pulled from the playlist and are making the weighted queue off of.
-    OUTPUT: list of tracks partially randomized in the reverse weighted form.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    INPUT: track_ids - List of tracks we pulled from the playlist and are making the weighted queue off of.
+    OUTPUT: List of tracks partially randomized in the reverse weighted form.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
         track_counts_conn = sqlite3.connect(LogPlayback.TRACK_COUNTS_DB)
         track_count_data = []
@@ -66,7 +66,8 @@ class Shuffler(LogAllMethods):
         for track_id in track_ids:
             if track_id == gsh.SHUFFLE_MACRO_ID:
                 continue
-            track_query = track_counts_conn.execute(f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
+            track_query = track_counts_conn.execute(
+                f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
 
             if track_query is None:
                 track_count_data.append((0, track_id))
@@ -103,13 +104,13 @@ class Shuffler(LogAllMethods):
 
         return track_list
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all the tracks from the given playlist, and applies the given shuffle to those tracks.
                  it then adds those now 'shuffled' tracks to the user's queue.
-    INPUT: playlist_id - id of the playlist we will be grabbing the tracks from.
-           shuffle_type - specific shuffle type we will be applying to the tracks from 'playlist_id'.
+    INPUT: playlist_id - Id of the playlist we will be grabbing the tracks from.
+           shuffle_type - Specific shuffle type we will be applying to the tracks from 'playlist_id'.
     OUTPUT: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         self.spotify.change_playback(skip="next", shuffle=True)
         
@@ -129,4 +130,4 @@ class Shuffler(LogAllMethods):
         tracks = tracks[:(min(len(tracks), self.QUEUE_LENGTH))]
         self.spotify.write_to_queue(tracks)
     
-# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

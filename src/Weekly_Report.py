@@ -1,17 +1,17 @@
-# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
-# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
-# ╠══╣                                                                                                            ╠══╣
-# ║  ║    WEEKLY EMAIL REPORT                     CREATED: 2024-07-13          https://github.com/jacobleazott    ║  ║
-# ║══║                                                                                                            ║══║
-# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
-# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
-# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    WEEKLY EMAIL REPORT                      CREATED: 2024-07-13          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # This script is to generate a report of specified information from spotify to the user.
 #
 # Current Reporting Functionality -
 # SANITY TESTS -
 #   All sanity tests under Sanity_Tests.py are currently being run and pushed to the user.
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import Sanity_Tests
 import smtplib
 import textwrap
@@ -30,9 +30,9 @@ LISTENING_DB = "databases/listening_data.db"
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Sends an email with subject, and body to 'RECIPIENT_EMAIL' from 'SENDER_EMAIL', requires app creds from
-             the referenced location
-INPUT: subject - str title of the email
-       body - str html body of the email
+             the referenced location.
+INPUT: subject - Str title of the email.
+       body - Str html body of the email.
 OUTPUT: NA
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def send_email(subject, body):
@@ -64,9 +64,9 @@ def send_email(subject, body):
         
         
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Creates a bar plot for the last week of listening shown in hours Sunday-Saturday
+DESCRIPTION: Creates a bar plot for the last week of listening shown in hours Sunday-Saturday.
 INPUT: NA
-OUTPUT: Saves off a listening_data_plot.png file for use later
+OUTPUT: Saves off a listening_data_plot.png file for use later.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def gen_playback_graph():
     conn = sqlite3.connect(LISTENING_DB)
@@ -102,10 +102,10 @@ def gen_playback_graph():
     
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Generates listening data average over the last 'days_back' by weekday. Disregards days with less than 
-             25 mins of listening to disregard token refresh errors
-INPUT: listening_conn - db object for listening_data
-       days_back - number of days to go back for average
-OUTPUT: list of average hours listened to by 0 Monday - 6 Sunday
+             25 mins of listening to disregard token refresh errors.
+INPUT: listening_conn - Db object for listening_data.
+       days_back - Number of days to go back for average.
+OUTPUT: list of average hours listened to by 0 Monday - 6 Sunday.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def gen_average_for_past_month(listening_conn, days_back):
     start = datetime.today() - timedelta(days=days_back)
@@ -131,10 +131,10 @@ def gen_average_for_past_month(listening_conn, days_back):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Helper function to format html sections when we want data in header/ unordered list formats
-INPUT: values - list of tuple values where the first elem is the section title and second value is list that goes under
-       default - str we should return if nothing was in the values
-OUTPUT: html formatted str of 'values'
+DESCRIPTION: Helper function to format html sections when we want data in header/ unordered list formats.
+INPUT: values - List of tuple values where the first elem is the title and second value is list that goes under.
+       default - Str we should return if nothing was in the values.
+OUTPUT: Html formatted str of 'values'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def gen_html_header_list(values, default):
     html_str = ""
@@ -152,10 +152,10 @@ def gen_html_header_list(values, default):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Helper function to format html sections when we just want data listed in unordered lists
-INPUT: values - list of values that will be in our unordered list
-       default - str we should return if nothing was in the values
-OUTPUT: html formatted str of 'values'
+DESCRIPTION: Helper function to format html sections when we just want data listed in unordered lists.
+INPUT: values - List of values that will be in our unordered list.
+       default - Str we should return if nothing was in the values.
+OUTPUT: Html formatted str of 'values'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def gen_html_unordered_list(values, default):
     html_str = "\n<ul>\n"
@@ -173,11 +173,16 @@ def gen_html_unordered_list(values, default):
 def main():
     st = Sanity_Tests.SanityTest()
     
-    st_diffs = gen_html_header_list(st.sanity_diffs_in_major_playlist_sets(), "No Differences Detected For Master, Years, and '__' Good Job!")
-    st_prog = gen_html_unordered_list(st.sanity_in_progress_artists(), "No Differences Detected For Master, Years, and '__' Good Job!")
-    st_dupe = gen_html_header_list(st.sanity_duplicates(), "No Duplicates Detected Good Job!")
-    st_integ = gen_html_unordered_list(st.sanity_artist_playlist_integrity(), "No Issues Detected In Artist Integrity Good Job!")
-    st_contr = gen_html_unordered_list(st.sanity_contributing_artists(), "No Missing Tracks From Contributing Artists Good Job!")
+    st_diffs = gen_html_header_list(st.sanity_diffs_in_major_playlist_sets(), 
+                                        "No Differences Detected For Master, Years, and '__' Good Job!")
+    st_prog = gen_html_unordered_list(st.sanity_in_progress_artists(), 
+                                        "No Differences Detected For Master, Years, and '__' Good Job!")
+    st_dupe = gen_html_header_list(st.sanity_duplicates(), 
+                                        "No Duplicates Detected Good Job!")
+    st_integ = gen_html_unordered_list(st.sanity_artist_playlist_integrity(), 
+                                        "No Issues Detected In Artist Integrity Good Job!")
+    st_contr = gen_html_unordered_list(st.sanity_contributing_artists(), 
+                                        "No Missing Tracks From Contributing Artists Good Job!")
     
     gen_playback_graph()
     
@@ -208,4 +213,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

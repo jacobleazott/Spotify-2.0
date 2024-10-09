@@ -14,6 +14,9 @@ case $1 in
     "Weekly_Report")
         python3 src/Weekly_Report.py
         ;;
+    "Update_Latest")
+        python3 src/Latest_Hundred.py
+        ;;
     "Playback_Tracker")
         # We occasionally get Address already in use errors likely because of cron runing jobs in parallel.
         #    Here we will just use a different redirect uri to deconflict them

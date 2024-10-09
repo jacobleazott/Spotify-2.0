@@ -1,14 +1,14 @@
-# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
-# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
-# ╠══╣                                                                                                            ╠══╣
-# ║  ║    SPOTIFY BACKUP                           CREATED: 2020-6-13          https://github.com/jacobleazott    ║  ║
-# ║══║                                                                                                            ║══║
-# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
-# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
-# ═══════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    SPOTIFY BACKUP                            CREATED: 2020-6-13          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # This script simply takes all of the users current followed artists and playlists and backs them up to an SQLite DB.
 #   It utilizes a simple many to many relationship table for playlists and tracks.
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import sqlite3
 import logging
 from datetime import datetime
@@ -29,24 +29,24 @@ class BackupSpotifyData(LogAllMethods):
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries user for a valid artist id.
-    INPUT: table - what table we will insert into (str)
-           values - what data will be inserted into the table (list)
+    INPUT: table - what table we will insert into (str).
+           values - what data will be inserted into the table (list).
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def insert_many(self, table: str, values: list) -> None:
         placeholders = "?, " * len(values[0])
         query = "INSERT OR IGNORE INTO %s VALUES (%s)" % (table, placeholders[:-2])
         data = [tuple(d.values()) for d in values] if type(values[0]) is dict else values
         self.db_conn.executemany(query, data)
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates the necessary tables for our SQLite db. These include the artist table, playback table, tracks
                  table, and the playlists-tracks many to many relationship table.
     INPUT: NA
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def create_backup_data_db(self):
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists (
                                 id text UNIQUE PRIMARY KEY,
@@ -75,22 +75,22 @@ class BackupSpotifyData(LogAllMethods):
                                 id_track text REFERENCES tracks(id)
                                 )""")
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries all followed artists by the user, inserts them into the database.
     INPUT: NA
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_followed_artists_to_db(self):
         artists = self.spotify.get_user_artists(info=["id", "name"])
         self.logger.info(f"\t Inserting {len(artists)} Artists")
         self.insert_many("followed_artists", artists)
 
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gathers all users playlists, gets all the tracks from said playlists. Creates a many to many
                  relationship between all tracks and all playlists.
     INPUT: NA
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_playlists_to_db(self):
         playlists = self.spotify.get_user_playlists(info=["id", "name"])
         self.logger.info(f"\t Inserting {len(playlists)} Playlists")
@@ -146,4 +146,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-# FIN ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
