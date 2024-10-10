@@ -88,7 +88,7 @@ class Shuffler(LogAllMethods):
                 track_count_groupings.append(tmp_track_count_group)
                 tmp_play_count = track[0]
                 tmp_track_count_group = []
-                if idx >= Settings.QUEUE_LENGTH:
+                if idx >= Settings.MAX_QUEUE_LENGTH:
                     break
             tmp_track_count_group.append(track[1])
         track_count_groupings.append(tmp_track_count_group)
@@ -125,7 +125,7 @@ class Shuffler(LogAllMethods):
                 
         self.spotify.write_to_queue([track_ids.pop(0)])
         self.spotify.change_playback(skip="next", shuffle=True)
-        self.spotify.write_to_queue(track_ids[:Settings.QUEUE_LENGTH])
+        self.spotify.write_to_queue(track_ids[:Settings.MAX_QUEUE_LENGTH])
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
