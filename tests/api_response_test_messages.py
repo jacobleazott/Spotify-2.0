@@ -9,7 +9,10 @@
 # As part of mocking 'spotipy' or the spotify API in general we need to create quite a few fake messages, artists,
 #   tracks, and the like. Here we just create some simple functions for translating 'full' objects to 'simple' objects
 #   and define the structure of all necessary API responses. These can then be used to create any number of fake 
-#   objects and responses for all of our unit testing needs
+#   objects and responses for all of our unit testing needs.
+# 
+# Note that a lot of the test messages have commented out fields. These are fields that Spotify does return but the
+#   code simply doesn't reference them. They have been commented out to make testing more direct and concise.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 from pprint import pprint
 
@@ -42,148 +45,157 @@ def full_album_to_simple(full_album_dict, album_group='album'):
 # BASE OBJECT TEST MESSAGES ═══════════════════════════════════════════════════════════════════════════════════════════
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 fake_user = {
-    'display_name': 'fake user 1',
-    'external_urls': {'spotify': 'playlist_owner_spotify_url'},
-    'href': 'playlist_owner_href',
-    'id': 'Us000',
-    'type': 'user',
-    'uri': 'spotify:user:'}
+    # 'display_name': 'fake user 1',
+    # 'external_urls': {'spotify': 'playlist_owner_spotify_url'},
+    # 'href': 'playlist_owner_href',
+    # 'id': 'Us000',
+    # 'type': 'user',
+    # 'uri': 'spotify:user:'
+    }
 
 artist_full_test = {
-    'external_urls': {'spotify': 'artist_spotify_url'},
-    'followers': {'href': None, 'total': 100000},
-    'genres': ['fake genre 1'],
-    'href': 'artist_href',
+    # 'external_urls': {'spotify': 'artist_spotify_url'},
+    # 'followers': {'href': None, 'total': 100000},
+    # 'genres': ['fake genre 1'],
+    # 'href': 'artist_href',
     'id': 'Ar000',
-    'images': [],
+    # 'images': [],
     'name': 'test artist 1',
-    'popularity': 0,
-    'type': 'artist',
-    'uri': 'spotify:artist:'}
+    # 'popularity': 0,
+    # 'type': 'artist',
+    # 'uri': 'spotify:artist:'
+    }
 
 album_test = {
-    'album_type': 'album',
-    'artists': [full_artist_to_simple(artist_full_test)],
-    'available_markets': ['US'],
-    'external_urls': {'spotify': 'album_spotify_url'},
-    'href': 'album_href', 
+    'album_type': 'album',      # "album", "single", "compilation"
+    'artists': [artist_full_test],
+    # 'available_markets': ['US'],
+    # 'external_urls': {'spotify': 'album_spotify_url'},
+    # 'href': 'album_href', 
     'id': 'Al000',
-    'images': [],
+    # 'images': [],
     'name': 'test album 1',
-    'release_date': '0000-01-01',
-    'release_date_precision': 'day',
-    'total_tracks': 0,
-    'type': 'album',
-    'uri': 'spotify:album:'}
+    # 'release_date': '0000-01-01',
+    # 'release_date_precision': 'day',
+    # 'total_tracks': 0,
+    # 'type': 'album',
+    # 'uri': 'spotify:album:'
+    }
 
 track_test = {
     'album': album_test,
-    'artists': [full_artist_to_simple(artist_full_test)],
-    'available_markets': ['US'],
-    'disc_number': 0,
-    'duration_ms': 0,
-    'explicit': False,
-    'external_ids': {'isrc': 'fake_isrc'},
-    'external_urls': {'spotify': 'track_spotify_url'},
-    'href': 'track_href',
+    'artists': [artist_full_test],
+    # 'available_markets': ['US'],
+    # 'disc_number': 0,
+    # 'duration_ms': 0,
+    # 'explicit': False,
+    # 'external_ids': {'isrc': 'fake_isrc'},
+    # 'external_urls': {'spotify': 'track_spotify_url'},
+    # 'href': 'track_href',
     'id': 'Tr000',
     'is_local': False,
     'name': 'test track 1',
-    'popularity': 0,
-    'preview_url': 'spotify_preview_url',
-    'track_number': 0,
-    'type': 'track',
-    'uri': 'spotify:track:'}
+    # 'popularity': 0,
+    # 'preview_url': 'spotify_preview_url',
+    # 'track_number': 0,
+    # 'type': 'track',
+    # 'uri': 'spotify:track:'
+    }
 
 playlist_test = {
-    'collaborative': False,
+    # 'collaborative': False,
     'description': 'fake playlist description',
-    'external_urls': {'spotify': 'playlist_spotify_url'},
-    'href': 'playlist_href',
+    # 'external_urls': {'spotify': 'playlist_spotify_url'},
+    # 'href': 'playlist_href',
     'id': 'Pl000',
-    'images': [],
+    # 'images': [],
     'name': 'fake playlist 1',
-    'owner': fake_user,
-    'primary_color': None,
-    'public': True,
-    'snapshot_id': 'A000/B000',
-    'tracks': {'href': 'playlist_tracks_href','total': 1},
-    'type': 'playlist',
-    'uri': 'spotify:playlist:'}
+    # 'owner': fake_user,
+    # 'primary_color': None,
+    # 'public': True,
+    # 'snapshot_id': 'A000/B000',
+    # 'tracks': {'href': 'playlist_tracks_href','total': 1},
+    # 'type': 'playlist',
+    # 'uri': 'spotify:playlist:'
+    'tracks': []                    # THIS FIELD DOESN'T EXIST, JUST FOR TESTING
+    }
 
 playlist_item_test = {
-    'added_at': '0000-01-01T00:00:00',
-    'added_by': fake_user,               # NOTE THIS ADDED_BY CAN BE NULL AND DOESN'T HAVE 'display_name'
+    # 'added_at': '0000-01-01T00:00:00',
+    # 'added_by': fake_user,               # NOTE THIS ADDED_BY CAN BE NULL AND DOESN'T HAVE 'display_name'
     'is_local': False,
-    'primary_color': None,
+    # 'primary_color': None,
     'track': track_test,
-    'video_thumbnail': {'url': None}}
+    # 'video_thumbnail': {'url': None}
+    }
 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 # RESPONSE OBJECT TESTS ═══════════════════════════════════════════════════════════════════════════════════════════════
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 current_user_followed_artists_test_message = {
     'artists': {
-        'cursors': {'after': 'fake_cursor_after'},
-        'href': 'current_user_followed_artists_href',
+        # 'cursors': {'after': 'fake_cursor_after'},
+        # 'href': 'current_user_followed_artists_href',
         'items': [artist_full_test],
-        'limit': 1,
+        # 'limit': 1,
         'next': None,
-        'total': 1}}
+        # 'total': 1}
+    }}
 
 current_user_playlists_test_message = {
-    'href': 'current_user_playlists_href',
+    # 'href': 'current_user_playlists_href',
     'items': [playlist_test],
-    'limit': 1,
+    # 'limit': 1,
     'next': None,
-    'offset': 0,
-    'previous': None,
-    'total': 0}
+    # 'offset': 0,
+    # 'previous': None,
+    # 'total': 0
+    }
 
 current_playback_test_message = {
-    'actions': {'disallows': {'resuming': True}},
-    'context': {'external_urls': {'spotify': 'current_playback_url'},
-                'href': 'current_playback_href',
+    # 'actions': {'disallows': {'resuming': True}},
+    'context': {
+                # 'external_urls': {'spotify': 'current_playback_url'},
+                # 'href': 'current_playback_href',
                 'type': 'playlist',
-                'uri': 'spotify:playlist:'},
-    'currently_playing_type': 'track',
-    'device': {'id': 'De000',
-                'is_active': True,
-                'is_private_session': False,
-                'is_restricted': False,
-                'name': 'fake_device',
-                'supports_volume': True,
-                'type': 'Computer',
-                'volume_percent': 0},
+                'uri': 'spotify:playlist:Pl001'},
+    # 'currently_playing_type': 'track',
+    # 'device': {'id': 'De000',
+    #             'is_active': True,
+    #             'is_private_session': False,
+    #             'is_restricted': False,
+    #             'name': 'fake_device',
+    #             'supports_volume': True,
+    #             'type': 'Computer',
+    #             'volume_percent': 0},
     'is_playing': True,
     'item': track_test,
-    'progress_ms': 0,
+    # 'progress_ms': 0,
     'repeat_state': 'off',
     'shuffle_state': False,
-    'smart_shuffle': False,
-    'timestamp': 0}
+    # 'smart_shuffle': False,
+    # 'timestamp': 0
+    }
 
 playlist_items_test_message = {
-    'href': 'playlist_items_href',
-    'items': [playlist_item_test],
-    'limit': 1,
+    # 'href': 'playlist_items_href',
+    'items': [],    # playlist_item_test
+    # 'limit': 1,
     'next': None,
-    'offset': 0,
-    'previous': None,
-    'total': 0}
+    # 'offset': 0,
+    # 'previous': None,
+    # 'total': 0
+    }
 
 artist_albums_test_message = {
-    'href': 'artist_albums_href',
+    # 'href': 'artist_albums_href',
     'items': [full_album_to_simple(album_test, album_group='album')],
-    'limit': 1, 
+    # 'limit': 1, 
     'next': None,
-    'offset': 0,
-    'previous': None,
-    'total': 0}
+    # 'offset': 0,
+    # 'previous': None,
+    # 'total': 0
+    }
 
-# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-# LOOKUP TABLES ═══════════════════════════════════════════════════════════════════════════════════════════════════════
-# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-playlist_items_lookup_table_test = {"Pl000": [playlist_items_test_message]}
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
