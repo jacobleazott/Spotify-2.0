@@ -222,7 +222,7 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
         sanity_tester = SanityTest(logger=self.logger)
-        WeeklyReport(self.spotify, sanity_tester, logger=self.logger).gen_weekly_report()
+        WeeklyReport(sanity_tester, logger=self.logger).gen_weekly_report()
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Runs various santiy checks against the user's collection to verify nothing has been mismanaged.
