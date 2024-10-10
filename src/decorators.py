@@ -21,14 +21,20 @@ INPUT: filename - name of logfile.
        mode - write ('w') or append ('a') mode for the logger.
 OUTPUT: Logger Object
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w') -> logging.Logger:
+def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w', 
+                    console: bool=False) -> logging.Logger:
     logger = logging.getLogger(filename)
     logger.setLevel(log_level)
-    logger.addHandler(logging.FileHandler(filename, mode=mode))
-    logger.handlers[0].setFormatter(logging.Formatter(
-        '%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
+    file_handler = logging.FileHandler(filename, mode=mode)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
         datefmt=f'%Y-%m-%d %H:%M:%S'))
-    logger.propagate = False
+    logger.addHandler(file_handler)
+
+    if console:
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d - %(message)s'))
+        logger.addHandler(console_handler)
+    
     return logger
 
 

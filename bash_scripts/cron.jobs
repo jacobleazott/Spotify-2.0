@@ -1,7 +1,7 @@
 # List of processes run by cron
 # To implement just run "crontab cron.jobs" this replaces the current cron configuration
 
-PROJ_PATH = /home/jaleazo/projects/Spotify-2.0/
+PROJ_PATH=/home/jaleazo/projects/Spotify-2.0
 
 * * * * *  $PROJ_PATH/bash_scripts/Proj.sh >> $PROJ_PATH/logs/Implementations_Cron.log 2>&1  # Every Minute
 

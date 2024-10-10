@@ -46,7 +46,7 @@ class DriveUploader(LogAllMethods):
         gauth.LoadCredentialsFile(self.TOKEN_FILE)
 
         if gauth.credentials is None:
-            gauth.LocalWebserverAuth()
+            gauth.CommandLineAuth()
             gauth.SaveCredentialsFile(self.TOKEN_FILE)
         elif gauth.access_token_expired:
             gauth.Refresh()
