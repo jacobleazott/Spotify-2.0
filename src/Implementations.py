@@ -33,14 +33,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 
-import General_Spotify_Helpers as gsh
 from Shuffle_Styles import ShuffleType
 from Spotify_Features import SpotifyFeatures
+from Settings import Settings
 
 threads = []
-MAX_RUNTIME_MINUTES = 30
-LOGGING_RUNTIME = 60
-LOGGING_INTERVAL = 15
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Monitor method that when run as a seperate thread will exit the program if it goes over our set time.
@@ -51,7 +48,7 @@ OUTPUT: NA
 def monitor_script_runtime():
     start_time = datetime.now()
     while True:
-        if datetime.now() - start_time > timedelta(minutes=MAX_RUNTIME_MINUTES):
+        if datetime.now() - start_time > timedelta(minutes=Settings.MAX_RUNTIME_MINUTES):
             print("Script has been running for too long. Exiting...")
             os._exit(1)
         time.sleep(60)
@@ -106,22 +103,22 @@ def log_and_macro(spotify_features) -> None:
     track_id, shuffle_enabled, playlist_id = spotify_features.get_playback_state()
 
     match track_id:
-        case gsh.SHUFFLE_MACRO_ID:
+        case Settings.SHUFFLE_MACRO_ID:
             shuffle_type = ShuffleType.WEIGHTED if shuffle_enabled else ShuffleType.RANDOM
             startup_feature_thread(SpotifyFeatures.shuffle_playlist, playlist_id, shuffle_type=shuffle_type, 
                                    log_file_name="Shuffle-Playlist.log")
 
-        case gsh.GEN_ARTIST_MACRO_ID:
+        case Settings.GEN_ARTIST_MACRO_ID:
             spotify_features.skip_track()
             startup_feature_thread(SpotifyFeatures.generate_artist_playlist_from_playlist, playlist_id, 
                                    log_file_name="Generate-Artist-Playlist.log")
 
-        case gsh.DISTRIBUTE_TRACKS_MACRO_ID:
+        case Settings.DISTRIBUTE_TRACKS_MACRO_ID:
             spotify_features.skip_track()
             startup_feature_thread(SpotifyFeatures.distribute_tracks_to_collections, playlist_id, 
                                    log_file_name="Distribute-Tracks.log")
 
-        case gsh.ORGANIZE_PLAYLIST_MACRO_ID:
+        case Settings.ORGANIZE_PLAYLIST_MACRO_ID:
             spotify_features.skip_track()
             startup_feature_thread(SpotifyFeatures.organize_playlist_by_date, playlist_id, 
                                    log_file_name="Organize-Playlist.log")
@@ -143,12 +140,12 @@ def main():
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PERIODIC TRIGGERS ══════════════════════════════════════════════════════════════════════════════════════════════
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # Setup log_and_macro to be run over the next 'LOGGING_RUNTIME' every 'LOGGING_INTERVAL'
+    # Setup log_and_macro to be run over the next 'LOGGING_RUNTIME_S' every 'LOGGING_RUNTIME_S'
     scheduler = BackgroundScheduler()
-    scheduler.add_job(log_and_macro, IntervalTrigger(seconds=LOGGING_INTERVAL), args=[features], 
+    scheduler.add_job(log_and_macro, IntervalTrigger(seconds=Settings.LOGGING_INTERVAL_S), args=[features], 
                       next_run_time=datetime.now())
     scheduler.start()
-    time.sleep(LOGGING_RUNTIME - LOGGING_INTERVAL)
+    time.sleep(Settings.LOGGING_RUNTIME_S - Settings.LOGGING_INTERVAL_S)
     # Even though we shutdown if a log_and_macro is still running it will continue to run until exit.
     scheduler.shutdown()
 

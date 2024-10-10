@@ -21,17 +21,14 @@ import pickle
 import sqlite3
 from datetime import datetime, timedelta
 
-import General_Spotify_Helpers as gsh
 from decorators import *
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does
                 not require a GSH object as there is no spotify api call necessary.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class LogPlayback(LogAllMethods):
-    PICKLE_FILENAME = "databases/lastTrack.pk"
-    LISTENING_DB = "databases/listening_data.db"
-    TRACK_COUNTS_DB = "databases/track_counts.db"
     track_id = ""
         
     def __init__(self, logger: logging.Logger=None) -> None:
@@ -43,7 +40,7 @@ class LogPlayback(LogAllMethods):
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def increment_play_count_db(self) -> None:
-        track_counts_conn = sqlite3.connect(self.TRACK_COUNTS_DB)
+        track_counts_conn = sqlite3.connect(Settings.TRACK_COUNTS_DB)
         track_counts_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
              track_id TEXT PRIMARY KEY,
              play_count INTEGER NOT NULL);''')
@@ -71,16 +68,16 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def update_last_track_count(self) -> None:
         try:
-            with open(self.PICKLE_FILENAME, 'rb') as fi:
+            with open(Settings.LAST_TRACK_PICKLE, 'rb') as fi:
                 last_track_pickle = pickle.load(fi)
         except (EOFError, FileNotFoundError):
             last_track_pickle = "", False
 
         if last_track_pickle is None or last_track_pickle[0] != self.track_id:
-            with open(self.PICKLE_FILENAME, 'wb') as fi:
+            with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
                 pickle.dump((self.track_id, True), fi)
         elif last_track_pickle[1]:
-                with open(self.PICKLE_FILENAME, 'wb') as fi:
+                with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
                     pickle.dump((self.track_id, False), fi)
                 self.increment_play_count_db()
 
@@ -91,12 +88,12 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def log_track(self, track_id):
         # Don't log if no track is present or it is one of our macros
-        if track_id in gsh.MACRO_LIST + [""]:
+        if track_id in Settings.MACRO_LIST or track_id == "":
             return
 
         self.track_id = track_id
         year = datetime.now().year
-        ldb_conn = sqlite3.connect(self.LISTENING_DB)
+        ldb_conn = sqlite3.connect(Settings.LISTENING_DB)
 
         ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{year}'(
                 track_id TEXT NOT NULL,

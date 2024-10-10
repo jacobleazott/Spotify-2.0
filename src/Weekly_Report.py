@@ -28,18 +28,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
 
-import Sanity_Tests
 from decorators import *
-from Log_Playback import LogPlayback
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class WeeklyReport(LogAllMethods):
-    SENDER_EMAIL = os.environ['GMAIL_USERNAME']
-    RECIPIENT_EMAIL = os.environ['GMAIL_RECIPIENT']
-    EMAIL_TOKEN_LOCATION = "tokens/email_token.txt"
-
     db_conn = None
     
     def __init__(self, sanity_tester, logger=None):
@@ -56,8 +51,8 @@ class WeeklyReport(LogAllMethods):
     def send_email(self, subject, body):
         msgRoot = MIMEMultipart('related')
         msgRoot['Subject'] = subject
-        msgRoot['From'] = self.SENDER_EMAIL
-        msgRoot['To'] = self.RECIPIENT_EMAIL
+        msgRoot['From'] = Settings.SENDER_EMAIL
+        msgRoot['To'] = Settings.RECIPIENT_EMAIL
         msgAlternative = MIMEMultipart('alternative')
         msgRoot.attach(msgAlternative)
         msgText = MIMEText(body, 'html')
@@ -72,8 +67,8 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msgImage)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            smtp_server.login(self.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
-            smtp_server.sendmail(self.SENDER_EMAIL, self.RECIPIENT_EMAIL, msgRoot.as_string())
+            smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
+            smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
             
             
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -82,7 +77,7 @@ class WeeklyReport(LogAllMethods):
     OUTPUT: Saves off a listening_data_plot.png file for use later.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def gen_playback_graph(self):
-        conn = sqlite3.connect(LogPlayback.LISTENING_DB)
+        conn = sqlite3.connect(Settings.LISTENING_DB)
         values = []
 
         for diff_day in range(0, 7):

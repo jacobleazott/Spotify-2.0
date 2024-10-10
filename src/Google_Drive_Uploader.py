@@ -18,15 +18,12 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from decorators import *
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstracted google drive api handler to upload single 'simple' (< 5MB) files. 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class DriveUploader(LogAllMethods):
-    CLIENT_SECRET_JSON = "tokens/drive_client_secrets.json"
-    TOKEN_FILE = "tokens/google_drive_creds.txt"
-    FOLDER_ID = "16MR2FUanB13hnAGzbCx-ZZ3Pv04vqAAB" # Spotify Databases Folder
-    
     drive = None
 
     def __init__(self, logger: logging.Logger=None) -> None:
@@ -42,15 +39,15 @@ class DriveUploader(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def authorize(self) -> None:
         gauth = GoogleAuth()
-        gauth.LoadClientConfigFile(client_config_file=self.CLIENT_SECRET_JSON)
-        gauth.LoadCredentialsFile(self.TOKEN_FILE)
+        gauth.LoadClientConfigFile(client_config_file=Settings.DRIVE_CLIENT_JSON)
+        gauth.LoadCredentialsFile(Settings.DRIVE_TOKEN_FILE)
 
         if gauth.credentials is None:
             gauth.CommandLineAuth()
-            gauth.SaveCredentialsFile(self.TOKEN_FILE)
+            gauth.SaveCredentialsFile(Settings.DRIVE_TOKEN_FILE)
         elif gauth.access_token_expired:
             gauth.Refresh()
-            gauth.SaveCredentialsFile(self.TOKEN_FILE)
+            gauth.SaveCredentialsFile(Settings.DRIVE_TOKEN_FILE)
         else:
             gauth.Authorize()
 
@@ -62,7 +59,7 @@ class DriveUploader(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_file(self, file: str) -> None:
-        gfile = self.drive.CreateFile({'title': os.path.basename(file), 'parents': [{'id': self.FOLDER_ID}]})
+        gfile = self.drive.CreateFile({'title': os.path.basename(file), 'parents': [{'id': Settings.DRIVE_FOLDER_ID}]})
         gfile.SetContentFile(file)
         gfile.Upload()
 

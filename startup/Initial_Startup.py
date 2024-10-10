@@ -25,6 +25,7 @@ from Backup_Spotify_Data import BackupSpotifyData
 from Google_Drive_Uploader import DriveUploader
 from Shuffle_Styles import Shuffler, ShuffleType
 from decorators import *
+from Settings import Settings
 
 logger = get_file_logger("logs/initial_startup.log", mode='a', console=True)
 
@@ -134,7 +135,7 @@ INPUT: NA
 OUTPUT: NA
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def google_drive_tester() -> None:
-    latest_backup = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
+    latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
     DriveUploader(logger=logger).upload_file(latest_backup)
 
 

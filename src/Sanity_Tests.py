@@ -39,21 +39,18 @@ import sqlite3
 from glob import glob
 from pprint import PrettyPrinter
 
-import General_Spotify_Helpers as gsh
-
 from Database_Helpers import DatabaseHelpers
 from decorators import *
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of sanity tests to verify integrity and completion of the user's collections. This is very
              dependent on having a library setup in my fashion.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class SanityTest(LogAllMethods):
-    PLAYLIST_IDS_FOR_IGNORED_TRACKS = ["7Mgr45oWF0fzRzdlz0NNgT"]
-
     # List of tracks to disregard for our comparisons, this currently includes our "shuffle macro" as well as our 
     #   "Soundtracks" playlists tracks
-    track_list_to_disregard = gsh.MACRO_LIST
+    track_list_to_disregard = Settings.MACRO_LIST
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
@@ -87,10 +84,10 @@ class SanityTest(LogAllMethods):
             if playlist['name'].startswith('20'):
                 self.years_playlists.append({'name': playlist['name'], 'tracks': tracks})
                 
-            if playlist['name'].startswith('The Good - Master Mix'):
+            if playlist['id'] == Settings.MASTER_MIX_ID:
                 self.master_playlist.append({'name': playlist['name'], 'tracks': tracks})
                 
-            if playlist['id'] in self.PLAYLIST_IDS_FOR_IGNORED_TRACKS:
+            if playlist['id'] in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS:
                 self.track_list_to_disregard += [track['id'] for track in tracks]
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -104,7 +101,7 @@ class SanityTest(LogAllMethods):
         for track in tracks:
             # If track isn't local, already checked, not a double duplicate, and not our shuffle macro
             if track['id'] != None and track['id'] in checked_list and track not in duplicates \
-                    and track['id'] != gsh.SHUFFLE_MACRO_ID:
+                    and track['id'] != Settings.SHUFFLE_MACRO_ID:
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
                 duplicates.append(f"{dupe['name']} -- {artist_names}")
                 continue

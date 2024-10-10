@@ -18,15 +18,13 @@ from datetime import datetime
 
 import General_Spotify_Helpers as gsh
 from decorators import *
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MiscFeatures(LogAllMethods):
-    PLAYLIST_LENGTH = 100
-    SOURCE_PLAYLIST = "6kGQQoelXM2YDOSmqUUzRw"
-    DEST_PLAYLIST = "3dZVHLVdpOGlSy8oH9WvBi"
-    
+        
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
@@ -38,7 +36,7 @@ class MiscFeatures(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_first_artist_from_playlist(self, playlist_id: str) -> str:
         playlist_tracks = self.spotify.get_playlist_tracks(playlist_id, artist_info=['id', 'name'])
-        return [track for track in playlist_tracks if track['id'] not in gsh.MACRO_LIST][0]['artists'][0]['id']
+        return [track for track in playlist_tracks if track['id'] not in Settings.MACRO_LIST][0]['artists'][0]['id']
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists.
@@ -82,7 +80,7 @@ class MiscFeatures(LogAllMethods):
         artist_playlists = list()
         
         for playlist in user_playlists:
-                if playlist["name"].startswith('The Good - Master Mix'):
+                if playlist["id"] == Settings.MASTER_MIX_ID:
                     good_playlist = playlist
                     
                 if playlist["name"].startswith(str(datetime.today().year)):
@@ -162,7 +160,8 @@ class MiscFeatures(LogAllMethods):
         album_track_sorted_list = []
         for key, value in album_sorted_dict.items():
             tmp_tracks = sorted(value, key=lambda element: (element['disc_number'], element['track_number']))
-            album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], [track['id'] for track in tmp_tracks]))
+            album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], 
+                                            [track['id'] for track in tmp_tracks]))
 
         # Order collection by release date
         album_track_sorted_list.sort()
@@ -177,7 +176,7 @@ class MiscFeatures(LogAllMethods):
             raise exception("TRACK LIST MISMATCH IN DISTRIBUTION")
             
         # Remove any MACROS present in list
-        for macro in gsh.MACRO_LIST:
+        for macro in Settings.MACRO_LIST:
             try:
                 track_ids_ordered.remove(macro)
             except ValueError:
@@ -193,13 +192,15 @@ class MiscFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
-        tracks = [gsh.SHUFFLE_MACRO_ID]
-        offset = self.spotify.get_playlist_data(self.SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
-                    - self.PLAYLIST_LENGTH
-        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(self.SOURCE_PLAYLIST, offset=offset)]
+        tracks = [Settings.SHUFFLE_MACRO_ID]
+        offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
+                    - Settings.LATEST_PLAYLIST_LENGTH
+        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
+                                                                             offset=offset)]
 
-        self.spotify.remove_all_playlist_tracks(self.DEST_PLAYLIST, max_playlist_length=self.PLAYLIST_LENGTH)
-        self.spotify.add_tracks_to_playlist(self.DEST_PLAYLIST, tracks)
+        self.spotify.remove_all_playlist_tracks(Settings.LATEST_DEST_PLAYLIST, 
+                                                max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH)
+        self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
