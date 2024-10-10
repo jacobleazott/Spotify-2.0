@@ -159,7 +159,7 @@ def main():
     features.backup_spotify_library() if check_date_time(start_time, hour=2, minute=0) else None
     
     # Update Latest 100 Playlist - Run Every Day At 2 AM
-    features.update_latest_playlist() if check_date_time(start_time, hour=2, minute=0) else None
+    features.update_daily_latest_playlist() if check_date_time(start_time, hour=2, minute=0) else None
     
     # Weekly Report - Run Every Monday At 3 AM
     features.generate_weekly_report() if check_date_time(start_time, weekday=0, hour=3, minute=0) else None

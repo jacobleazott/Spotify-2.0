@@ -22,6 +22,7 @@ DESCRIPTION: Class that handles creating a backup of the user's followed artists
 class BackupSpotifyData(LogAllMethods):
     FEATURE_SCOPES = ["user-follow-read"
                     , "playlist-read-private"]
+    DATABASE_LOCATION = "databases/backups/"
     db_conn = None
     
     def __init__(self, spotify, logger=None):
@@ -36,10 +37,11 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def insert_many(self, table: str, values: list) -> None:
-        placeholders = "?, " * len(values[0])
-        query = "INSERT OR IGNORE INTO %s VALUES (%s)" % (table, placeholders[:-2])
-        data = [tuple(d.values()) for d in values] if type(values[0]) is dict else values
-        self.db_conn.executemany(query, data)
+        if len(values) > 0:
+            placeholders = "?, " * len(values[0])
+            query = "INSERT OR IGNORE INTO %s VALUES (%s)" % (table, placeholders[:-2])
+            data = [tuple(d.values()) for d in values] if type(values[0]) is dict else values
+            self.db_conn.executemany(query, data)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates the necessary tables for our SQLite db. These include the artist table, playback table, tracks
@@ -47,10 +49,22 @@ class BackupSpotifyData(LogAllMethods):
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def create_backup_data_db(self):
+    def create_backup_data_db(self) -> None:
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists (
                                 id text UNIQUE PRIMARY KEY,
+                                name text,
+                                description text
+                                ) WITHOUT ROWID; """)
+
+        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS artists (
+                                id text UNIQUE PRIMARY KEY,
                                 name text
+                                ) WITHOUT ROWID; """)
+        
+        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS albums (
+                                id text UNIQUE PRIMARY KEY,
+                                name text,
+                                release_date text
                                 ) WITHOUT ROWID; """)
 
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks(
@@ -58,21 +72,35 @@ class BackupSpotifyData(LogAllMethods):
                                 name text,
                                 duration_ms integer,
                                 is_local integer,
-                                album_id text,
-                                album_name text,
-                                release_date text,
-                                artist_id text,
-                                artist_name text
+                                is_playable integer
                                 ) WITHOUT ROWID; """)
 
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS followed_artists(
-                                id text UNIQUE PRIMARY KEY,
-                                name text
+                                id text PRIMARY KEY REFERENCES artists(id)
                                 ) WITHOUT ROWID; """)
 
         self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists_tracks(
                                 id_playlist text REFERENCES playlists(id),
-                                id_track text REFERENCES tracks(id)
+                                id_track text REFERENCES tracks(id),
+                                UNIQUE(id_playlist, id_track)
+                                )""")
+        
+        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_artists(
+                                id_track text REFERENCES tracks(id),
+                                id_artist text REFERENCES artists(id),
+                                UNIQUE(id_track, id_artist)
+                                )""")
+        
+        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_albums(
+                                id_track text REFERENCES tracks(id),
+                                id_album text REFERENCES albums(id),
+                                UNIQUE(id_track, id_album)
+                                )""")
+        
+        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS albums_artists(
+                                id_album text REFERENCES albums(id),
+                                id_artist text REFERENCES artists(id),
+                                UNIQUE(id_album, id_artist)
                                 )""")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -80,58 +108,76 @@ class BackupSpotifyData(LogAllMethods):
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def add_followed_artists_to_db(self):
-        artists = self.spotify.get_user_artists(info=["id", "name"])
+    def add_followed_artists_to_db(self) -> None:
+        artists = self.spotify.get_user_artists(info=["id"])
         self.logger.info(f"\t Inserting {len(artists)} Artists")
         self.insert_many("followed_artists", artists)
-
+        
+        
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Gathers all users playlists, gets all the tracks from said playlists. Creates a many to many
-                 relationship between all tracks and all playlists.
+    DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
+    INPUT: playlist_id - Id that we will be using to grab tracks and link together in our db.
+    Output: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    def insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
+        # Regular Object Table Entries
+        track_table_entries, album_table_entries, artist_table_entries = [], [], []
+        # Many To Many Relationship Tables
+        playlists_tracks_entries, tracks_artists_entries, tracks_albums_entries, album_artists_entries = [], [], [], []
+        
+        tracks = self.spotify.get_playlist_tracks(playlist_id
+                                         , track_info=['id', 'name', 'duration_ms', 'is_local', 'preview_url']
+                                         , album_info=['id', 'name', 'release_date', 'artists']
+                                         , artist_info=['id', 'name'])
+        
+        for track in tracks:
+            track_table_entries.append((track['id'], track['name'], track['duration_ms'], track['is_local'], 
+                                        track['preview_url'] is not None))
+            album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
+            artist_table_entries += [(artist['id'], artist['name']) for artist in track['artists']]
+            artist_table_entries += [(artist['id'], artist['name']) for artist in track['album_artists']]
+            playlists_tracks_entries.append((playlist_id, track['id']))
+            tracks_artists_entries += [(track['id'], artist['id']) for artist in track['artists']]
+            tracks_albums_entries.append((track['id'], track['album_id']))
+            album_artists_entries += [(track['album_id'], artist['id']) for artist in track['album_artists']]
+            
+        self.insert_many("tracks", track_table_entries)
+        self.insert_many("albums", album_table_entries)
+        self.insert_many("artists", artist_table_entries)
+        self.insert_many("playlists_tracks", playlists_tracks_entries)
+        self.insert_many("tracks_artists", tracks_artists_entries)
+        self.insert_many("tracks_albums", tracks_albums_entries)
+        self.insert_many("albums_artists", album_artists_entries)
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Adds all user playlists into our database.
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def add_playlists_to_db(self):
-        playlists = self.spotify.get_user_playlists(info=["id", "name"])
-        self.logger.info(f"\t Inserting {len(playlists)} Playlists")
-        self.insert_many("playlists", playlists)
-        for playlist in playlists:
+    def add_user_playlists_to_db(self) -> None:
+        user_playlists = self.spotify.get_user_playlists(info=["id", "name", "description"])
+        self.logger.info(f"\t Inserting {len(user_playlists)} Playlists")
+        self.insert_many("playlists", user_playlists)
+        
+        for playlist in user_playlists:
             self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
-            tracks = self.spotify.get_playlist_tracks(playlist["id"]
-                                                     , track_info=["id", "name", "duration_ms", "is_local"]
-                                                     , album_info=["id", "name", "release_date"]
-                                                     , artist_info=["id", "name"])
-            if len(tracks) == 0:
-                self.logger.debug(f"\t SKIPPING Empty Playlist: {playlist['name']}")
-                continue
-
-            tracks_ready_for_insert = []
-            for track in tracks:
-                tmp_val = []
-                for key, value in track.items():
-                    if type(value) is list:
-                        value = value[0]
-                    if type(value) is dict:
-                        for key2, value2 in value.items():
-                            tmp_val.append(value2)
-                    else:
-                        tmp_val.append(value)
-                tracks_ready_for_insert.append(tuple(tmp_val))
-
-            track_id_map = [(playlist["id"], x[0])for x in tracks_ready_for_insert]
+            self.insert_tracks_into_db_from_playlist(playlist['id'])
             
-            self.insert_many("tracks", tracks_ready_for_insert)
-            self.insert_many("playlists_tracks", track_id_map)
-        
         self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
-        
-    def backup_data(self):
-        self.db_conn = sqlite3.connect(f"databases/backups/{datetime.today().date()}.db")
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
+                 our playlists including all track and artist data from anything in those playlists.
+    INPUT: NA
+    Output: NA
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
+    def backup_data(self) -> None:
+        self.db_conn = sqlite3.connect(f"{DATABASE_LOCATION}{datetime.today().date()}.db")
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
         with self.db_conn:
             self.create_backup_data_db()
             self.add_followed_artists_to_db()
-            self.add_playlists_to_db()
+            self.add_user_playlists_to_db()
         
         self.db_conn.commit()
         self.db_conn.close()

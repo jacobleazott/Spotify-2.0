@@ -158,7 +158,7 @@ class SpotifyFeatures(LogAllMethods):
            shuffle_type - ShuffleType Enum of how we will shuffle the playlist (ref Shuffle_Styles.py).
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def shuffle_playlist(self, playlist_id: str="", shuffle_type: ShuffleType=ShuffleType.RANDOM) -> None:
+    def shuffle_playlist(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         Shuffler(self.spotify, logger=self.logger).shuffle(playlist_id, shuffle_type)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -221,7 +221,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
-        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        sanity_tester = SanityTest(logger=self.logger)
         WeeklyReport(self.spotify, sanity_tester, logger=self.logger).gen_weekly_report()
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -230,7 +230,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
-        sanity_tester = SanityTest(self.spotify, logger=self.logger)
+        sanity_tester = SanityTest(logger=self.logger)
         logger.info("SANITY TESTS ==========================================================")
         logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
         logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
@@ -244,7 +244,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_latest_backup_to_drive(self) -> None:
-        latest_backup = max(glob('databases/backups/*'), key=os.path.getmtime)
+        latest_backup = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
