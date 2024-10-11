@@ -53,7 +53,7 @@ ___
 # Setup
 
 ## Environment Setup
-Wherever you clone this project (recommend `/home/$USER/projects`), you MUST update the `cron.jobs` `PROJ_PATH`.
+Wherever you clone this project (recommend `/home/$USER/prod`), you MUST update the `cron.jobs` `PROJ_PATH`.
 
 ```bash
 cd Spotify-2.0/

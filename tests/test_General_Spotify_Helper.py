@@ -22,6 +22,7 @@ import api_response_test_messages as artm
 sys.modules['spotipy'] = __import__('mocked_spotipy')
 
 import General_Spotify_Helpers as gsh
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
@@ -622,9 +623,13 @@ class TestGSH(unittest.TestCase):
         spotify = gsh.GeneralSpotifyHelpers()
         create_env(spotify)
         
-        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl002")
+        playlist_id = Settings.PLAYLISTS_WE_CAN_DELETE_FROM[0]
+        spotify.sp.playlists.append(create_playlist(playlist_id, "Pl100", "no description", []))
+        spotify.add_tracks_to_playlist(playlist_id, ["Tr001", "Tr002", "Tr004"])
+        
+        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks(playlist_id)
 
-        spotify.scopes.append("DELETE-DELETE-DELETE")
+        spotify.scopes.append(Settings.DELETE_SCOPE)
         
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
         
@@ -634,16 +639,14 @@ class TestGSH(unittest.TestCase):
         spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=5)
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
         
-        gsh.PLAYLISTS_WE_CAN_DELETE_FROM.append("Pl002")
+        spotify.remove_all_playlist_tracks(playlist_id)
+        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 3)
         
-        spotify.remove_all_playlist_tracks("Pl002")
-        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
+        spotify.remove_all_playlist_tracks(playlist_id, max_playlist_length=2)
+        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 3)
         
-        spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=2)
-        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
-        
-        spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=3)
-        self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 0)
+        spotify.remove_all_playlist_tracks(playlist_id, max_playlist_length=3)
+        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 0)
     
     def test_get_artist_albums(self):
         spotify = gsh.GeneralSpotifyHelpers()

@@ -25,7 +25,7 @@ import sqlite3
 from glob import glob
 
 from decorators import *
-from Backup_Spotify_Data import BackupSpotifyData
+from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of methods similar to GSH that grab from our latest local backup rather than spotify itself.
@@ -37,7 +37,7 @@ class DatabaseHelpers(LogAllMethods):
     def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
         
-        latest_backup_file = max(glob(f"{BackupSpotifyData.DATABASE_LOCATION}*"), key=os.path.getmtime)
+        latest_backup_file = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         self.backup_db_conn = sqlite3.connect(latest_backup_file)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
