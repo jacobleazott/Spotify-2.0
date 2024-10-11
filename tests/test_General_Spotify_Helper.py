@@ -11,13 +11,10 @@
 #   python test_General_Spotify_Helper.py 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import inspect
-import os
 import sys
 import unittest
-from datetime import datetime, timedelta
-from pprint import pprint
 
-import time
+from datetime import datetime, timedelta
 from unittest import mock
 
 import api_response_test_messages as artm
@@ -298,7 +295,7 @@ class TestGSH(unittest.TestCase):
         # This method is tested under 'test_change_playback'
         assert True
     
-    @mock.patch("time.sleep", return_value=None)  # Patches time.sleep to do nothing
+    @mock.patch("time.sleep", return_value=None)
     def test_write_to_queue(self, mock_sleep):
         spotify = gsh.GeneralSpotifyHelpers()
         thelp.create_env(spotify)
@@ -714,10 +711,6 @@ class TestGSH(unittest.TestCase):
 
         self.assertEqual(spotify.get_playlist_data('Pl001', info=['name']), ['Fake Playlist 1'])
         self.assertEqual(spotify.get_playlist_data('Pl001', info=['id', 'name']), ['Pl001', 'Fake Playlist 1'])
-
-        
-if __name__ == "__main__":
-    unittest.main()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
