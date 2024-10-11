@@ -17,6 +17,9 @@ import unittest
 from datetime import datetime, timedelta
 from pprint import pprint
 
+import time
+from unittest import mock
+
 import api_response_test_messages as artm
 # Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
 sys.modules['spotipy'] = __import__('mocked_spotipy')
@@ -295,8 +298,8 @@ class TestGSH(unittest.TestCase):
         # This method is tested under 'test_change_playback'
         assert True
     
-    def test_write_to_queue(self):
-        # Note there is a 0.2s delay per track we add to the queue, so don't go overboard.
+    @mock.patch("time.sleep", return_value=None)  # Patches time.sleep to do nothing
+    def test_write_to_queue(self, mock_sleep):
         spotify = gsh.GeneralSpotifyHelpers()
         thelp.create_env(spotify)
         # Verify Queue Is Empty Before Testing

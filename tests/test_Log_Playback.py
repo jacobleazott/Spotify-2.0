@@ -20,9 +20,9 @@ import tester_helpers as thelp
 from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all GSH functionality
+DESCRIPTION:
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class TestGSH(unittest.TestCase):
+class TestLogPlayback(unittest.TestCase):
     
     def test_increment_play_count_db(self):
         print("Not Implemented")

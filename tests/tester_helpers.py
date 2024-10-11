@@ -35,7 +35,8 @@ def create_album(album_id: str, name: str, artists: list[dict], album_type: str)
         'id': album_id,
         'name': name,
         'artists': artists,
-        'album_type': album_type   # "album", "single", "compilation"
+        'album_type': album_type,   # "album", "single", "compilation"
+        'release_date': '0000-01-01'
     }
 
 
@@ -54,7 +55,9 @@ def create_track(track_id: str, name: str, album: str, artists: list[dict], is_l
         'name': name,
         'album': album,
         'artists': artists,
-        'is_local': is_local
+        'is_local': is_local,
+        'duration_ms': 1,
+        'preview_url': 'fake_url'
     }
 
 
@@ -90,7 +93,8 @@ def create_env(spotify_mocked):
     artist_followed_appears_on = create_artist('Ar004', 'Fake Artist 4')
     artist_unfollowed_appears_on = create_artist('Ar005', 'Fake Artist 5')
     
-    spotify_mocked.sp.artists += [artist_no_tracks, artist_only_theirs, artist_followed, artist_followed_appears_on, artist_unfollowed_appears_on]
+    spotify_mocked.sp.artists += [artist_no_tracks, artist_only_theirs, artist_followed, artist_followed_appears_on
+                                  , artist_unfollowed_appears_on]
     spotify_mocked.sp.user_artists += [artist_only_theirs, artist_followed, artist_followed_appears_on]
     
     # Create Albums
@@ -134,13 +138,17 @@ def create_env(spotify_mocked):
     tr014 = create_track('Tr014', 'Fake Track 14', al010, [artist_unfollowed_appears_on])
     tr015 = create_track('Tr015', 'Fake Track 15', al010, [artist_unfollowed_appears_on, artist_followed_appears_on])
 
-    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008, tr009, tr010, tr011, tr012, tr013, tr014, tr015]
+    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008
+                                 , tr009, tr010, tr011, tr012, tr013, tr014, tr015]
 
     # Create Playlists
     spotify_mocked.sp.playlists.append(create_playlist('Pl001', 'Fake Playlist 1', 'description 1', []))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl002', 'Fake Playlist 2', 'description 2', [tr002, tr003, tr004]))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl003', 'Fake Playlist 3', 'description 3', [tr008, tr011, tr012, tr015]))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl004', 'Fake Playlist 4', 'description 4', [local_track, local_track, tr001, tr001]))
+    spotify_mocked.sp.playlists.append(create_playlist('Pl002', 'Fake Playlist 2', 'description 2'
+                                                       , [tr002, tr003, tr004]))
+    spotify_mocked.sp.playlists.append(create_playlist('Pl003', 'Fake Playlist 3', 'description 3'
+                                                       , [tr008, tr011, tr012, tr015]))
+    spotify_mocked.sp.playlists.append(create_playlist('Pl004', 'Fake Playlist 4', 'description 4'
+                                                       , [local_track, local_track, tr001, tr001]))
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

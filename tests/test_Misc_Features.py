@@ -22,7 +22,7 @@ from Settings import Settings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class TestGSH(unittest.TestCase):
+class TestMiscFeatures(unittest.TestCase):
     
     def test_get_first_artist_from_playlist(self):
         # assert False

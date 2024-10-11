@@ -17,6 +17,24 @@ from decorators import *
 from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def replace_none(data, replace_with):
+    if isinstance(data, dict):
+        # Iterate through the dictionary
+        return {key: replace_none(value, replace_with) for key, value in data.items()}
+    elif isinstance(data, list):
+        # Iterate through the list
+        return [replace_none(item, replace_with) for item in data]
+    elif data is None:
+        # Replace None with the specified string
+        return replace_with
+    else:
+        # Return the value if it's not None, dict, or list
+        return data
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class BackupSpotifyData(LogAllMethods):
@@ -28,23 +46,64 @@ class BackupSpotifyData(LogAllMethods):
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         self.db_conn = sqlite3.connect(db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
+        
+        
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: 
+    INPUT: 
+    Output: 
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""   
+    def get_column_types(self, table: str) -> list:
+        cursor = self.db_conn.execute(f"PRAGMA table_info({table})")
+        columns = cursor.fetchall()
+
+        # SQLite type to Python type mapping
+        sqlite_type_mapping = {
+            'INTEGER': int,
+            'TEXT': str,
+            'REAL': float,
+            'BLOB': bytes,
+            'NUMERIC': float  # NUMERIC can map to int or float depending on usage, but using float as a default
+        }
+
+        # Extracting column names and types
+        column_types = []
+        for col in columns:
+            col_name = col[1]   # Column name (not really needed for our case)
+            col_type = col[2].upper()  # Column type in SQLite schema
+            python_type = sqlite_type_mapping.get(col_type, str)  # Default to str if type is not found
+            column_types.append(python_type)
+
+        return column_types
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries user for a valid artist id.
     INPUT: table - what table we will insert into (str).
            values - what data will be inserted into the table (list).
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""   
-    def insert_many(self, table: str, values: list, batch_size: int=500) -> None:
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""""" 
+    def insert_many(self, table: str, values: Union[list[dict], list[tuple], list], batch_size: int=500) -> None:
         if not values:
             return  # No data to insert
 
-        placeholders = ", ".join("?" for _ in values[0])
+        expected_types = self.get_column_types(table)
+        # Translates values into our format from either dict, list of tuples, or just list
+        data = [tuple(d.values()) for d in values] if type(values[0]) is dict \
+                else [(v,) for v in values] if type(values[0]) is not tuple else values 
+
+        for row in data:
+            for i, (val, expected_type) in enumerate(zip(row, expected_types)):
+                if val is None:
+                    continue
+                if not isinstance(val, expected_type):
+                    raise ValueError(f"'{val}' in column {i+1} of table '{table}' should be of type {expected_type}")
+
+        placeholders = ", ".join("?" for _ in data[0])
         query = f"INSERT OR IGNORE INTO {table} VALUES ({placeholders})"
 
         # Insert the data in batches
-        for i in range(0, len(values), batch_size):
-            batch = values[i:i + batch_size]
+        for i in range(0, len(data), batch_size):
+            batch = data[i:i + batch_size]
             self.db_conn.executemany(query, batch)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -54,7 +113,10 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def create_backup_data_db(self) -> None:
+        # We put specific NOT NULL Refs on our non track/ playlist ref tables since we don't care about
         self.db_conn.executescript("""
+            PRAGMA foreign_keys = ON;
+            
             CREATE TABLE IF NOT EXISTS playlists (
                 id text UNIQUE PRIMARY KEY,
                 name text,
@@ -86,25 +148,24 @@ class BackupSpotifyData(LogAllMethods):
 
             CREATE TABLE IF NOT EXISTS playlists_tracks (
                 id_playlist text REFERENCES playlists(id),
-                id_track text REFERENCES tracks(id),
-                UNIQUE(id_playlist, id_track)
+                id_track text REFERENCES tracks(id)
             );
 
             CREATE TABLE IF NOT EXISTS tracks_artists (
                 id_track text REFERENCES tracks(id),
-                id_artist text REFERENCES artists(id),
+                id_artist text NOT NULL REFERENCES artists(id),
                 UNIQUE(id_track, id_artist)
             );
 
             CREATE TABLE IF NOT EXISTS tracks_albums (
                 id_track text REFERENCES tracks(id),
-                id_album text REFERENCES albums(id),
+                id_album text NOT NULL REFERENCES albums(id),
                 UNIQUE(id_track, id_album)
             );
 
             CREATE TABLE IF NOT EXISTS albums_artists (
-                id_album text REFERENCES albums(id),
-                id_artist text REFERENCES artists(id),
+                id_album text NOT NULL REFERENCES albums(id),
+                id_artist text NOT NULL REFERENCES artists(id),
                 UNIQUE(id_album, id_artist)
             );
         """)
@@ -115,9 +176,10 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_followed_artists_to_db(self) -> None:
-        artists = self.spotify.get_user_artists(info=["id"])
+        artists = self.spotify.get_user_artists(info=["id", "name"])
         self.logger.info(f"\t Inserting {len(artists)} Artists")
-        self.insert_many("followed_artists", artists)
+        self.insert_many("artists", artists)
+        self.insert_many("followed_artists", [artist['id'] for artist in artists])
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
@@ -136,6 +198,9 @@ class BackupSpotifyData(LogAllMethods):
                                          , artist_info=['id', 'name'])
         
         for track in tracks:
+            # Replace any None values with a unique identifier so we have all data
+            track = replace_none(track, f"local_track_{track['name']}")
+                
             track_table_entries.append((track['id'], track['name'], track['duration_ms'], track['is_local'], 
                                         track['preview_url'] is not None))
             album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
