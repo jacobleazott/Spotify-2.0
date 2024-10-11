@@ -1,12 +1,12 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS FOR BACKUP SPOTIFY DATA       CREATED: 2024-10-10          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - BACKUP SPOTIFY DATA         CREATED: 2024-10-10          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# 
+# Unit tests for all functionality out of 'Backup_Spotify_Data.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import sqlite3
 import sys
@@ -22,7 +22,7 @@ from Backup_Spotify_Data import BackupSpotifyData, replace_none, get_column_type
 from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all GSH functionality
+DESCRIPTION: Unit test collection for all Backup Spotify Data functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestBackupSpotifyData(unittest.TestCase):
     def setUp(self):

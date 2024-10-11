@@ -1,14 +1,12 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS FOR GSH                       CREATED: 2024-09-14          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - GSH                         CREATED: 2024-09-14          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# Here we unit test all functionality out of 'General_Spotify_Helpers'.
-# Run Command - (-v can be passed AFTER the file if verbose mode is desired)
-#   python test_General_Spotify_Helper.py 
+# Unit tests for all functionality out of 'General_Spotify_Helpers.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import inspect
 import sys
@@ -26,7 +24,7 @@ import tester_helpers as thelp
 from Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all GSH functionality
+DESCRIPTION: Unit test collection for all GSH functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
