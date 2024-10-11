@@ -59,6 +59,7 @@ class DriveUploader(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_file(self, file: str) -> None:
+        print("yo")
         gfile = self.drive.CreateFile({'title': os.path.basename(file), 'parents': [{'id': Settings.DRIVE_FOLDER_ID}]})
         gfile.SetContentFile(file)
         gfile.Upload()

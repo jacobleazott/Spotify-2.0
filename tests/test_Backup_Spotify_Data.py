@@ -25,6 +25,7 @@ from Settings import Settings
 DESCRIPTION: Unit test collection for all Backup Spotify Data functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestBackupSpotifyData(unittest.TestCase):
+    
     def setUp(self):
         self.spotify = gsh.GeneralSpotifyHelpers()
         self.backup = BackupSpotifyData(self.spotify, db_path=":memory:")
