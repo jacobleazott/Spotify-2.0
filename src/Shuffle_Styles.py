@@ -48,9 +48,7 @@ DESCRIPTION: Feature class that implements various shuffle methodologies. Curren
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Shuffler(LogAllMethods):
     QUEUE_LENGTH = 80
-    FEATURE_SCOPES = ["playlist-read-private"
-                    , "playlist-read-collaborative"
-                    , "user-modify-playback-state"]
+    FEATURE_SCOPES = ["user-modify-playback-state"]
 
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify

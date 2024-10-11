@@ -11,6 +11,10 @@
 # Current Reporting Functionality -
 # SANITY TESTS -
 #   All sanity tests under Sanity_Tests.py are currently being run and pushed to the user.
+#
+# LISTENING DATA -
+#   It generates a graph giving you how many hours you listened to each day over the past week. It also overlays a line
+#   graph that shows you your current average over the past 4 weeks.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import matplotlib.pyplot as plt 
 import os
@@ -32,20 +36,15 @@ from Log_Playback import LogPlayback
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class WeeklyReport(LogAllMethods):
-    FEATURE_SCOPES = []
-    
-    SENDER_EMAIL = "jacobs.spotify.email@gmail.com"
-    RECIPIENT_EMAIL = "jacob.leazott@gmail.com"
+    SENDER_EMAIL = os.environ['GMAIL_USERNAME']
+    RECIPIENT_EMAIL = os.environ['GMAIL_RECIPIENT']
     EMAIL_TOKEN_LOCATION = "tokens/email_token.txt"
 
     db_conn = None
     
-    def __init__(self, spotify, sanity_tester, logger=None):
-        self.spotify = spotify
-        self.spotify.scopes = self.FEATURE_SCOPES
+    def __init__(self, sanity_tester, logger=None):
         self.sanity_tester = sanity_tester
         self.logger = logger if logger is not None else logging.getLogger()
-
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Sends an email with subject, and body to 'RECIPIENT_EMAIL' from 'SENDER_EMAIL', requires app creds from
@@ -73,7 +72,7 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msgImage)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            smtp_server.login(self.SENDER_EMAIL, os.environ['EMAIL_TOKEN'])
+            smtp_server.login(self.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             smtp_server.sendmail(self.SENDER_EMAIL, self.RECIPIENT_EMAIL, msgRoot.as_string())
             
             
@@ -193,11 +192,12 @@ class WeeklyReport(LogAllMethods):
                                             "No Issues Detected In Artist Integrity Good Job!")
         st_contr = self.gen_html_unordered_list(self.sanity_tester.sanity_contributing_artists(), 
                                             "No Missing Tracks From Contributing Artists Good Job!")
+        st_play = self.gen_html_unordered_list(self.sanity_tester.sanity_playable_tracks(), 
+                                            "All Tracks Are Playable, Great!")
         
         self.gen_playback_graph()
         
-        body = \
-        f"""
+        body = f"""
         <html>
             <h1> Weekly Spotify Report </h1>
             <h1> Weekly Listening Data </h1>
@@ -213,6 +213,8 @@ class WeeklyReport(LogAllMethods):
             <div style="margin-left:35px;"> {textwrap.indent(st_integ, "\t\t")} \n\t </div>
             <h2> - Contributing Artists Missing - </h2>
             <div style="margin-left:35px;"> {textwrap.indent(st_contr, "\t\t")} \n\t </div>
+            <h2> - Non-Playable Tracks - </h2>
+            <div style="margin-left:35px;"> {textwrap.indent(st_play, "\t\t")} \n\t </div>
         </html>
         """
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
