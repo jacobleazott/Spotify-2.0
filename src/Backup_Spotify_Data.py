@@ -22,25 +22,30 @@ DESCRIPTION: Class that handles creating a backup of the user's followed artists
 class BackupSpotifyData(LogAllMethods):
     FEATURE_SCOPES = ["user-follow-read"
                     , "playlist-read-private"]
-    db_conn = None
     
-    def __init__(self, spotify, logger=None):
+    def __init__(self, spotify, db_path=None, logger=None):
         self.spotify = spotify
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
+        self.db_conn = sqlite3.connect(db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries user for a valid artist id.
     INPUT: table - what table we will insert into (str).
            values - what data will be inserted into the table (list).
     Output: NA
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def insert_many(self, table: str, values: list) -> None:
-        if len(values) > 0:
-            placeholders = "?, " * len(values[0])
-            query = "INSERT OR IGNORE INTO %s VALUES (%s)" % (table, placeholders[:-2])
-            data = [tuple(d.values()) for d in values] if type(values[0]) is dict else values
-            self.db_conn.executemany(query, data)
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""   
+    def insert_many(self, table: str, values: list, batch_size: int=500) -> None:
+        if not values:
+            return  # No data to insert
+
+        placeholders = ", ".join("?" for _ in values[0])
+        query = f"INSERT OR IGNORE INTO {table} VALUES ({placeholders})"
+
+        # Insert the data in batches
+        for i in range(0, len(values), batch_size):
+            batch = values[i:i + batch_size]
+            self.db_conn.executemany(query, batch)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates the necessary tables for our SQLite db. These include the artist table, playback table, tracks
@@ -49,58 +54,60 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def create_backup_data_db(self) -> None:
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists (
-                                id text UNIQUE PRIMARY KEY,
-                                name text,
-                                description text
-                                ) WITHOUT ROWID; """)
+        self.db_conn.executescript("""
+            CREATE TABLE IF NOT EXISTS playlists (
+                id text UNIQUE PRIMARY KEY,
+                name text,
+                description text
+            ) WITHOUT ROWID;
 
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS artists (
-                                id text UNIQUE PRIMARY KEY,
-                                name text
-                                ) WITHOUT ROWID; """)
-        
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS albums (
-                                id text UNIQUE PRIMARY KEY,
-                                name text,
-                                release_date text
-                                ) WITHOUT ROWID; """)
+            CREATE TABLE IF NOT EXISTS artists (
+                id text UNIQUE PRIMARY KEY,
+                name text
+            ) WITHOUT ROWID;
 
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks(
-                                id text UNIQUE PRIMARY KEY,
-                                name text,
-                                duration_ms integer,
-                                is_local integer,
-                                is_playable integer
-                                ) WITHOUT ROWID; """)
+            CREATE TABLE IF NOT EXISTS albums (
+                id text UNIQUE PRIMARY KEY,
+                name text,
+                release_date text
+            ) WITHOUT ROWID;
 
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS followed_artists(
-                                id text PRIMARY KEY REFERENCES artists(id)
-                                ) WITHOUT ROWID; """)
+            CREATE TABLE IF NOT EXISTS tracks (
+                id text UNIQUE PRIMARY KEY,
+                name text,
+                duration_ms integer,
+                is_local integer,
+                is_playable integer
+            ) WITHOUT ROWID;
 
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS playlists_tracks(
-                                id_playlist text REFERENCES playlists(id),
-                                id_track text REFERENCES tracks(id),
-                                UNIQUE(id_playlist, id_track)
-                                )""")
-        
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_artists(
-                                id_track text REFERENCES tracks(id),
-                                id_artist text REFERENCES artists(id),
-                                UNIQUE(id_track, id_artist)
-                                )""")
-        
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS tracks_albums(
-                                id_track text REFERENCES tracks(id),
-                                id_album text REFERENCES albums(id),
-                                UNIQUE(id_track, id_album)
-                                )""")
-        
-        self.db_conn.execute("""CREATE TABLE IF NOT EXISTS albums_artists(
-                                id_album text REFERENCES albums(id),
-                                id_artist text REFERENCES artists(id),
-                                UNIQUE(id_album, id_artist)
-                                )""")
+            CREATE TABLE IF NOT EXISTS followed_artists (
+                id text PRIMARY KEY REFERENCES artists(id)
+            ) WITHOUT ROWID;
+
+            CREATE TABLE IF NOT EXISTS playlists_tracks (
+                id_playlist text REFERENCES playlists(id),
+                id_track text REFERENCES tracks(id),
+                UNIQUE(id_playlist, id_track)
+            );
+
+            CREATE TABLE IF NOT EXISTS tracks_artists (
+                id_track text REFERENCES tracks(id),
+                id_artist text REFERENCES artists(id),
+                UNIQUE(id_track, id_artist)
+            );
+
+            CREATE TABLE IF NOT EXISTS tracks_albums (
+                id_track text REFERENCES tracks(id),
+                id_album text REFERENCES albums(id),
+                UNIQUE(id_track, id_album)
+            );
+
+            CREATE TABLE IF NOT EXISTS albums_artists (
+                id_album text REFERENCES albums(id),
+                id_artist text REFERENCES artists(id),
+                UNIQUE(id_album, id_artist)
+            );
+        """)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries all followed artists by the user, inserts them into the database.
@@ -111,7 +118,6 @@ class BackupSpotifyData(LogAllMethods):
         artists = self.spotify.get_user_artists(info=["id"])
         self.logger.info(f"\t Inserting {len(artists)} Artists")
         self.insert_many("followed_artists", artists)
-        
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
@@ -171,14 +177,12 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
-        self.db_conn = sqlite3.connect(f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
         with self.db_conn:
             self.create_backup_data_db()
             self.add_followed_artists_to_db()
             self.add_user_playlists_to_db()
         
-        self.db_conn.commit()
         self.db_conn.close()
 
 
