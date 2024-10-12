@@ -98,7 +98,7 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def log_track(self, track_id):
         # Don't log if no track is present or it is one of our macros
-        if track_id in Settings.MACRO_LIST or track_id == "" or track_id is None:
+        if track_id in Settings.MACRO_LIST or track_id == "":
             return
 
         self.track_id = track_id

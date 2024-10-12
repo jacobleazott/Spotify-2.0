@@ -11,6 +11,8 @@
 import random
 import sqlite3
 import unittest
+
+from unittest import mock
 from unittest.mock import patch, MagicMock
 
 from Shuffle_Styles import Shuffler, ShuffleType
@@ -23,8 +25,8 @@ class TestShuffler(unittest.TestCase):
 
     @mock.patch("random.shuffle")
     def test_weighted_shuffle(self, mock_shuffle):
-        spotify = gsh.GeneralSpotifyHelpers()
-        shuffler = Shuffler(spotify)
+        mock_spotify = MagicMock()
+        shuffler = Shuffler(mock_spotify)
         shuffler.tcdb_conn = sqlite3.connect(":memory:")
         
         shuffler.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(

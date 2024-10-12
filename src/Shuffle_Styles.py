@@ -75,7 +75,6 @@ class Shuffler(LogAllMethods):
             for track_id in track_ids:
                 track_query = self.tcdb_conn.execute(
                     f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
-
                 if track_query is None:
                     track_count_data.append((0, track_id))
                 else:
@@ -133,8 +132,6 @@ class Shuffler(LogAllMethods):
         self.spotify.write_to_queue([track_ids[0]])
         self.spotify.change_playback(skip="next", shuffle=True)
         self.spotify.write_to_queue(track_ids[1:Settings.MAX_QUEUE_LENGTH])
-        
-        return track_ids
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

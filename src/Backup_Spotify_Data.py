@@ -102,8 +102,6 @@ class BackupSpotifyData(LogAllMethods):
 
         for row in data:
             for i, (val, expected_type) in enumerate(zip(row, expected_types)):
-                if val is None:
-                    continue
                 if not isinstance(val, expected_type):
                     raise ValueError(f"'{val}' in column {i+1} of table '{table}' should be of type {expected_type}")
 
