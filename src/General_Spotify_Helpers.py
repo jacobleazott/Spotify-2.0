@@ -251,20 +251,21 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets playback state of current spotify session.
     INPUT: NA
-    OUTPUT: Returns current playing track id, shuffle state, and the current playlist, 
-            if not playing then "", False, "".
+    OUTPUT: Returns current playing track id, track name, shuffle state, and the current playlist, 
+            if not playing then "", "", False, "".
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def get_playback_state(self) -> tuple[str, bool, str]:
+    def get_playback_state(self) -> tuple[str, str, bool, str]:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
-        ret = ("", False, "")
+        ret = ("", "", False, "")
     
         current_playlist = ""
         if playback is not None and playback['context'] is not None and playback['context']['type'] == 'playlist' \
                 and playback["is_playing"]:
                     
             ret = (playback["item"]["id"]
+                    , playback["item"]["name"]
                     , playback["shuffle_state"]
                     , playback['context']['uri'].split(':')[2]) 
 

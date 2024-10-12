@@ -148,10 +148,11 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Log the given track_id as a listened track to our listening and track_count db's.
     INPUT: track_id - Id of track we will be logging as a 'listened' to track.
+           track_name - Name of track we will be logging.
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def log_playback_to_db(self, track_id: str) -> None:
-        LogPlayback(logger=self.logger).log_track(track_id)
+    def log_playback_to_db(self, track_id: str, track_name: str) -> None:
+        LogPlayback(logger=self.logger).log_track(track_id, track_name)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates our shuffle feature and passes in our logger, spotify, and shuffle type.
@@ -191,7 +192,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self) -> tuple[str, bool, str]:
+    def get_playback_state(self) -> tuple[str, str, bool, str]:
         return self.spotify.get_playback_state()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""

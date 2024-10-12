@@ -100,35 +100,38 @@ class TestLogPlayback(unittest.TestCase):
         log_playback.update_last_track_count = MagicMock() # We don't care about triggering this here.
         
         mock_datetime.now.return_value = datetime(2024, 10, 11, 12, 30, 0)
-        log_playback.log_track('test_track')
+        log_playback.log_track('test_track_id', 'fake track name')
         tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2024',), tables)
         res = log_playback.ldb_conn.execute("SELECT * FROM '2024';").fetchall()
-        self.assertEqual(res, [('test_track', '2024-10-11 12:30:00')])
+        self.assertEqual(res, [('test_track_id', '2024-10-11 12:30:00')])
 
         # Test for a different year.
         mock_datetime.now.return_value = datetime(2023, 1, 1, 0, 0, 0)
-        log_playback.log_track('track_2023')
+        log_playback.log_track('track_2023_id', 'fake 2023 track name')
         tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2023',), tables)
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023', '2023-01-01 00:00:00')])
+        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
 
         # Test an empty track_id.
-        log_playback.log_track("")  # Should not insert anything
+        log_playback.log_track("", "")  # Should not insert anything
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023', '2023-01-01 00:00:00')])
-
-        # Test None as track_id.
-        log_playback.log_track(None)  # Should also not insert anything
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023', '2023-01-01 00:00:00')])
-
+        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
+        
         # Test MACRO track_id.
-        log_playback.log_track(Settings.MACRO_LIST[0])  # Should not log anything
+        log_playback.log_track(Settings.MACRO_LIST[0], "macro track")  # Should not log anything
         cursor = log_playback.ldb_conn.cursor()
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023', '2023-01-01 00:00:00')])
+        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
+
+        # Test None as track_id.
+        log_playback.ldb_conn.execute("DELETE FROM '2023'")
+        log_playback.log_track(None, 'test track 1')
+        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        self.assertEqual(res, [('local_track_test track 1', '2023-01-01 00:00:00')])
+
+
     
     
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

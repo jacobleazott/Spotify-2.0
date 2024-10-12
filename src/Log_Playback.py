@@ -94,14 +94,19 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
     INPUT: track_id - Id of the track we are currently listening to.
+           track_name - Name of track to use if track_id is 'None'
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def log_track(self, track_id):
+    def log_track(self, track_id, track_name):
         # Don't log if no track is present or it is one of our macros
         if track_id in Settings.MACRO_LIST or track_id == "":
             return
 
-        self.track_id = track_id
+        if track_id is None:
+            self.track_id = f"local_track_{track_name}"
+        else:
+            self.track_id = track_id
+            
         year = datetime.now().year
         
         if not self.ldb_conn:
@@ -114,9 +119,9 @@ class LogPlayback(LogAllMethods):
 
             timestamp = (datetime.now() - timedelta(
                 seconds=int(datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
-            
+
             self.ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
-                                     VALUES ("{track_id}", "{timestamp}");""")
+                                     VALUES ("{self.track_id}", "{timestamp}");""")
 
         self.update_last_track_count()
 

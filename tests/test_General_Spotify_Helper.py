@@ -315,30 +315,30 @@ class TestGSH(unittest.TestCase):
         # No Changes
         spotify.change_playback()
         # Verify default values
-        self.assertEqual(spotify.get_playback_state(), ('Tr000', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr000', 'Fake Track 0', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Pause Playback
         spotify.change_playback(pause=True)
-        self.assertEqual(spotify.get_playback_state(), ('', False, ''))
+        self.assertEqual(spotify.get_playback_state(), ('', '', False, ''))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], False)
         # Add Tracks To Internal Queue and SKip
         spotify.sp.user_queue += [spotify.sp.track('Tr001'), spotify.sp.track('Tr009'), spotify.sp.track('Tr005')]
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify Skip
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr009', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr009', 'Fake Track 9', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify Prev
         spotify.change_playback(skip="prev")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify repeat state before changing
         self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'off')
         # Multiple changes
         spotify.change_playback(skip="next", shuffle=True, repeat='track')
-        self.assertEqual(spotify.get_playback_state(), ('Tr005', True, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr005', 'Fake Track 5', True, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'track')
 
