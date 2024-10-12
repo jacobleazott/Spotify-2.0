@@ -29,9 +29,9 @@ from datetime import datetime
 from enum import unique, Enum
 from glob import glob
 
-from decorators import *
-from Database_Helpers import DatabaseHelpers
-from Settings import Settings
+from src.helpers.Database_Helpers import DatabaseHelpers
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Enum to define our different shuffle styles for playlists.

@@ -15,13 +15,15 @@ import unittest
 from datetime import datetime, timedelta
 from unittest import mock
 
-import api_response_test_messages as artm
 # Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
-sys.modules['spotipy'] = __import__('mocked_spotipy')
+from tests.helpers import mocked_spotipy
+sys.modules['spotipy'] = mocked_spotipy
+sys.modules['Settings'] = mocked_spotipy
 
-import General_Spotify_Helpers as gsh
-import tester_helpers as thelp
-from Settings import Settings
+import tests.helpers.api_response_test_messages as artm
+import tests.helpers.tester_helpers as thelp
+import src.General_Spotify_Helpers as gsh
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality.

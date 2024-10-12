@@ -33,9 +33,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 
-from Shuffle_Styles import ShuffleType
-from Spotify_Features import SpotifyFeatures
-from Settings import Settings
+from src.features.Shuffle_Styles import ShuffleType
+from src.Spotify_Features import SpotifyFeatures
+from src.helpers.Settings import Settings
 
 threads = []
 

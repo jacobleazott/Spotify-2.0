@@ -13,8 +13,8 @@ import logging
 import sqlite3
 from datetime import datetime
 
-from decorators import *
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: This function recursively traverses any list/ dict with any complexity to find and replace every 'None'

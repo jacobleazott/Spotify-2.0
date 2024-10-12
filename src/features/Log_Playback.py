@@ -21,8 +21,8 @@ import pickle
 import sqlite3
 from datetime import datetime, timedelta
 
-from decorators import *
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does

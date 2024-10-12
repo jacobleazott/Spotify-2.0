@@ -16,8 +16,8 @@ from pprint import pprint
 from unittest import mock
 from unittest.mock import MagicMock
 
-from Log_Playback import LogPlayback
-from Settings import Settings
+from src.features.Log_Playback import LogPlayback
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Log Playback functionality.
@@ -94,7 +94,7 @@ class TestLogPlayback(unittest.TestCase):
         mock_dump.assert_not_called()
         log_playback.increment_play_count_db.assert_not_called()
 
-    @mock.patch('Log_Playback.datetime')
+    @mock.patch('src.features.Log_Playback.datetime')
     def test_log_track(self, mock_datetime):
         log_playback = LogPlayback(ldb_path=":memory:")
         log_playback.update_last_track_count = MagicMock() # We don't care about triggering this here.

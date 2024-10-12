@@ -15,16 +15,16 @@ from unittest.mock import patch, MagicMock
 import logging
 from pprint import pprint
 
-from Google_Drive_Uploader import DriveUploader
-from Settings import Settings
+from src.features.Google_Drive_Uploader import DriveUploader
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Google Drive Uploader functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestDriveUploader(unittest.TestCase):
 
-    @patch('Google_Drive_Uploader.GoogleAuth')  # Replace with your actual module name
-    @patch('Google_Drive_Uploader.GoogleDrive')
+    @patch('src.features.Google_Drive_Uploader.GoogleAuth')  # Replace with your actual module name
+    @patch('src.features.Google_Drive_Uploader.GoogleDrive')
     def test_authorize(self, mock_drive, mock_gauth):
         mock_instance = mock_gauth.return_value
         
@@ -53,7 +53,7 @@ class TestDriveUploader(unittest.TestCase):
         mock_instance.SaveCredentialsFile.assert_not_called()
         self.assertIsNotNone(uploader.drive)
 
-    @patch('Google_Drive_Uploader.GoogleDrive')
+    @patch('src.features.Google_Drive_Uploader.GoogleDrive')
     def test_upload_file(self, mock_drive):
         mock_instance = mock_drive.return_value
         mock_instance.CreateFile.return_value = mock.Mock()

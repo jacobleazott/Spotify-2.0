@@ -11,13 +11,14 @@
 #   mock each function in our class here when we override the import things should all work as intendeddef  
 # Docs - https://spotipy.readthedocs.io/en/2.24.0/
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import api_response_test_messages as artm
 import logging as log
 import os
 import sys
 from pprint import pprint
 
-from decorators import *
+import tests.helpers.api_response_test_messages as artm
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that can be used to override 'spotipy' import. Not all functions are implemented or even present.
@@ -206,6 +207,9 @@ class oauth2(LogAllMethods):
 class CacheFileHandler(LogAllMethods):
     def __init__(self, cache_path=None):
         return None
+
+
+
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

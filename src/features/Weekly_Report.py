@@ -28,8 +28,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from PIL import Image
 
-from decorators import *
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.

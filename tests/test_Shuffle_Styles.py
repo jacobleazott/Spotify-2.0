@@ -15,8 +15,8 @@ import unittest
 from unittest import mock
 from unittest.mock import patch, MagicMock
 
-from Shuffle_Styles import Shuffler, ShuffleType
-from Settings import Settings
+from src.features.Shuffle_Styles import Shuffler, ShuffleType
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
