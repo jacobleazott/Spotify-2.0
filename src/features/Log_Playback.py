@@ -97,32 +97,25 @@ class LogPlayback(LogAllMethods):
            track_name - Name of track to use if track_id is 'None'
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def log_track(self, playback_response) -> None:
-        if playback_response == {} \
-            or playback_response['context'] is None \
-            or playback_response['context']['type'] is not "playlist" \
-            or playback_response['is_playing'] == False \
-            or playback_response['track']['id'] in Settings.MACRO_LIST:
+    def log_track(self, playback: dict, inc_track_count: bool) -> None:
+        if playback is None \
+            or playback['is_playing'] == False \
+            or playback['track']['id'] in Settings.MACRO_LIST:
             return
-        
-        self.track_id = playback_response['track']['id']
-        self.track_id = self.track_id if self.track_id is not None else f"local_track_{track_name}"
-            
-        year = datetime.now().year
-        
+
+        self.track_id = playback['track']['id']
+        self.track_id = self.track_id if self.track_id is not None else f"local_track_{playback['track']['name']}"
+
         if not self.ldb_conn:
             self.ldb_conn = sqlite3.connect(self.ldb_path)
-        
+            
         with self.ldb_conn:
-            self.ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{year}'(
-                                    track_id TEXT NOT NULL,
-                                    time timestamp NOT NULL);''')
-
-            timestamp = (datetime.now() - timedelta(
-                seconds=int(datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
-
-            self.ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
-                                     VALUES ("{self.track_id}", "{timestamp}");""")
+            self.ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
+                        track_id TEXT NOT NULL,
+                        time timestamp NOT NULL);''')
+            
+            self.ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') 
+                                     VALUES ("{self.track_id}", "{datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}");""")
 
         if inc_track_count:
             self.update_last_track_count()

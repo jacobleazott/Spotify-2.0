@@ -258,33 +258,25 @@ class GeneralSpotifyHelpers:
             if not playing then "", "", False, "".
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playback_state(self, track_info: list[str]=['id']
-                           , album_info: list[str]=['id']
                            , artist_info: list[str]=['id']) -> tuple[str, str, bool, str]:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
-        
-        ret = {}
+        ret = None
 
         if playback['item'] is not None:
-            ret['context'] = None
+            ret = {"context": None
+                   , "currently_playing_type": playback['currently_playing_type']
+                   , "is_playing": playback['is_playing']
+                   , "shuffle_state": playback['shuffle_state']}
+            
             if playback['context'] is not None:
-                ret['context'] = {}
-                ret['context']['type'] = playback['context']['type']
-                ret['context']['id'] = playback['context']['uri'].split(':')[2]
+                ret['context'] = {"type": playback['context']['type'],
+                                  "id": playback['context']['uri'].split(':')[2]}
             
-            ret['currently_playing_type'] = playback['currently_playing_type']
-            ret['is_playing'] = playback['is_playing']
-            ret['shuffle_state'] = playback['shuffle_state']
-            
+            # Here we have to trick our _gather_data function to think there are "multiple"
             playback['item'] = [playback['item']]
-            
-            query = {"item": [elem for elem in track_info] +
-                [["album", elem] if type(elem) is str else ["album"] + elem for elem in album_info]
-                , ("artists"): artist_info}
-            data = self._gather_data(playback, query)
-            
-            ret['track'] = data
+            ret['track'] = self._gather_data(playback, {"item": track_info, "artists": artist_info})[0]
 
         return ret
         
