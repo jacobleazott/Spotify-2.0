@@ -8,31 +8,30 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Shuffle_Styles.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import random
 import sqlite3
 import unittest
-
 from unittest import mock
-from unittest.mock import patch, MagicMock
 
 from src.features.Shuffle_Styles import Shuffler, ShuffleType
-from src.helpers.Settings import Settings
+from tests.helpers.mocked_Settings import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+@mock.patch('src.features.Shuffle_Styles.Settings', Test_Settings)
+@mock.patch('src.features.Shuffle_Styles.DatabaseHelpers', mock.MagicMock())
 class TestShuffler(unittest.TestCase):
 
     @mock.patch("random.shuffle")
     def test_weighted_shuffle(self, mock_shuffle):
-        mock_spotify = MagicMock()
+        mock_spotify = mock.MagicMock()
         shuffler = Shuffler(mock_spotify)
-        shuffler.tcdb_conn = sqlite3.connect(":memory:")
         
+        shuffler.tcdb_conn = sqlite3.connect(":memory:")
         shuffler.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
                                      track_id TEXT PRIMARY KEY,
                                      play_count INTEGER NOT NULL);''')
-        
+
         tracks = [
             ('track_1', 5),
             ('track_2', 3),
@@ -63,40 +62,39 @@ class TestShuffler(unittest.TestCase):
         
         # Test Over Queeu Length.
         shuffler.tcdb_conn.execute("DELETE FROM tracks")
-        tracks = [(f"track_{i}", f"{i}") for i in range(Settings.MAX_QUEUE_LENGTH + 50)]
+        tracks = [(f"track_{i}", f"{i}") for i in range(Test_Settings.MAX_QUEUE_LENGTH + 50)]
         shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
         mock_shuffle.reset_mock()
         res = shuffler._weighted_shuffle([track[0] for track in tracks])
-        print(len(res))
-        self.assertEqual(res, [track[0] for track in tracks][:Settings.MAX_QUEUE_LENGTH])
-        self.assertEqual(mock_shuffle.call_count, 81) # 81 Groupings Of Different Play Counts From Loop.
+        self.assertEqual(res, [track[0] for track in tracks][:Test_Settings.MAX_QUEUE_LENGTH])
+        self.assertEqual(mock_shuffle.call_count, Test_Settings.MAX_QUEUE_LENGTH+1) # 81 Groupings Of Different Play Counts From Loop.
         
         # Test Exact Queeu Length.
         shuffler.tcdb_conn.execute("DELETE FROM tracks")
-        tracks = [(f"track_{i}", f"{i}") for i in range(Settings.MAX_QUEUE_LENGTH)]
+        tracks = [(f"track_{i}", f"{i}") for i in range(Test_Settings.MAX_QUEUE_LENGTH)]
         shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
         mock_shuffle.reset_mock()
         res = shuffler._weighted_shuffle([track[0] for track in tracks])
-        print(len(res))
-        self.assertEqual(res, [track[0] for track in tracks][:Settings.MAX_QUEUE_LENGTH])
-        self.assertEqual(mock_shuffle.call_count, Settings.MAX_QUEUE_LENGTH)
+        self.assertEqual(res, [track[0] for track in tracks][:Test_Settings.MAX_QUEUE_LENGTH])
+        self.assertEqual(mock_shuffle.call_count, Test_Settings.MAX_QUEUE_LENGTH)
         
         # Test Over Queue Length With Large Groupings.
+        Test_Settings.MAX_QUEUE_LENGTH = 30
         shuffler.tcdb_conn.execute("DELETE FROM tracks")
-        tracks = [(f"track_1_{i}", 10) for i in range(60)]
-        tracks += [(f"track_2_{i}", 20) for i in range(60)]
+        tracks = [(f"track_1_{i}", 10) for i in range(20)]
+        tracks += [(f"track_2_{i}", 20) for i in range(20)]
         shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
         mock_shuffle.reset_mock()
         res = shuffler._weighted_shuffle([track[0] for track in tracks])
-        self.assertEqual(len(res), 120) # We Grab All Tracks With Same Play Count Over Queue Length.
+        self.assertEqual(len(res), 40) # We Grab All Tracks With Same Play Count Over Queue Length.
         self.assertEqual(mock_shuffle.call_count, 2) # Only 2 Different Play Count Values
     
-    @patch('random.shuffle')
-    @patch.object(Shuffler, '_weighted_shuffle')
+    @mock.patch('random.shuffle')
+    @mock.patch.object(Shuffler, '_weighted_shuffle')
     def test_shuffle(self, mock_weighted_shuffle, mock_random_shuffle):
-        mock_spotify = MagicMock() # No real need to even use our mocked spotipy here.
+        mock_spotify = mock.MagicMock() # No real need to even use our mocked spotipy here.
         shuffler = Shuffler(spotify=mock_spotify)
-        shuffler.dbh = MagicMock() # This has to happen after Shuffler __init__
+
         # Mock return for method call to sim getting playlist tracks.
         shuffler.dbh.db_get_tracks_from_playlist.return_value = [
             {'id': 'track_1'}, {'id': 'track_2'}, {'id': 'track_3'}]
@@ -114,8 +112,9 @@ class TestShuffler(unittest.TestCase):
         mock_spotify.write_to_queue.assert_any_call(['track_3']) # Make sure proper track was sent to queue
         
         # Test MACRO_LIST isn't included.
+        Test_Settings.MACRO_LIST.append("fake_macro_track")
         shuffler.dbh.db_get_tracks_from_playlist.return_value = [
-            {'id': Settings.MACRO_LIST[0]}, {'id': 'track_2'}, {'id': 'track_3'}]
+            {'id': "fake_macro_track"}, {'id': 'track_2'}, {'id': 'track_3'}]
         mock_random_shuffle.reset_mock()
         shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
         mock_random_shuffle.assert_called_once_with(['track_2', 'track_3'])

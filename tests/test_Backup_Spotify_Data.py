@@ -9,24 +9,20 @@
 # Unit tests for all functionality out of 'Backup_Spotify_Data.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import sqlite3
-import sys
 import unittest
-
-# Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
-from tests.helpers import mocked_spotipy
-sys.modules['spotipy'] = mocked_spotipy
+from unittest import mock
 
 import src.General_Spotify_Helpers as gsh
 import tests.helpers.tester_helpers as thelp
 
+from tests.helpers import mocked_spotipy
 from src.features.Backup_Spotify_Data import BackupSpotifyData, replace_none, get_column_types
-from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Backup Spotify Data functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestBackupSpotifyData(unittest.TestCase):
-    
+    @mock.patch('src.General_Spotify_Helpers.spotipy', mocked_spotipy)
     def setUp(self):
         self.spotify = gsh.GeneralSpotifyHelpers()
         self.backup = BackupSpotifyData(self.spotify, db_path=":memory:")

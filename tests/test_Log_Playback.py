@@ -8,16 +8,13 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Log_Playback.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import sys
 import unittest
 
 from datetime import datetime, timedelta
-from pprint import pprint
 from unittest import mock
-from unittest.mock import MagicMock
 
 from src.features.Log_Playback import LogPlayback
-from src.helpers.Settings import Settings
+from tests.helpers.mocked_Settings import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Log Playback functionality.
@@ -56,7 +53,7 @@ class TestLogPlayback(unittest.TestCase):
         # Create an instance of LogPlayback
         log_playback = LogPlayback()
         log_playback.track_id = 'Tr001'
-        log_playback.increment_play_count_db = MagicMock() # We don't care about triggering this here.
+        log_playback.increment_play_count_db = mock.MagicMock() # We don't care about triggering this here.
 
         # Test FileNotFoundError When Reading File.
         mock_load.side_effect = FileNotFoundError
@@ -93,11 +90,12 @@ class TestLogPlayback(unittest.TestCase):
         log_playback.update_last_track_count()
         mock_dump.assert_not_called()
         log_playback.increment_play_count_db.assert_not_called()
-
+    
+    @mock.patch('src.features.Log_Playback.Settings', Test_Settings)
     @mock.patch('src.features.Log_Playback.datetime')
     def test_log_track(self, mock_datetime):
         log_playback = LogPlayback(ldb_path=":memory:")
-        log_playback.update_last_track_count = MagicMock() # We don't care about triggering this here.
+        log_playback.update_last_track_count = mock.MagicMock() # We don't care about triggering this here.
         
         mock_datetime.now.return_value = datetime(2024, 10, 11, 12, 30, 0)
         log_playback.log_track('test_track_id', 'fake track name')
@@ -120,7 +118,8 @@ class TestLogPlayback(unittest.TestCase):
         self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
         
         # Test MACRO track_id.
-        log_playback.log_track(Settings.MACRO_LIST[0], "macro track")  # Should not log anything
+        Test_Settings.MACRO_LIST.append("test_macro_id")
+        log_playback.log_track("test_macro_id", "macro track")  # Should not log anything
         cursor = log_playback.ldb_conn.cursor()
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
