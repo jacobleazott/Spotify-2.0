@@ -124,7 +124,7 @@ def log_and_macro(spotify_features) -> None:
                                    log_file_name="Organize-Playlist.log")
 
         case _:
-            spotify_features.log_playback_to_db(track_id, track_name)
+            spotify_features.log_playback_to_db(track_id, track_name, playlist_id)
             
 
 def main():

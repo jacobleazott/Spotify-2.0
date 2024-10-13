@@ -97,15 +97,16 @@ class LogPlayback(LogAllMethods):
            track_name - Name of track to use if track_id is 'None'
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def log_track(self, track_id, track_name):
-        # Don't log if no track is present or it is one of our macros
-        if track_id in Settings.MACRO_LIST or track_id == "":
+    def log_track(self, playback_response) -> None:
+        if playback_response == {} \
+            or playback_response['context'] is None \
+            or playback_response['context']['type'] is not "playlist" \
+            or playback_response['is_playing'] == False \
+            or playback_response['track']['id'] in Settings.MACRO_LIST:
             return
-
-        if track_id is None:
-            self.track_id = f"local_track_{track_name}"
-        else:
-            self.track_id = track_id
+        
+        self.track_id = playback_response['track']['id']
+        self.track_id = self.track_id if self.track_id is not None else f"local_track_{track_name}"
             
         year = datetime.now().year
         
@@ -123,7 +124,8 @@ class LogPlayback(LogAllMethods):
             self.ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
                                      VALUES ("{self.track_id}", "{timestamp}");""")
 
-        self.update_last_track_count()
+        if inc_track_count:
+            self.update_last_track_count()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

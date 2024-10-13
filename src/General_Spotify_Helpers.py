@@ -17,6 +17,8 @@ import os
 import spotipy
 import time
 
+from pprint import pprint
+
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -135,8 +137,8 @@ class GeneralSpotifyHelpers:
         if "next" in response:
             ret = self.sp.next(response)
         else:
-            for key, field in list(response.items()):
-                if "next" in response[key]:
+            for key, field in response.items():
+                if type(response[key]) == list and "next" in response[key]:
                     ret = self.sp.next(response[key])
                     break
         return ret
@@ -255,20 +257,34 @@ class GeneralSpotifyHelpers:
     OUTPUT: Returns current playing track id, track name, shuffle state, and the current playlist, 
             if not playing then "", "", False, "".
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def get_playback_state(self) -> tuple[str, str, bool, str]:
+    def get_playback_state(self, track_info: list[str]=['id']
+                           , album_info: list[str]=['id']
+                           , artist_info: list[str]=['id']) -> tuple[str, str, bool, str]:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
-        ret = ("", "", False, "")
-    
-        current_playlist = ""
-        if playback is not None and playback['context'] is not None and playback['context']['type'] == 'playlist' \
-                and playback["is_playing"]:
-                    
-            ret = (playback["item"]["id"]
-                    , playback["item"]["name"]
-                    , playback["shuffle_state"]
-                    , playback['context']['uri'].split(':')[2]) 
+        
+        ret = {}
+
+        if playback['item'] is not None:
+            ret['context'] = None
+            if playback['context'] is not None:
+                ret['context'] = {}
+                ret['context']['type'] = playback['context']['type']
+                ret['context']['id'] = playback['context']['uri'].split(':')[2]
+            
+            ret['currently_playing_type'] = playback['currently_playing_type']
+            ret['is_playing'] = playback['is_playing']
+            ret['shuffle_state'] = playback['shuffle_state']
+            
+            playback['item'] = [playback['item']]
+            
+            query = {"item": [elem for elem in track_info] +
+                [["album", elem] if type(elem) is str else ["album"] + elem for elem in album_info]
+                , ("artists"): artist_info}
+            data = self._gather_data(playback, query)
+            
+            ret['track'] = data
 
         return ret
         
@@ -358,11 +374,11 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playlist_tracks(self, playlist_id: str, offset: int=0,
                             track_info: list[str]=['id'], 
-                            album_info: list[str]=['id'], 
+                            album_info: list[str]=['id', 'name'], 
                             artist_info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["playlist-read-private"])
         validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
-        
+
         # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
         return self._gather_data(
             self.sp.playlist_items(playlist_id, limit=100, offset=offset)

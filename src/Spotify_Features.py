@@ -151,7 +151,8 @@ class SpotifyFeatures(LogAllMethods):
            track_name - Name of track we will be logging.
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def log_playback_to_db(self, track_id: str, track_name: str) -> None:
+    def log_playback_to_db(self, track_id: str, track_name: str, playlist_id: str) -> None:
+        # Determine if we should 
         LogPlayback(logger=self.logger).log_track(track_id, track_name)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
