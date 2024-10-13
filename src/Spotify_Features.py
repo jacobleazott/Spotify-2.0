@@ -49,18 +49,18 @@ from datetime import datetime, timedelta
 from glob import glob
 from typing import Union
 
-import General_Spotify_Helpers as gsh
-from decorators import *
-from Settings import Settings
+import src.General_Spotify_Helpers as gsh
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 # FEATURES
-from Misc_Features import MiscFeatures
-from Backup_Spotify_Data import BackupSpotifyData
-from Google_Drive_Uploader import DriveUploader
-from Log_Playback import LogPlayback
-from Sanity_Tests import SanityTest
-from Shuffle_Styles import Shuffler, ShuffleType
-from Weekly_Report import WeeklyReport
+from src.features.Misc_Features         import MiscFeatures
+from src.features.Backup_Spotify_Data   import BackupSpotifyData
+from src.features.Google_Drive_Uploader import DriveUploader
+from src.features.Log_Playback          import LogPlayback
+from src.features.Sanity_Tests          import SanityTest
+from src.features.Shuffle_Styles        import Shuffler, ShuffleType
+from src.features.Weekly_Report         import WeeklyReport
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of all of our Spotify API features. Handles and abstracts our GSH object.
@@ -148,10 +148,11 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Log the given track_id as a listened track to our listening and track_count db's.
     INPUT: track_id - Id of track we will be logging as a 'listened' to track.
+           track_name - Name of track we will be logging.
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def log_playback_to_db(self, track_id: str) -> None:
-        LogPlayback(logger=self.logger).log_track(track_id)
+    def log_playback_to_db(self, track_id: str, track_name: str) -> None:
+        LogPlayback(logger=self.logger).log_track(track_id, track_name)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates our shuffle feature and passes in our logger, spotify, and shuffle type.
@@ -191,7 +192,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self) -> tuple[str, bool, str]:
+    def get_playback_state(self) -> tuple[str, str, bool, str]:
         return self.spotify.get_playback_state()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""

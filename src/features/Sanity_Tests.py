@@ -39,9 +39,9 @@ import sqlite3
 from glob import glob
 from pprint import PrettyPrinter
 
-from Database_Helpers import DatabaseHelpers
-from decorators import *
-from Settings import Settings
+from src.helpers.Database_Helpers import DatabaseHelpers
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of sanity tests to verify integrity and completion of the user's collections. This is very

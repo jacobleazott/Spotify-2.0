@@ -20,7 +20,8 @@ import time
 from datetime import datetime, timedelta
 from typing import Optional
 
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
           
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
@@ -251,20 +252,21 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets playback state of current spotify session.
     INPUT: NA
-    OUTPUT: Returns current playing track id, shuffle state, and the current playlist, 
-            if not playing then "", False, "".
+    OUTPUT: Returns current playing track id, track name, shuffle state, and the current playlist, 
+            if not playing then "", "", False, "".
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def get_playback_state(self) -> tuple[str, bool, str]:
+    def get_playback_state(self) -> tuple[str, str, bool, str]:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
-        ret = ("", False, "")
+        ret = ("", "", False, "")
     
         current_playlist = ""
         if playback is not None and playback['context'] is not None and playback['context']['type'] == 'playlist' \
                 and playback["is_playing"]:
                     
             ret = (playback["item"]["id"]
+                    , playback["item"]["name"]
                     , playback["shuffle_state"]
                     , playback['context']['uri'].split(':')[2]) 
 
@@ -412,7 +414,6 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
         self._validate_scope(["playlist-modify-public", "playlist-modify-private", Settings.DELETE_SCOPE])
-
         if playlist_id in Settings.PLAYLISTS_WE_CAN_DELETE_FROM:
             tracks = self.get_playlist_tracks(playlist_id)
             if len(tracks) > 0 and len(tracks) <= max_playlist_length:
