@@ -190,7 +190,7 @@ class MiscFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def update_daily_latest_playlist(self): 
+    def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
         tracks = [Settings.SHUFFLE_MACRO_ID]
         offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \

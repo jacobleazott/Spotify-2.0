@@ -414,8 +414,6 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
         self._validate_scope(["playlist-modify-public", "playlist-modify-private", Settings.DELETE_SCOPE])
-        print(playlist_id)
-        print(Settings.PLAYLISTS_WE_CAN_DELETE_FROM)
         if playlist_id in Settings.PLAYLISTS_WE_CAN_DELETE_FROM:
             tracks = self.get_playlist_tracks(playlist_id)
             if len(tracks) > 0 and len(tracks) <= max_playlist_length:

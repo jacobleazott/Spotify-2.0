@@ -12,7 +12,6 @@
 #   is just grabbed from the url of the folder itself, but just another hardcoded value.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import os
-import sys
 import logging
 
 from pydrive.auth import GoogleAuth

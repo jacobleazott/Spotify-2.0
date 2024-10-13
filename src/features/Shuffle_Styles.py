@@ -97,8 +97,9 @@ class Shuffler(LogAllMethods):
                     break
             tmp_track_count_group.append(track[1])
             cur_play_count = track[0]
-        track_count_groupings.append(tmp_track_count_group)
             
+        track_count_groupings.append(tmp_track_count_group)
+        
         # Now we randomize each "set" of track_counts individually and add them up to one master list
         track_list = []
         random.seed(datetime.now().timestamp())
