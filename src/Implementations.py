@@ -105,8 +105,6 @@ def log_and_macro(spotify_features) -> None:
     if playback == None:
         return
     
-    print(playback['track']['id'], playback['track']['name'])
-
     match playback['track']['id']:
         case Settings.SHUFFLE_MACRO_ID:
             shuffle_type = ShuffleType.WEIGHTED if playback['shuffle_state'] else ShuffleType.RANDOM

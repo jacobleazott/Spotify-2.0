@@ -11,6 +11,8 @@
 import inspect
 import unittest
 
+from pprint import pprint
+
 from datetime import datetime, timedelta
 from unittest import mock
 
@@ -290,8 +292,43 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
     def test_get_playback_state(self):
-        # This method is tested under 'test_change_playback'
-        assert True
+        # A lot of this functionality is also tested under the 'test_change_playback()'
+        spotify = gsh.GeneralSpotifyHelpers()
+        
+        # Test "Normal" Return
+        self.assertEqual(spotify.get_playback_state(), {
+            'context': {'id': 'Pl001', 'type': 'playlist'},
+            'currently_playing_type': 'track',
+            'is_playing': True,
+            'repeat_state': 'off',
+            'shuffle_state': False,
+            'track': {'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
+        
+        # Test None Context
+        spotify.sp.current_playback_response['context'] = None
+        self.assertEqual(spotify.get_playback_state(), {
+            'context': None,
+            'currently_playing_type': 'track',
+            'is_playing': True,
+            'repeat_state': 'off',
+            'shuffle_state': False,
+            'track': {'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
+        
+        # Test Different Track Info
+        self.assertEqual(spotify.get_playback_state(track_info=['name', 'duration_ms'])['track'], {
+            'artists': [{'id': 'Ar000'}], 
+            'name': 'Fake Track 0', 
+            'duration_ms': 0})
+        
+        # Test Different Artist Info
+        self.assertEqual(spotify.get_playback_state(track_info=['name'], artist_info=['name'])['track'], {
+            'artists': [{'name': 'Fake Artist 0'}], 
+            'name': 'Fake Track 0', })
+        
+        # Test None 'Item'
+        spotify.sp.current_playback_response['item'] = None
+        self.assertEqual(spotify.get_playback_state(), None)
+
 
     @mock.patch("time.sleep", return_value=None)
     def test_write_to_queue(self, mock_sleep):
@@ -315,32 +352,41 @@ class TestGSH(unittest.TestCase):
         # No Changes
         spotify.change_playback()
         # Verify default values
-        self.assertEqual(spotify.get_playback_state(), ('Tr000', 'Fake Track 0', False, 'Pl001'))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state']
+                          , playback['context']['id'], playback['is_playing']]
+                         , ['Tr000', False, 'Pl001', True])
         # Pause Playback
         spotify.change_playback(pause=True)
-        self.assertEqual(spotify.get_playback_state(), ('', '', False, ''))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], False)
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state']
+                          , playback['context']['id'], playback['is_playing']]
+                         , ['Tr000', False, 'Pl001', False])
         # Add Tracks To Internal Queue and SKip
         spotify.sp.user_queue += [spotify.sp.track('Tr001'), spotify.sp.track('Tr009'), spotify.sp.track('Tr005')]
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state']
+                          , playback['context']['id'], playback['is_playing']]
+                         , ['Tr001', False, 'Pl001', True])
         # Verify Skip
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr009', 'Fake Track 9', False, 'Pl001'))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state']
+                          , playback['context']['id'], playback['is_playing']]
+                         , ['Tr009', False, 'Pl001', True])
         # Verify Prev
         spotify.change_playback(skip="prev")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
-        # Verify repeat state before changing
-        self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'off')
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state'], playback['context']['id']
+                          , playback['is_playing'], playback['repeat_state']]
+                         , ['Tr001', False, 'Pl001', True, 'off'])
         # Multiple changes
         spotify.change_playback(skip="next", shuffle=True, repeat='track')
-        self.assertEqual(spotify.get_playback_state(), ('Tr005', 'Fake Track 5', True, 'Pl001'))
-        self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
-        self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'track')
+        playback = spotify.get_playback_state()
+        self.assertEqual([playback['track']['id'], playback['shuffle_state'], playback['context']['id']
+                          , playback['is_playing'], playback['repeat_state']]
+                         , ['Tr005', True, 'Pl001', True, 'track'])
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYLISTS ═══════════════════════════════════════════════════════════════════════════════════════════════════════

@@ -108,9 +108,7 @@ class LogPlayback(LogAllMethods):
 
         if not self.ldb_conn:
             self.ldb_conn = sqlite3.connect(self.ldb_path)
-            
-        print(self.track_id)
-            
+           
         with self.ldb_conn:
             self.ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
                         track_id TEXT NOT NULL,
@@ -120,7 +118,6 @@ class LogPlayback(LogAllMethods):
                                      VALUES ("{self.track_id}", "{datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}");""")
 
         if inc_track_count:
-            print("incremnting it")
             self.update_last_track_count()
 
 

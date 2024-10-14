@@ -17,8 +17,6 @@ import os
 import spotipy
 import time
 
-from pprint import pprint
-
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -138,7 +136,7 @@ class GeneralSpotifyHelpers:
             ret = self.sp.next(response)
         else:
             for key, field in response.items():
-                if type(response[key]) == list and "next" in response[key]:
+                if type(response[key]) in [str, list, dict] and "next" in response[key]:
                     ret = self.sp.next(response[key])
                     break
         return ret
@@ -268,15 +266,18 @@ class GeneralSpotifyHelpers:
             ret = {"context": None
                    , "currently_playing_type": playback['currently_playing_type']
                    , "is_playing": playback['is_playing']
-                   , "shuffle_state": playback['shuffle_state']}
+                   , "shuffle_state": playback['shuffle_state']
+                   , "repeat_state": playback['repeat_state']}
             
             if playback['context'] is not None:
                 ret['context'] = {"type": playback['context']['type'],
                                   "id": playback['context']['uri'].split(':')[2]}
             
             # Here we have to trick our _gather_data function to think there are "multiple"
-            playback['item'] = [playback['item']]
-            ret['track'] = self._gather_data(playback, {"item": track_info, "artists": artist_info})[0]
+            altered_playback = dict(playback)
+            altered_playback['item'] = [dict(playback['item'])]
+            # playback['item'] = [playback['item']]
+            ret['track'] = self._gather_data(altered_playback, {"item": track_info, ("artists",): artist_info})[0]
 
         return ret
         
@@ -366,7 +367,7 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playlist_tracks(self, playlist_id: str, offset: int=0,
                             track_info: list[str]=['id'], 
-                            album_info: list[str]=['id', 'name'], 
+                            album_info: list[str]=['id'], 
                             artist_info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["playlist-read-private"])
         validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
