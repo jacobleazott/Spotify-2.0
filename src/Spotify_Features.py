@@ -52,6 +52,7 @@ from typing import Union
 import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
+from src.helpers.Database_Helpers import DatabaseHelpers
 
 # FEATURES
 from src.features.Misc_Features         import MiscFeatures
@@ -151,8 +152,17 @@ class SpotifyFeatures(LogAllMethods):
            track_name - Name of track we will be logging.
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def log_playback_to_db(self, track_id: str, track_name: str) -> None:
-        LogPlayback(logger=self.logger).log_track(track_id, track_name)
+    def log_playback_to_db(self, playback: dict) -> None:
+        inc_tcdb = True
+        # Here we decide to not increment the track_count db if we are playing a '__' playlist.
+        if playback['context'] is not None and playback['context']['type'] == "playlist":
+            dbh = DatabaseHelpers(logger=self.logger)
+            playlist_name = next((playlist['name'] for playlist in dbh.db_get_user_playlists() 
+                                  if playlist['id'] == playback['context']['id']), None)
+            inc_tcdb = not any([artist for artist in dbh.db_get_user_followed_artists() 
+                                if artist['name'] == playlist_name[2:]])
+        
+        LogPlayback(logger=self.logger).log_track(playback, inc_tcdb)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates our shuffle feature and passes in our logger, spotify, and shuffle type.
@@ -192,8 +202,8 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self) -> tuple[str, str, bool, str]:
-        return self.spotify.get_playback_state()
+    def get_playback_state(self, track_info=['id', 'name']) -> dict:
+        return self.spotify.get_playback_state(track_info=track_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Updates our "latest" playlist with the "latest" tracks in our main playlist. 

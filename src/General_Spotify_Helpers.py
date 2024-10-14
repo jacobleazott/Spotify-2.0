@@ -135,8 +135,8 @@ class GeneralSpotifyHelpers:
         if "next" in response:
             ret = self.sp.next(response)
         else:
-            for key, field in list(response.items()):
-                if "next" in response[key]:
+            for key, field in response.items():
+                if type(response[key]) in [str, list, dict] and "next" in response[key]:
                     ret = self.sp.next(response[key])
                     break
         return ret
@@ -251,24 +251,32 @@ class GeneralSpotifyHelpers:
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets playback state of current spotify session.
-    INPUT: NA
-    OUTPUT: Returns current playing track id, track name, shuffle state, and the current playlist, 
-            if not playing then "", "", False, "".
+    INPUT: track_info - List of track info we want from the track obj in the response.
+           artist_info - List of artist info we want from the track obj in the response.
+    OUTPUT: Returns a dict holding track, and playback information.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def get_playback_state(self) -> tuple[str, str, bool, str]:
+    def get_playback_state(self, track_info: list[str]=['id']
+                           , artist_info: list[str]=['id']) -> dict:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
-        ret = ("", "", False, "")
-    
-        current_playlist = ""
-        if playback is not None and playback['context'] is not None and playback['context']['type'] == 'playlist' \
-                and playback["is_playing"]:
-                    
-            ret = (playback["item"]["id"]
-                    , playback["item"]["name"]
-                    , playback["shuffle_state"]
-                    , playback['context']['uri'].split(':')[2]) 
+        ret = None
+
+        if playback['item'] is not None:
+            ret = {"context": None
+                   , "currently_playing_type": playback['currently_playing_type']
+                   , "is_playing": playback['is_playing']
+                   , "shuffle_state": playback['shuffle_state']
+                   , "repeat_state": playback['repeat_state']}
+            
+            if playback['context'] is not None:
+                ret['context'] = {"type": playback['context']['type'],
+                                  "id": playback['context']['uri'].split(':')[2]}
+            
+            # Here we have to trick our _gather_data function to think there are "multiple"
+            altered_playback = playback.copy()
+            altered_playback['item'] = [playback['item'].copy()]
+            ret['track'] = self._gather_data(altered_playback, {"item": track_info, ("artists",): artist_info})[0]
 
         return ret
         
@@ -329,8 +337,7 @@ class GeneralSpotifyHelpers:
         track_chunks = chunks(track_ids, 100)
         for chunk in track_chunks:
             self.sp.playlist_add_items(playlist_id, chunk)
-            
-            
+
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
@@ -345,8 +352,7 @@ class GeneralSpotifyHelpers:
         playlist_track_ids = [track['id'] for track in self.get_playlist_tracks(playlist_id)]
         tracks_to_add = [track_id for track_id in track_ids if track_id not in playlist_track_ids]
         self.add_tracks_to_playlist(playlist_id, tracks_to_add)
-        
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Grabs all the tracks with given <object>_info provided.
     INPUT: playlist_id - Id of playlist we are grabbing tracks from.
@@ -362,7 +368,7 @@ class GeneralSpotifyHelpers:
                             artist_info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["playlist-read-private"])
         validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
-        
+
         # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
         return self._gather_data(
             self.sp.playlist_items(playlist_id, limit=100, offset=offset)
@@ -405,7 +411,7 @@ class GeneralSpotifyHelpers:
             self.sp.playlist_change_details(playlist_id, name=name)
         elif description is not None:
             self.sp.playlist_change_details(playlist_id, description=description)
-            
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Removes all tracks from a playlist assuming it is in our PLAYLISTS_WE_CAN_DELETE_FROM list.
     INPUT: playlist_id - Id of playlist we will delete all tracks from.

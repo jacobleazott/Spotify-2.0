@@ -13,6 +13,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest import mock
 
+import tests.helpers.api_response_test_messages as artm
 from src.features.Log_Playback import LogPlayback
 from tests.helpers.mocked_Settings import Test_Settings
 
@@ -96,41 +97,60 @@ class TestLogPlayback(unittest.TestCase):
     def test_log_track(self, mock_datetime):
         log_playback = LogPlayback(ldb_path=":memory:")
         log_playback.update_last_track_count = mock.MagicMock() # We don't care about triggering this here.
+        playback = artm.get_playback_state_test_message.copy()
         
+        # Test "Normal" Playback.
+        playback['track']['id'] = "test_track_id"
         mock_datetime.now.return_value = datetime(2024, 10, 11, 12, 30, 0)
-        log_playback.log_track('test_track_id', 'fake track name')
+        log_playback.log_track(playback, False)
         tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2024',), tables)
         res = log_playback.ldb_conn.execute("SELECT * FROM '2024';").fetchall()
         self.assertEqual(res, [('test_track_id', '2024-10-11 12:30:00')])
+        log_playback.update_last_track_count.assert_not_called()
 
-        # Test for a different year.
+        # Test Different Year.
         mock_datetime.now.return_value = datetime(2023, 1, 1, 0, 0, 0)
-        log_playback.log_track('track_2023_id', 'fake 2023 track name')
+        log_playback.log_track(playback, True)
         tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2023',), tables)
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
+        self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
+        log_playback.update_last_track_count.assert_called_once()
+        log_playback.update_last_track_count.reset_mock()
 
-        # Test an empty track_id.
-        log_playback.log_track("", "")  # Should not insert anything
+        # Test None Playback.
+        log_playback.log_track(None, True) # Should not insert anything
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
+        self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
+        log_playback.update_last_track_count.assert_not_called()
+        
+        # Test Not Playing.
+        playback['is_playing'] = False
+        log_playback.log_track(playback, True) # Should not log anything
+        cursor = log_playback.ldb_conn.cursor()
+        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
+        log_playback.update_last_track_count.assert_not_called()
+        playback['is_playing'] = True
         
         # Test MACRO track_id.
         Test_Settings.MACRO_LIST.append("test_macro_id")
-        log_playback.log_track("test_macro_id", "macro track")  # Should not log anything
+        playback['track']['id'] = "test_macro_id"
+        log_playback.log_track(playback, True) # Should not log anything
         cursor = log_playback.ldb_conn.cursor()
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
-        self.assertEqual(res, [('track_2023_id', '2023-01-01 00:00:00')])
-
-        # Test None as track_id.
+        self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
+        log_playback.update_last_track_count.assert_not_called()
+        
+        # Test None track_id.
+        playback['track']['id'] = None
+        playback['track']['name'] = "test track 1"
         log_playback.ldb_conn.execute("DELETE FROM '2023'")
-        log_playback.log_track(None, 'test track 1')
+        log_playback.log_track(playback, True)
         res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('local_track_test track 1', '2023-01-01 00:00:00')])
+        log_playback.update_last_track_count.assert_called_once()
+        
 
-
-    
-    
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

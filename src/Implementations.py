@@ -100,31 +100,40 @@ INPUT: spotify_features - SpotifyFeatures object we will use to grab playback, a
 OUTPUT: NA
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def log_and_macro(spotify_features) -> None:
-    track_id, track_name, shuffle_enabled, playlist_id = spotify_features.get_playback_state()
+    playback = spotify_features.get_playback_state()
+    
+    if playback is None:
+        return
+    
+    # Only Trigger Macros If We Are Playing A Playlist
+    if playback['context'] is not None and playback['context']['type'] == "playlist":
+        match playback['track']['id']:
+            case Settings.SHUFFLE_MACRO_ID:
+                shuffle_type = ShuffleType.WEIGHTED if playback['shuffle_state'] else ShuffleType.RANDOM
+                startup_feature_thread(SpotifyFeatures.shuffle_playlist
+                                       , playback['context']['id']
+                                       , shuffle_type=shuffle_type
+                                       , log_file_name="Shuffle-Playlist.log")
 
-    match track_id:
-        case Settings.SHUFFLE_MACRO_ID:
-            shuffle_type = ShuffleType.WEIGHTED if shuffle_enabled else ShuffleType.RANDOM
-            startup_feature_thread(SpotifyFeatures.shuffle_playlist, playlist_id, shuffle_type=shuffle_type, 
-                                   log_file_name="Shuffle-Playlist.log")
+            case Settings.GEN_ARTIST_MACRO_ID:
+                spotify_features.skip_track()
+                startup_feature_thread(SpotifyFeatures.generate_artist_playlist_from_playlist
+                                       , playback['context']['id']
+                                       , log_file_name="Generate-Artist-Playlist.log")
 
-        case Settings.GEN_ARTIST_MACRO_ID:
-            spotify_features.skip_track()
-            startup_feature_thread(SpotifyFeatures.generate_artist_playlist_from_playlist, playlist_id, 
-                                   log_file_name="Generate-Artist-Playlist.log")
+            case Settings.DISTRIBUTE_TRACKS_MACRO_ID:
+                spotify_features.skip_track()
+                startup_feature_thread(SpotifyFeatures.distribute_tracks_to_collections
+                                       , playback['context']['id']
+                                       , log_file_name="Distribute-Tracks.log")
 
-        case Settings.DISTRIBUTE_TRACKS_MACRO_ID:
-            spotify_features.skip_track()
-            startup_feature_thread(SpotifyFeatures.distribute_tracks_to_collections, playlist_id, 
-                                   log_file_name="Distribute-Tracks.log")
+            case Settings.ORGANIZE_PLAYLIST_MACRO_ID:
+                spotify_features.skip_track()
+                startup_feature_thread(SpotifyFeatures.organize_playlist_by_date
+                                       , playback['context']['id']
+                                       , log_file_name="Organize-Playlist.log")
 
-        case Settings.ORGANIZE_PLAYLIST_MACRO_ID:
-            spotify_features.skip_track()
-            startup_feature_thread(SpotifyFeatures.organize_playlist_by_date, playlist_id, 
-                                   log_file_name="Organize-Playlist.log")
-
-        case _:
-            spotify_features.log_playback_to_db(track_id, track_name)
+    spotify_features.log_playback_to_db(playback)
             
 
 def main():

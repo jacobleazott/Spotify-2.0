@@ -159,7 +159,7 @@ current_playback_test_message = {
                 # 'href': 'current_playback_href',
                 'type': 'playlist',
                 'uri': 'spotify:playlist:Pl001'},
-    # 'currently_playing_type': 'track',
+    'currently_playing_type': 'track',
     # 'device': {'id': 'De000',
     #             'is_active': True,
     #             'is_private_session': False,
@@ -175,6 +175,19 @@ current_playback_test_message = {
     'shuffle_state': False,
     # 'smart_shuffle': False,
     # 'timestamp': 0
+    }
+
+get_playback_state_test_message = {
+    'context': {'type': 'playlist',
+                'id': 'Pl001'},
+    'currently_playing_type': 'track',
+    'is_playing': True,
+    'repeat_state': 'off',
+    'shuffle_state': False,
+    'track': {'id': "Tr001",
+             'name': "Fake Track 1",
+             'artists': [{'id': 'Ar001',
+                           'track': 'Fake Artist 1'}]}
     }
 
 playlist_items_test_message = {
