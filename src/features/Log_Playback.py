@@ -93,8 +93,8 @@ class LogPlayback(LogAllMethods):
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
-    INPUT: track_id - Id of the track we are currently listening to.
-           track_name - Name of track to use if track_id is 'None'
+    INPUT: playback - Dictionary of current playback, see 'get_playback_state()' in GSH.
+           inc_track_count - Whether we should increment our track_count database.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def log_track(self, playback: dict, inc_track_count: bool) -> None:

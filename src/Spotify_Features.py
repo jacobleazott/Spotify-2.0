@@ -154,6 +154,7 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def log_playback_to_db(self, playback: dict) -> None:
         inc_tcdb = True
+        # Here we decide to not increment the track_count db if we are playing a '__' playlist.
         if playback['context'] is not None and playback['context']['type'] == "playlist":
             dbh = DatabaseHelpers(logger=self.logger)
             playlist_name = next((playlist['name'] for playlist in dbh.db_get_user_playlists() 
@@ -162,8 +163,6 @@ class SpotifyFeatures(LogAllMethods):
                                 if artist['name'] == playlist_name[2:]])
         
         LogPlayback(logger=self.logger).log_track(playback, inc_tcdb)
-        
-        # https://open.spotify.com/track/5a8YXmvWnhnHUDVHBO32zF?si=1c177f3cdb124b8f
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates our shuffle feature and passes in our logger, spotify, and shuffle type.
@@ -204,7 +203,7 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_playback_state(self, track_info=['id', 'name']) -> dict:
-        return self.spotify.get_playback_state(track_info)
+        return self.spotify.get_playback_state(track_info=track_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Updates our "latest" playlist with the "latest" tracks in our main playlist. 

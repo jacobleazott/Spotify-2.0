@@ -11,8 +11,6 @@
 import inspect
 import unittest
 
-from pprint import pprint
-
 from datetime import datetime, timedelta
 from unittest import mock
 
@@ -328,7 +326,6 @@ class TestGSH(unittest.TestCase):
         # Test None 'Item'
         spotify.sp.current_playback_response['item'] = None
         self.assertEqual(spotify.get_playback_state(), None)
-
 
     @mock.patch("time.sleep", return_value=None)
     def test_write_to_queue(self, mock_sleep):

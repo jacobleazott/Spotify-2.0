@@ -251,12 +251,12 @@ class GeneralSpotifyHelpers:
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets playback state of current spotify session.
-    INPUT: NA
-    OUTPUT: Returns current playing track id, track name, shuffle state, and the current playlist, 
-            if not playing then "", "", False, "".
+    INPUT: track_info - List of track info we want from the track obj in the response.
+           artist_info - List of artist info we want from the track obj in the response.
+    OUTPUT: Returns a dict holding track, and playback information.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playback_state(self, track_info: list[str]=['id']
-                           , artist_info: list[str]=['id']) -> tuple[str, str, bool, str]:
+                           , artist_info: list[str]=['id']) -> dict:
         self._validate_scope(["user-read-playback-state"])
         
         playback = self.sp.current_playback()
@@ -274,9 +274,8 @@ class GeneralSpotifyHelpers:
                                   "id": playback['context']['uri'].split(':')[2]}
             
             # Here we have to trick our _gather_data function to think there are "multiple"
-            altered_playback = dict(playback)
-            altered_playback['item'] = [dict(playback['item'])]
-            # playback['item'] = [playback['item']]
+            altered_playback = playback.copy()
+            altered_playback['item'] = [playback['item'].copy()]
             ret['track'] = self._gather_data(altered_playback, {"item": track_info, ("artists",): artist_info})[0]
 
         return ret
@@ -338,8 +337,7 @@ class GeneralSpotifyHelpers:
         track_chunks = chunks(track_ids, 100)
         for chunk in track_chunks:
             self.sp.playlist_add_items(playlist_id, chunk)
-            
-            
+
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
@@ -354,8 +352,7 @@ class GeneralSpotifyHelpers:
         playlist_track_ids = [track['id'] for track in self.get_playlist_tracks(playlist_id)]
         tracks_to_add = [track_id for track_id in track_ids if track_id not in playlist_track_ids]
         self.add_tracks_to_playlist(playlist_id, tracks_to_add)
-        
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Grabs all the tracks with given <object>_info provided.
     INPUT: playlist_id - Id of playlist we are grabbing tracks from.
@@ -414,7 +411,7 @@ class GeneralSpotifyHelpers:
             self.sp.playlist_change_details(playlist_id, name=name)
         elif description is not None:
             self.sp.playlist_change_details(playlist_id, description=description)
-            
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Removes all tracks from a playlist assuming it is in our PLAYLISTS_WE_CAN_DELETE_FROM list.
     INPUT: playlist_id - Id of playlist we will delete all tracks from.
