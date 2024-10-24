@@ -236,11 +236,11 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_user_playlists_to_db(self) -> None:
         user_playlists = self.spotify.get_user_playlists(info=["id", "name", "description"])
-        self.logger.debug(f"\t Inserting {len(user_playlists)} Playlists")
+        self.logger.info(f"\t Inserting {len(user_playlists)} Playlists")
         self.insert_many("playlists", user_playlists)
         
         for playlist in user_playlists:
-            self.logger.info(f"\t Saving Data For Playlist: {playlist['name']}")
+            self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
             self.insert_tracks_into_db_from_playlist(playlist['id'])
             
         self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")

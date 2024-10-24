@@ -108,7 +108,7 @@ class Shuffler(LogAllMethods):
             random.shuffle(track_group)
             track_list += track_group
 
-        return track_list 
+        return track_list
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all the tracks from the given playlist, and applies the given shuffle to those tracks.
