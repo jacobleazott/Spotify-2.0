@@ -69,8 +69,8 @@ DESCRIPTION: Collection of all of our Spotify API features. Handles and abstract
 class SpotifyFeatures(LogAllMethods):
 
     def __init__(self, log_file_name: str="default.log", log_mode: str='a', log_level=logging.INFO) -> None:
-        self.spotify = gsh.GeneralSpotifyHelpers()
         self.logger = get_file_logger(f'logs/{log_file_name}', log_level=log_level, mode=log_mode)
+        self.spotify = gsh.GeneralSpotifyHelpers(logger=self.logger)
         self.mfeatures = MiscFeatures(self.spotify, logger=self.logger)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -258,6 +258,18 @@ class SpotifyFeatures(LogAllMethods):
     def upload_latest_backup_to_drive(self) -> None:
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
+
+
+def main():
+    features = SpotifyFeatures(log_file_name="Test.log")
+    features.upload_latest_backup_to_drive()
+    # features.update_daily_latest_playlist()
+    # features.generate_weekly_report()
+    # features.backup_spotify_library()
+
+if __name__ == "__main__":
+    main()
+
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

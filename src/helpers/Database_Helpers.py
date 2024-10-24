@@ -45,8 +45,8 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: query - Sqlite query we will fetchall results from and turn into a dict.
     OUTPUT: List of dicts from the db query.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def _conn_query_to_dict(self, query: str) -> list[dict]:
-        cursor = self.backup_db_conn.execute(query)
+    def _conn_query_to_dict(self, query: str, p_val: tuple=()) -> list[dict]:
+        cursor = self.backup_db_conn.execute(query, p_val)
         column_names = [desc[0] for desc in cursor.description]
         
         return [dict(zip(column_names, row)) for row in cursor.fetchall()]
@@ -61,9 +61,9 @@ class DatabaseHelpers(LogAllMethods):
             SELECT tracks.*
             FROM tracks
             JOIN playlists_tracks ON tracks.id = playlists_tracks.id_track
-            WHERE playlists_tracks.id_playlist = '{playlist_id}'
+            WHERE playlists_tracks.id_playlist = ?
         """
-        return self._conn_query_to_dict(query)
+        return self._conn_query_to_dict(query, p_val=(playlist_id,))
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all of the artists from our db for a given 'track_id'.
@@ -75,9 +75,9 @@ class DatabaseHelpers(LogAllMethods):
             SELECT artists.* 
             FROM artists
             JOIN tracks_artists ON artists.id = tracks_artists.id_artist
-            WHERE tracks_artists.id_track = '{track_id}'
+            WHERE tracks_artists.id_track = ?
         """
-        return self._conn_query_to_dict(query)
+        return self._conn_query_to_dict(query, p_val=(track_id,))
    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all of the playlists in our db.

@@ -97,7 +97,9 @@ class TestShuffler(unittest.TestCase):
 
         # Mock return for method call to sim getting playlist tracks.
         shuffler.dbh.db_get_tracks_from_playlist.return_value = [
-            {'id': 'track_1'}, {'id': 'track_2'}, {'id': 'track_3'}]
+              {'id': 'track_1', 'is_local': False}
+            , {'id': 'track_2', 'is_local': False}
+            , {'id': 'track_3', 'is_local': False}]
 
         # Test RANDOM shuffle.
         shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
@@ -107,6 +109,7 @@ class TestShuffler(unittest.TestCase):
 
         # Test WEIGHTED shuffle.
         mock_weighted_shuffle.return_value = ['track_3', 'track_1', 'track_2']
+        mock_spotify.reset_mock()
         shuffler.shuffle('some_playlist_id', ShuffleType.WEIGHTED)
         mock_weighted_shuffle.assert_called_once_with(['track_1', 'track_2', 'track_3'])
         mock_spotify.write_to_queue.assert_any_call(['track_3']) # Make sure proper track was sent to queue
@@ -114,10 +117,25 @@ class TestShuffler(unittest.TestCase):
         # Test MACRO_LIST isn't included.
         Test_Settings.MACRO_LIST.append("fake_macro_track")
         shuffler.dbh.db_get_tracks_from_playlist.return_value = [
-            {'id': "fake_macro_track"}, {'id': 'track_2'}, {'id': 'track_3'}]
+              {'id': "fake_macro_track", 'is_local': False}
+            , {'id': 'track_2', 'is_local': False}
+            , {'id': 'track_3', 'is_local': False}]
         mock_random_shuffle.reset_mock()
+        mock_spotify.reset_mock()
         shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
         mock_random_shuffle.assert_called_once_with(['track_2', 'track_3'])
+        mock_spotify.write_to_queue.assert_any_call(['track_2'])
+        mock_spotify.write_to_queue.assert_any_call(['track_3'])
+        
+        # Test local tracks aren't included.
+        shuffler.dbh.db_get_tracks_from_playlist.return_value = [
+              {'id': "track_1", 'is_local': True}
+            , {'id': 'track_2', 'is_local': False}
+            , {'id': 'track_3', 'is_local': True}]
+        mock_random_shuffle.reset_mock()
+        mock_spotify.reset_mock()
+        shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
+        mock_random_shuffle.assert_called_once_with(['track_2'])
         mock_spotify.write_to_queue.assert_any_call(['track_2'])
 
         # Test Unknown ShuffleType.

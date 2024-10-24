@@ -114,7 +114,8 @@ class GeneralSpotifyHelpers:
            username - User id we use for auth and operations (requires prior authorization for scopes).
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def __init__(self, scopes: Optional[list[str]]=None) -> None:
+    def __init__(self, scopes: Optional[list[str]]=None, logger: logging.Logger=None) -> None:
+        self.logger = logger if logger is not None else logging.getLogger()
         self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
         cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
@@ -416,15 +417,22 @@ class GeneralSpotifyHelpers:
     DESCRIPTION: Removes all tracks from a playlist assuming it is in our PLAYLISTS_WE_CAN_DELETE_FROM list.
     INPUT: playlist_id - Id of playlist we will delete all tracks from.
            max_playlist_length - Second gate to always check how many tracks we "expect" to delete.
-    OUTPUT: NA
+    OUTPUT: Bool on whether or not it successfully removed the tracks.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def remove_all_playlist_tracks(self, playlist_id: str, max_playlist_length: int=0):
         self._validate_scope(["playlist-modify-public", "playlist-modify-private", Settings.DELETE_SCOPE])
+        tracks = []
         if playlist_id in Settings.PLAYLISTS_WE_CAN_DELETE_FROM:
             tracks = self.get_playlist_tracks(playlist_id)
-            if len(tracks) > 0 and len(tracks) <= max_playlist_length:
-                self.sp.playlist_remove_all_occurrences_of_items(playlist_id, [track['id'] for track in tracks])
-
+            if len(tracks) <= max_playlist_length:
+                for chunk in chunks([track['id'] for track in tracks], 60):
+                    self.sp.playlist_remove_all_occurrences_of_items(playlist_id, chunk)
+                return True
+        
+        self.logger.error(f"Incorrectly Called DELETE With Playlist: ID: {playlist_id}, " +
+                                   f"Length: {len(tracks)}, Max: {max_playlist_length}")
+        return False
+            
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

@@ -204,12 +204,15 @@ class BackupSpotifyData(LogAllMethods):
                                          , album_info=['id', 'name', 'release_date', 'artists']
                                          , artist_info=['id', 'name'])
         
+        self.logger.debug(f"\tTracks #: {len(tracks)}")
+        
         for track in tracks:
+            is_playable = track['preview_url'] is not None
             # Replace any None values with a unique identifier so we have all data
             track = replace_none(track, f"local_track_{track['name']}")
                 
-            track_table_entries.append((track['id'], track['name'], track['duration_ms'], track['is_local'], 
-                                        track['preview_url'] is not None))
+            track_table_entries.append((track['id'], track['name'], track['duration_ms']
+                                        , track['is_local'], is_playable))
             album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['artists']]
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['album_artists']]
@@ -233,11 +236,11 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_user_playlists_to_db(self) -> None:
         user_playlists = self.spotify.get_user_playlists(info=["id", "name", "description"])
-        self.logger.info(f"\t Inserting {len(user_playlists)} Playlists")
+        self.logger.debug(f"\t Inserting {len(user_playlists)} Playlists")
         self.insert_many("playlists", user_playlists)
         
         for playlist in user_playlists:
-            self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
+            self.logger.info(f"\t Saving Data For Playlist: {playlist['name']}")
             self.insert_tracks_into_db_from_playlist(playlist['id'])
             
         self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
