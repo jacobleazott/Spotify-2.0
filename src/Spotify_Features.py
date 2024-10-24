@@ -260,18 +260,4 @@ class SpotifyFeatures(LogAllMethods):
         DriveUploader(logger=self.logger).upload_file(latest_backup)
 
 
-def main():
-    features = SpotifyFeatures(log_file_name="Test.log")
-    
-    features.log_playback_to_db(features.get_playback_state())
-    # features.upload_latest_backup_to_drive()
-    # features.update_daily_latest_playlist()
-    # features.generate_weekly_report()
-    # features.backup_spotify_library()
-
-if __name__ == "__main__":
-    main()
-
-
-
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
