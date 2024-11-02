@@ -1,67 +1,73 @@
-
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    GOOGLE DRIVE UPLOADER                    CREATED: 2024-09-28          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - GOOGLE DRIVE UPLOADER       CREATED: 2024-10-10          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# This is just an abstraction for authorization and codeflow for getting a handler setup for the Google Drive API. It 
-#   does require both a client_secrets.json and a token.txt file. It then also requires a folder_id to be given. This
-#   is just grabbed from the url of the folder itself, but just another hardcoded value.
+# Unit tests for all functionality out of 'Google_Drive_Uploader.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import os
-import logging
+import unittest
+from unittest import mock
 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-
-from decorators import *
-from Settings import Settings
+from src.features.Google_Drive_Uploader import DriveUploader
+from tests.helpers.mocked_Settings import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Abstracted google drive api handler to upload single 'simple' (< 5MB) files. 
+DESCRIPTION: Unit test collection for all Google Drive Uploader functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class DriveUploader(LogAllMethods):
-    drive = None
-
-    def __init__(self, logger: logging.Logger=None) -> None:
-        self.logger = logger if logger is not None else logging.getLogger()
-        self.authorize()
+@mock.patch('src.features.Google_Drive_Uploader.Settings', Test_Settings)
+class TestDriveUploader(unittest.TestCase):
+    @mock.patch('src.features.Google_Drive_Uploader.GoogleAuth')  # Replace with your actual module name
+    @mock.patch('src.features.Google_Drive_Uploader.GoogleDrive')
+    def test_authorize(self, mock_drive, mock_gauth):
+        mock_instance = mock_gauth.return_value
         
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Goes through authorization flow for our creds. We need to manually login and give access if the creds
-                 ever go missing or it's our first run through. It handles any token refresh and just sets up our 
-                 'GoogleDrive' object for later use.
-    INPUT: NA
-    OUTPUT: NA
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def authorize(self) -> None:
-        gauth = GoogleAuth()
-        gauth.LoadClientConfigFile(client_config_file=Settings.DRIVE_CLIENT_JSON)
-        gauth.LoadCredentialsFile(Settings.DRIVE_TOKEN_FILE)
+        # Test New Credentials
+        mock_instance.credentials = None  # Simulate missing credentials.
+        uploader = DriveUploader()
+        mock_instance.CommandLineAuth.assert_called_once()
+        mock_instance.SaveCredentialsFile.assert_called_once_with(Test_Settings.DRIVE_TOKEN_FILE)
+        self.assertIsNotNone(uploader.drive)
 
-        if gauth.credentials is None:
-            gauth.CommandLineAuth()
-            gauth.SaveCredentialsFile(Settings.DRIVE_TOKEN_FILE)
-        elif gauth.access_token_expired:
-            gauth.Refresh()
-            gauth.SaveCredentialsFile(Settings.DRIVE_TOKEN_FILE)
-        else:
-            gauth.Authorize()
+        # Test Refresh Credentials
+        mock_instance.reset_mock()
+        mock_instance.credentials = mock.Mock()  # Simulate existing credentials.
+        mock_instance.access_token_expired = True  # Simulate expired token.
+        uploader = DriveUploader()
+        mock_instance.Refresh.assert_called_once()
+        mock_instance.SaveCredentialsFile.assert_called_once_with(Test_Settings.DRIVE_TOKEN_FILE)
+        self.assertIsNotNone(uploader.drive)
 
-        self.drive = GoogleDrive(gauth)
+        # Test Existing Credentials
+        mock_instance.reset_mock()
+        mock_instance.credentials = mock.Mock()  # Simulate existing credentials.
+        mock_instance.access_token_expired = False  # Token is valid.
+        uploader = DriveUploader()
+        mock_instance.Authorize.assert_called_once()
+        mock_instance.SaveCredentialsFile.assert_not_called()
+        self.assertIsNotNone(uploader.drive)
+
+    @mock.patch('src.features.Google_Drive_Uploader.GoogleDrive')
+    def test_upload_file(self, mock_drive):
+        mock_instance = mock_drive.return_value
+        mock_instance.CreateFile.return_value = mock.Mock()
+        DriveUploader.authorize = mock.MagicMock() # We don't want to trigger this here.
+        DriveUploader.drive = mock_instance # Need to override drive so we can assert CreateFile is called.
+
+        test_file_path = 'test_file.txt'
         
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Takes a given file and uploads it to Google Drive.
-    INPUT: file - The full filepath of the file we wish to upload to our Google Drive.
-    OUTPUT: NA
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def upload_file(self, file: str) -> None:
-        gfile = self.drive.CreateFile({'title': os.path.basename(file), 'parents': [{'id': Settings.DRIVE_FOLDER_ID}]})
-        gfile.SetContentFile(file)
-        gfile.Upload()
+        DriveUploader().upload_file(test_file_path)
+
+        mock_instance.CreateFile.assert_called_once_with({
+            'title': 'test_file.txt', 
+            'parents': [{'id': Test_Settings.DRIVE_FOLDER_ID}]
+        })
+
+        gfile = mock_instance.CreateFile.return_value
+        gfile.SetContentFile.assert_called_once_with(test_file_path)
+        gfile.Upload.assert_called_once()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

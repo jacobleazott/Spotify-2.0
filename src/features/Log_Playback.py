@@ -21,8 +21,8 @@ import pickle
 import sqlite3
 from datetime import datetime, timedelta
 
-from decorators import *
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does
@@ -31,33 +31,43 @@ DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed 
 class LogPlayback(LogAllMethods):
     track_id = ""
         
-    def __init__(self, logger: logging.Logger=None) -> None:
+    def __init__(self, ldb_path: str=None, tcdb_path: str=None, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
+        self.ldb_path = ldb_path or Settings.LISTENING_DB
+        self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
+        self.ldb_conn = None
+        self.tcdb_conn = None
         
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.ldb_conn:
+            self.ldb_conn.close()
+        if self.tcdb_conn:
+            self.tcdb_conn.close()
+
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
     INPUT: track_id - Id of track we are updating.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def increment_play_count_db(self) -> None:
-        track_counts_conn = sqlite3.connect(Settings.TRACK_COUNTS_DB)
-        track_counts_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
-             track_id TEXT PRIMARY KEY,
-             play_count INTEGER NOT NULL);''')
+        if not self.tcdb_conn:
+            self.tcdb_conn = sqlite3.connect(self.tcdb_path)
 
-        # Checks ot see if the track is already in the database or not
-        if not bool(track_counts_conn.execute(
-                f"SELECT COUNT(*) from 'tracks' WHERE 'tracks'.track_id = '{self.track_id}'").fetchone()[0]):
-            track_counts_conn.execute(f"""INSERT INTO 'tracks'
-                              ('track_id', 'play_count') 
-                              VALUES (?, ?);""", (self.track_id, 1))
-        else:
-            track_counts_conn.execute(f"""UPDATE 'tracks'
-                                SET play_count = play_count + 1 
-                                WHERE track_id = '{self.track_id}'""")
+        with self.tcdb_conn:
+            self.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
+                                     track_id TEXT PRIMARY KEY,
+                                     play_count INTEGER NOT NULL);''')
 
-        track_counts_conn.commit()
-        track_counts_conn.close()
+            # Checks ot see if the track is already in the database or not
+            if not bool(self.tcdb_conn.execute(
+                    f"SELECT COUNT(*) from 'tracks' WHERE 'tracks'.track_id = '{self.track_id}'").fetchone()[0]):
+                self.tcdb_conn.execute(f"""INSERT OR IGNORE INTO 'tracks'
+                                            ('track_id', 'play_count') 
+                                            VALUES (?, ?);""", (self.track_id, 1))
+            else:
+                self.tcdb_conn.execute(f"""UPDATE 'tracks'
+                                            SET play_count = play_count + 1 
+                                            WHERE track_id = '{self.track_id}'""")
 
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -77,35 +87,41 @@ class LogPlayback(LogAllMethods):
             with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
                 pickle.dump((self.track_id, True), fi)
         elif last_track_pickle[1]:
-                with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
-                    pickle.dump((self.track_id, False), fi)
-                self.increment_play_count_db()
+            with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
+                pickle.dump((self.track_id, False), fi)
+            self.increment_play_count_db()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
     INPUT: track_id - Id of the track we are currently listening to.
+           track_name - Name of track to use if track_id is 'None'
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def log_track(self, track_id):
+    def log_track(self, track_id, track_name):
         # Don't log if no track is present or it is one of our macros
         if track_id in Settings.MACRO_LIST or track_id == "":
             return
 
-        self.track_id = track_id
+        if track_id is None:
+            self.track_id = f"local_track_{track_name}"
+        else:
+            self.track_id = track_id
+            
         year = datetime.now().year
-        ldb_conn = sqlite3.connect(Settings.LISTENING_DB)
-
-        ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{year}'(
-                track_id TEXT NOT NULL,
-                time timestamp NOT NULL);''')
-
-        timestamp = (datetime.now() - timedelta(
-            seconds=int(datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
         
-        ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
-                         VALUES ("{track_id}", "{timestamp}");""")
-        ldb_conn.commit()
-        ldb_conn.close()
+        if not self.ldb_conn:
+            self.ldb_conn = sqlite3.connect(self.ldb_path)
+        
+        with self.ldb_conn:
+            self.ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{year}'(
+                                    track_id TEXT NOT NULL,
+                                    time timestamp NOT NULL);''')
+
+            timestamp = (datetime.now() - timedelta(
+                seconds=int(datetime.now().strftime(r"%S")))).strftime(r"%Y-%m-%d %H:%M:%S")
+
+            self.ldb_conn.execute(f"""INSERT INTO '{year}' ('track_id', 'time') 
+                                     VALUES ("{self.track_id}", "{timestamp}");""")
 
         self.update_last_track_count()
 

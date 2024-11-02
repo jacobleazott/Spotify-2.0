@@ -33,9 +33,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 
-from Shuffle_Styles import ShuffleType
-from Spotify_Features import SpotifyFeatures
-from Settings import Settings
+from src.features.Shuffle_Styles import ShuffleType
+from src.Spotify_Features import SpotifyFeatures
+from src.helpers.Settings import Settings
 
 threads = []
 
@@ -100,7 +100,7 @@ INPUT: spotify_features - SpotifyFeatures object we will use to grab playback, a
 OUTPUT: NA
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def log_and_macro(spotify_features) -> None:
-    track_id, shuffle_enabled, playlist_id = spotify_features.get_playback_state()
+    track_id, track_name, shuffle_enabled, playlist_id = spotify_features.get_playback_state()
 
     match track_id:
         case Settings.SHUFFLE_MACRO_ID:
@@ -124,7 +124,7 @@ def log_and_macro(spotify_features) -> None:
                                    log_file_name="Organize-Playlist.log")
 
         case _:
-            spotify_features.log_playback_to_db(track_id)
+            spotify_features.log_playback_to_db(track_id, track_name)
             
 
 def main():

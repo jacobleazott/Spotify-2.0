@@ -24,8 +24,8 @@ import os
 import sqlite3
 from glob import glob
 
-from decorators import *
-from Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of methods similar to GSH that grab from our latest local backup rather than spotify itself.
@@ -36,9 +36,8 @@ class DatabaseHelpers(LogAllMethods):
     
     def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
-        
-        latest_backup_file = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
-        self.backup_db_conn = sqlite3.connect(latest_backup_file)
+        # Grab the latest database file from our backups
+        self.backup_db_conn = sqlite3.connect(max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime))
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Since we want to return dicts and not lists of our db data we can use this method to grab our db 

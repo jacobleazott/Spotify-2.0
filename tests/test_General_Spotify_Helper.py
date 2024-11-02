@@ -1,167 +1,32 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS FOR GSH                       CREATED: 2024-09-14          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - GSH                         CREATED: 2024-09-14          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# Here we unit test all functionality out of 'General_Spotify_Helpers'.
-# Run Command - (-v can be passed AFTER the file if verbose mode is desired)
-#   python test_General_Spotify_Helper.py 
+# Unit tests for all functionality out of 'General_Spotify_Helpers.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import inspect
-import os
-import sys
 import unittest
+
 from datetime import datetime, timedelta
-from pprint import pprint
+from unittest import mock
 
-import api_response_test_messages as artm
-# Override 'spotipy' with our local 'mocked_spotipy.py' MUST BE DONE BEFORE GSH
-sys.modules['spotipy'] = __import__('mocked_spotipy')
+import src.General_Spotify_Helpers as gsh
+import tests.helpers.api_response_test_messages as artm
+import tests.helpers.tester_helpers as thelp
 
-import General_Spotify_Helpers as gsh
-from Settings import Settings
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'.
-INPUT: artist_id - Id of our 'fake' artist.
-       name - Name of our 'fake' artist/
-OUTPUT: Artist dict
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_artist(artist_id: str, name: str) -> dict:
-    return {
-        'id': artist_id,
-        'name': name
-    }
-
+from tests.helpers.mocked_Settings import Test_Settings
+from tests.helpers import mocked_spotipy
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'.
-INPUT: album_id - Id of our 'fake' album.
-       name - Name of our 'fake' album.
-       artists - List of artist dictionaries see 'create_artist()'.
-       album_type - Type of album values - "album", "single", "compilation"
-OUTPUT: Album dict
+DESCRIPTION: Unit test collection for all GSH functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_album(album_id: str, name: str, artists: list[dict], album_type: str) -> dict:
-    return {
-        'id': album_id,
-        'name': name,
-        'artists': artists,
-        'album_type': album_type   # "album", "single", "compilation"
-    }
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'.
-INPUT: track_id - Id of our 'fake' track.
-       name - Name of our 'fake' track.
-       album - Album dict our track belongs to, see 'create_album()'.
-       artists - List of artist dictionaries see 'create_artist()'.
-       is_local - Bool on whether our track is local or not.
-OUTPUT: Track dict
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_track(track_id: str, name: str, album: str, artists: list[dict], is_local: bool=False) -> dict:
-    return {
-        'id': track_id,
-        'name': name,
-        'album': album,
-        'artists': artists,
-        'is_local': is_local
-    }
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'.
-INPUT: playlist_id - Id of our 'fake' playlist.
-       name - Name of our 'fake' playlist.
-       description - Description of our 'fake' playlist.
-       tracks - List of track dicts, see 'create_track()'. This field is not in the actual response but is helpful for
-                testing.
-OUTPUT: Playlist dict
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_playlist(playlist_id: str, name: str, description: str, tracks: list[dict]) -> dict:
-    return {
-        'id': playlist_id,
-        'name': name,
-        'description': description,
-        'tracks': tracks                # Note this isn't actually part of the playlist obj
-    }
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Validates that the given 'args' are of type 'types'.
-INPUT: args - List of variables we wish to validate.
-       types - List of python types the 'args' should be.
-OUTPUT: NA
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_env(spotify_mocked):
-    # Create Artists
-    artist_no_tracks = create_artist('Ar001', 'Fake Artist 1')
-    artist_only_theirs = create_artist('Ar002', 'Fake Artist 2')
-    artist_followed = create_artist('Ar003', 'Fake Artist 3')
-    artist_followed_appears_on = create_artist('Ar004', 'Fake Artist 4')
-    artist_unfollowed_appears_on = create_artist('Ar005', 'Fake Artist 5')
-    
-    spotify_mocked.sp.artists += [artist_no_tracks, artist_only_theirs, artist_followed, artist_followed_appears_on, artist_unfollowed_appears_on]
-    spotify_mocked.sp.user_artists += [artist_only_theirs, artist_followed, artist_followed_appears_on]
-    
-    # Create Albums
-    al001 = create_album('Al001', 'Fake Album 1', [], 'album')
-    al002 = create_album('Al002', 'Fake Album 2', [artist_only_theirs], 'album')
-    al003 = create_album('Al003', 'Fake Album 3', [artist_only_theirs], 'single')
-    al004 = create_album('Al004', 'Fake Album 4', [artist_only_theirs], 'compilation')
-    
-    al005 = create_album('Al005', 'Fake Album 5', [artist_followed], 'album')
-    al006 = create_album('Al006', 'Fake Album 6', [artist_followed, artist_followed_appears_on], 'album')
-    
-    al007 = create_album('Al007', 'Fake Album 7', [artist_followed_appears_on], 'album')
-    al008 = create_album('Al008', 'Fake Album 8', [artist_followed_appears_on, artist_unfollowed_appears_on], 'album')
-    
-    al009 = create_album('Al009', 'Fake Album 8', [artist_unfollowed_appears_on], 'single')
-    al010 = create_album('Al010', 'Fake Album 10', [artist_unfollowed_appears_on], 'album')
-    
-    spotify_mocked.sp.env_albums += [al001, al002, al003, al004, al005, al006, al007, al008, al009, al010]
-
-    # Create Tracks
-    local_artist = create_artist(None, 'Fake Local Artist 1')
-    local_album = create_album(None, 'Fake Local Album 1', [], None)
-    local_track = create_track(None, 'Fake Local Track 1', local_album, [local_artist], is_local=True)
-    
-    tr001 = create_track('Tr001', 'Fake Track 1', al002, [artist_only_theirs])
-    tr002 = create_track('Tr002', 'Fake Track 2', al002, [artist_only_theirs])
-    tr003 = create_track('Tr003', 'Fake Track 3', al003, [artist_only_theirs])
-    tr004 = create_track('Tr004', 'Fake Track 4', al004, [artist_only_theirs])
-    
-    tr005 = create_track('Tr005', 'Fake Track 5', al005, [artist_followed])
-    tr006 = create_track('Tr006', 'Fake Track 6', al006, [artist_followed])
-    tr007 = create_track('Tr007', 'Fake Track 7', al006, [artist_followed, artist_followed_appears_on])
-    
-    tr008 = create_track('Tr008', 'Fake Track 8', al007, [artist_followed_appears_on])
-    tr009 = create_track('Tr009', 'Fake Track 9', al007, [artist_followed_appears_on])
-    tr010 = create_track('Tr010', 'Fake Track 10', al008, [artist_followed_appears_on])
-    tr011 = create_track('Tr011', 'Fake Track 11', al008, [artist_unfollowed_appears_on])
-    tr012 = create_track('Tr012', 'Fake Track 12', al008, [artist_followed_appears_on, artist_unfollowed_appears_on])
-    
-    tr013 = create_track('Tr013', 'Fake Track 13', al009, [artist_unfollowed_appears_on])
-    tr014 = create_track('Tr014', 'Fake Track 14', al010, [artist_unfollowed_appears_on])
-    tr015 = create_track('Tr015', 'Fake Track 15', al010, [artist_unfollowed_appears_on, artist_followed_appears_on])
-
-    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008, tr009, tr010, tr011, tr012, tr013, tr014, tr015]
-
-    # Create Playlists
-    spotify_mocked.sp.playlists.append(create_playlist('Pl001', 'Fake Playlist 1', 'description 1', []))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl002', 'Fake Playlist 2', 'description 2', [tr002, tr003, tr004]))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl003', 'Fake Playlist 3', 'description 3', [tr008, tr011, tr012, tr015]))
-    spotify_mocked.sp.playlists.append(create_playlist('Pl004', 'Fake Playlist 4', 'description 4', [local_track, local_track, tr001, tr001]))
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all GSH functionality
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+@mock.patch('src.General_Spotify_Helpers.spotipy', mocked_spotipy)
 class TestGSH(unittest.TestCase):
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # NON CLASS FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -367,7 +232,7 @@ class TestGSH(unittest.TestCase):
     def test_gather_data(self):
         # Rework is planned for these functions, BRO-94
         print("\n\tNot Implemented")
-    
+
     def test_validate_scope(self):
         test_scopes = [ "user-read-private"
                         , "playlist-modify-public"
@@ -395,16 +260,16 @@ class TestGSH(unittest.TestCase):
     def test_get_user_artists(self):
         # Currently don't have any way to add or remove followed artists since I never want the project to do this.
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
         self.assertEqual(spotify.get_user_artists(), [{'id': 'Ar002'}, {'id': 'Ar003'}, {'id': 'Ar004'}])
         self.assertEqual(spotify.get_user_artists(info=['id', 'name']), [{'id': 'Ar002', 'name': 'Fake Artist 2'},
                                                                          {'id': 'Ar003', 'name': 'Fake Artist 3'},
                                                                          {'id': 'Ar004', 'name': 'Fake Artist 4'}])
-    
+
     def test_get_user_playlists(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
         self.assertEqual(spotify.get_user_playlists(), 
                          [{'id': 'Pl001'}, {'id': 'Pl002'}, {'id': 'Pl003'}, {'id': 'Pl004'}])
@@ -427,11 +292,11 @@ class TestGSH(unittest.TestCase):
     def test_get_playback_state(self):
         # This method is tested under 'test_change_playback'
         assert True
-    
-    def test_write_to_queue(self):
-        # Note there is a 0.2s delay per track we add to the queue, so don't go overboard.
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_write_to_queue(self, mock_sleep):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         # Verify Queue Is Empty Before Testing
         self.assertEqual(spotify.sp.user_queue, [])
         # Adding Empty Track Id List
@@ -443,47 +308,47 @@ class TestGSH(unittest.TestCase):
         # Adding Multiple Tracks With Duplicate
         spotify.write_to_queue(["Tr001", "Tr010"])
         self.assertEqual(spotify.sp.user_queue, ["Tr001", "Tr001", "Tr010"])
-    
+
     def test_change_playback(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         # No Changes
         spotify.change_playback()
         # Verify default values
-        self.assertEqual(spotify.get_playback_state(), ('Tr000', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr000', 'Fake Track 0', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Pause Playback
         spotify.change_playback(pause=True)
-        self.assertEqual(spotify.get_playback_state(), ('', False, ''))
+        self.assertEqual(spotify.get_playback_state(), ('', '', False, ''))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], False)
         # Add Tracks To Internal Queue and SKip
         spotify.sp.user_queue += [spotify.sp.track('Tr001'), spotify.sp.track('Tr009'), spotify.sp.track('Tr005')]
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify Skip
         spotify.change_playback(skip="next")
-        self.assertEqual(spotify.get_playback_state(), ('Tr009', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr009', 'Fake Track 9', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify Prev
         spotify.change_playback(skip="prev")
-        self.assertEqual(spotify.get_playback_state(), ('Tr001', False, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr001', 'Fake Track 1', False, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         # Verify repeat state before changing
         self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'off')
         # Multiple changes
         spotify.change_playback(skip="next", shuffle=True, repeat='track')
-        self.assertEqual(spotify.get_playback_state(), ('Tr005', True, 'Pl001'))
+        self.assertEqual(spotify.get_playback_state(), ('Tr005', 'Fake Track 5', True, 'Pl001'))
         self.assertEqual(spotify.sp.current_playback()['is_playing'], True)
         self.assertEqual(spotify.sp.current_playback()['repeat_state'], 'track')
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYLISTS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
+    
     def test_add_tracks_to_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         # Verify Playlist Is Empty
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
         
@@ -502,11 +367,11 @@ class TestGSH(unittest.TestCase):
         spotify.add_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004", "Tr001", "Tr002", "Tr004"])
-    
+
     def test_add_unique_tracks_to_playlist(self):
         # Same test as 'test_add_tracks_to_playlist()' except that duplicates shouldn't be added.
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         # Verify Playlist Is Empty
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
         
@@ -525,10 +390,10 @@ class TestGSH(unittest.TestCase):
         spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
-    
+
     def test_get_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
         # Empty Playlist
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
@@ -579,7 +444,7 @@ class TestGSH(unittest.TestCase):
                           {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
                            'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
                            'id': 'Tr001', 'name': 'Fake Track 1'}])
-    
+
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
         
@@ -603,7 +468,7 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
+
     def test_change_playlist_details(self):
         spotify = gsh.GeneralSpotifyHelpers()
         
@@ -618,18 +483,19 @@ class TestGSH(unittest.TestCase):
         playlist_id = spotify.create_playlist("Default", description="set")
         spotify.change_playlist_details(playlist_id, name="Test1", description="Test2")
         self.assertEqual(spotify.get_playlist_data(playlist_id, info=['name', 'description']), ["Test1", "Test2"])
-    
+
+    @mock.patch('src.General_Spotify_Helpers.Settings', Test_Settings)
     def test_remove_all_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
-        playlist_id = Settings.PLAYLISTS_WE_CAN_DELETE_FROM[0]
-        spotify.sp.playlists.append(create_playlist(playlist_id, "Pl100", "no description", []))
-        spotify.add_tracks_to_playlist(playlist_id, ["Tr001", "Tr002", "Tr004"])
+        Test_Settings.PLAYLISTS_WE_CAN_DELETE_FROM = ["Pl100"]
+        spotify.sp.playlists.append(thelp.create_playlist("Pl100", "Fake Delete PLaylist", "no description", []))
+        spotify.add_tracks_to_playlist("Pl100", ["Tr001", "Tr002", "Tr004"])
         
-        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks(playlist_id)
+        with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl100")
 
-        spotify.scopes.append(Settings.DELETE_SCOPE)
+        spotify.scopes.append(Test_Settings.DELETE_SCOPE)
         
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
         
@@ -639,18 +505,18 @@ class TestGSH(unittest.TestCase):
         spotify.remove_all_playlist_tracks("Pl002", max_playlist_length=5)
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
         
-        spotify.remove_all_playlist_tracks(playlist_id)
-        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 3)
+        spotify.remove_all_playlist_tracks("Pl100")
+        self.assertEqual(len(spotify.sp.playlist_items("Pl100")['items']), 3)
         
-        spotify.remove_all_playlist_tracks(playlist_id, max_playlist_length=2)
-        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 3)
+        spotify.remove_all_playlist_tracks("Pl100", max_playlist_length=2)
+        self.assertEqual(len(spotify.sp.playlist_items("Pl100")['items']), 3)
         
-        spotify.remove_all_playlist_tracks(playlist_id, max_playlist_length=3)
-        self.assertEqual(len(spotify.sp.playlist_items(playlist_id)['items']), 0)
-    
+        spotify.remove_all_playlist_tracks("Pl100", max_playlist_length=4)
+        self.assertEqual(len(spotify.sp.playlist_items("Pl100")['items']), 0)
+
     def test_get_artist_albums(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
         with self.assertRaises(Exception): spotify.get_artist_albums('Ar002', info=['fake field'])
         
@@ -703,7 +569,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
 
         # Non Existant Album ID
         with self.assertRaises(Exception): spotify.get_albums_tracks(['FakeAlbumId'])
@@ -779,7 +645,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_track_artists(self):
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
         
         # Test for invalid inputs
         with self.assertRaises(Exception): spotify.get_track_artists("", info="")
@@ -804,29 +670,28 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # MISC HELPERS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
     def test_get_track_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_track_data('Tr001', info=['name']), ['Fake Track 1'])
         self.assertEqual(spotify.get_track_data('Tr001', info=['id', 'name']), ['Tr001', 'Fake Track 1'])
         self.assertEqual(spotify.get_track_data('Tr001', info=['artists']), 
                          [[{'id': 'Ar002', 'name': 'Fake Artist 2'}]])
-    
+
     def test_get_artist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_artist_data('Ar001', info=['name']), ['Fake Artist 1'])
         self.assertEqual(spotify.get_artist_data('Ar001', info=['id', 'name']), ['Ar001', 'Fake Artist 1'])
-    
+
     def test_get_album_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_album_data('Al001', info=['name']), ['Fake Album 1'])
         self.assertEqual(spotify.get_album_data('Al001', info=['id', 'name']), ['Al001', 'Fake Album 1'])
@@ -836,18 +701,14 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_album_data('Al006', info=['artists']), 
                          [[{'id': 'Ar003', 'name': 'Fake Artist 3'}
                          , {'id': 'Ar004', 'name': 'Fake Artist 4'}]])
-    
+
     def test_get_playlist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
-        create_env(spotify)
+        thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_playlist_data('Pl001', info=['name']), ['Fake Playlist 1'])
         self.assertEqual(spotify.get_playlist_data('Pl001', info=['id', 'name']), ['Pl001', 'Fake Playlist 1'])
-
-        
-if __name__ == "__main__":
-    unittest.main()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

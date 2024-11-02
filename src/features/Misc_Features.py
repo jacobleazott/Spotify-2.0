@@ -16,9 +16,9 @@
 import logging
 from datetime import datetime
 
-import General_Spotify_Helpers as gsh
-from decorators import *
-from Settings import Settings
+import src.General_Spotify_Helpers as gsh
+from src.helpers.decorators import *
+from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
