@@ -83,9 +83,12 @@ class WeeklyReport(LogAllMethods):
         for diff_day in range(0, 7):
             # Since we run on Monday AM, we want prev Sun to this past Sat
             date = datetime.today() - timedelta(days=8-diff_day)
-            values.append([date.strftime("%A\n%m/%d"), conn.execute(f"""SELECT * FROM '{date.year}' 
-                                                    WHERE time >= '{date.strftime(r"%Y-%m-%d")} 00:00:00'
-                                                    AND time < '{date.strftime(r"%Y-%m-%d")} 23:59:59';""").fetchall()])
+            db_res = conn.execute(f"""SELECT * FROM '{date.year}'
+                                  WHERE time >= ?
+                                  AND time < ?;"""
+                                  , (f"{date.strftime(r"%Y-%m-%d")} 00:00:00", f"{date.strftime(r"%Y-%m-%d")} 23:59:59")
+                                  ).fetchall()
+            values.append([date.strftime("%A\n%m/%d"), db_res])
 
         fig, ax = plt.subplots(figsize = (10, 5))
 
@@ -120,9 +123,11 @@ class WeeklyReport(LogAllMethods):
         days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
         for delta in range((datetime.today() - start).days+1):
             result_date = (start + timedelta(days=delta)).date()
-            tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}' 
-                                WHERE time >= '{result_date} 00:00:00'
-                                AND time < '{result_date} 23:59:59';""").fetchall()
+            tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}'
+                                WHERE time >= ?
+                                AND time < ?;""",
+                                (f"{result_date} 00:00:00", f"{result_date} 23:59:59")).fetchall()
+            
             if len(tmp_vals) > 100: # Basically just > 25 mins total
                 index = (result_date.weekday() + 1) % 7
                 days[index] = [len(tmp_vals)*15 + days[index][0], days[index][1] + 1]

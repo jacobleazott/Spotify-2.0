@@ -119,7 +119,7 @@ class Shuffler(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 
-                     if track['id'] not in Settings.MACRO_LIST]
+                     if track['id'] not in Settings.MACRO_LIST and not track['is_local']]
         
         match shuffle_type:
             case ShuffleType.RANDOM:

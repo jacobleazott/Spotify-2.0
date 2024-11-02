@@ -197,10 +197,11 @@ class MiscFeatures(LogAllMethods):
                     - Settings.LATEST_PLAYLIST_LENGTH
         tracks += [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
                                                                              offset=offset)]
-
-        self.spotify.remove_all_playlist_tracks(Settings.LATEST_DEST_PLAYLIST, 
-                                                max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH)
-        self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
+        
+        remove_success = self.spotify.remove_all_playlist_tracks(Settings.LATEST_DEST_PLAYLIST, 
+                                                                 max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH+1)
+        if remove_success:
+            self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

@@ -50,7 +50,7 @@ DESCRIPTION: Collection of sanity tests to verify integrity and completion of th
 class SanityTest(LogAllMethods):
     # List of tracks to disregard for our comparisons, this currently includes our "shuffle macro" as well as our 
     #   "Soundtracks" playlists tracks
-    track_list_to_disregard = Settings.MACRO_LIST
+    track_list_to_disregard = list(Settings.MACRO_LIST)
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
@@ -99,12 +99,11 @@ class SanityTest(LogAllMethods):
         duplicates, checked_list = [], []
 
         for track in tracks:
-            # If track isn't local, already checked, not a double duplicate, and not our shuffle macro
-            if track['id'] != None and track['id'] in checked_list and track not in duplicates \
+            # If track isn't local, already checked, not a double duplicate, and not our macros
+            if not track['is_local'] and track['id'] in checked_list and track not in duplicates \
                     and track['id'] != Settings.SHUFFLE_MACRO_ID:
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                duplicates.append(f"{dupe['name']} -- {artist_names}")
-                continue
+                duplicates.append(f"{track['name']} -- {artist_names}")
             checked_list.append(track['id'])
             
         return duplicates

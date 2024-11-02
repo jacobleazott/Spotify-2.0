@@ -69,8 +69,8 @@ DESCRIPTION: Collection of all of our Spotify API features. Handles and abstract
 class SpotifyFeatures(LogAllMethods):
 
     def __init__(self, log_file_name: str="default.log", log_mode: str='a', log_level=logging.INFO) -> None:
-        self.spotify = gsh.GeneralSpotifyHelpers()
         self.logger = get_file_logger(f'logs/{log_file_name}', log_level=log_level, mode=log_mode)
+        self.spotify = gsh.GeneralSpotifyHelpers(logger=self.logger)
         self.mfeatures = MiscFeatures(self.spotify, logger=self.logger)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""

@@ -204,12 +204,15 @@ class BackupSpotifyData(LogAllMethods):
                                          , album_info=['id', 'name', 'release_date', 'artists']
                                          , artist_info=['id', 'name'])
         
+        self.logger.debug(f"\tTracks #: {len(tracks)}")
+        
         for track in tracks:
+            is_playable = track['preview_url'] is not None
             # Replace any None values with a unique identifier so we have all data
             track = replace_none(track, f"local_track_{track['name']}")
                 
-            track_table_entries.append((track['id'], track['name'], track['duration_ms'], track['is_local'], 
-                                        track['preview_url'] is not None))
+            track_table_entries.append((track['id'], track['name'], track['duration_ms']
+                                        , track['is_local'], is_playable))
             album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['artists']]
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['album_artists']]

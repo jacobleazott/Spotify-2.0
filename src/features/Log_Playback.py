@@ -61,13 +61,13 @@ class LogPlayback(LogAllMethods):
             # Checks ot see if the track is already in the database or not
             if not bool(self.tcdb_conn.execute(
                     f"SELECT COUNT(*) from 'tracks' WHERE 'tracks'.track_id = '{self.track_id}'").fetchone()[0]):
-                self.tcdb_conn.execute(f"""INSERT OR IGNORE INTO 'tracks'
+                self.tcdb_conn.execute("""INSERT OR IGNORE INTO 'tracks'
                                             ('track_id', 'play_count') 
                                             VALUES (?, ?);""", (self.track_id, 1))
             else:
-                self.tcdb_conn.execute(f"""UPDATE 'tracks'
+                self.tcdb_conn.execute("""UPDATE 'tracks'
                                             SET play_count = play_count + 1 
-                                            WHERE track_id = '{self.track_id}'""")
+                                            WHERE track_id = ?""", (self.track_id,)) 
 
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -110,12 +110,12 @@ class LogPlayback(LogAllMethods):
             self.ldb_conn = sqlite3.connect(self.ldb_path)
            
         with self.ldb_conn:
-            self.ldb_conn.execute(f'''CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
+            self.ldb_conn.execute(f"""CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
                         track_id TEXT NOT NULL,
-                        time timestamp NOT NULL);''')
+                        time timestamp NOT NULL);""")
             
-            self.ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') 
-                                     VALUES ("{self.track_id}", "{datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")}");""")
+            self.ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') VALUES (?, ?);""", 
+                                  (self.track_id, datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")))
 
         if inc_track_count:
             self.update_last_track_count()
