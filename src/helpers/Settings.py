@@ -33,7 +33,7 @@ class SettingsClass:
     # Macro IDs
     SHUFFLE_MACRO_ID: str             = "2DlsEWns58UPs5X7PXrPJI" # 'Meditation'
     GEN_ARTIST_MACRO_ID: str          = "24NFf8j4Hc21IxQK7POU6f" # 'Creating New Melodies'
-    DISTRIBUTE_TRACKS_MACRO_ID: str   = "4HrvoPsIkc10m8WahhlRKg" # 'distributing'
+    DISTRIBUTE_TRACKS_MACRO_ID: str   = "2gps7VcJwo6nVmAxb9X3y2" # 'distributing'
     ORGANIZE_PLAYLIST_MACRO_ID: str   = "7mmImiqGDVDjH17htwQPeO" # 'Let's Organize'
     MACRO_LIST: tuple                 = (SHUFFLE_MACRO_ID, 
                                          GEN_ARTIST_MACRO_ID, 

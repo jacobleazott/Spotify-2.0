@@ -154,6 +154,8 @@ class GeneralSpotifyHelpers:
         
         dict_list = []
         for item in iterator:
+            if item is None:
+                continue
             elem_dict = {}
             # Get Base Iterator Data
             for data_path in list_of_data_paths:
@@ -196,10 +198,12 @@ class GeneralSpotifyHelpers:
         elements = []
         iterator_path = list(iter_dict)[0]
         data_fields = iter_dict[iterator_path]
+        
         while results is not None:
             tmp_results = results
             for iterator_path_part in tuple([iterator_path]) if type(iterator_path) is not tuple else iterator_path:
                 tmp_results = tmp_results[iterator_path_part]
+
             elements += self._iterate_and_grab_data(tmp_results, data_fields, dict(list(iter_dict.items())[1:]))
             results = self._get_next_response(results)
         return elements
@@ -263,7 +267,7 @@ class GeneralSpotifyHelpers:
         playback = self.sp.current_playback()
         ret = None
 
-        if playback['item'] is not None:
+        if playback is not None and playback['item'] is not None:
             ret = {"context": None
                    , "currently_playing_type": playback['currently_playing_type']
                    , "is_playing": playback['is_playing']
