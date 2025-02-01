@@ -243,12 +243,12 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
         sanity_tester = SanityTest(logger=self.logger)
-        logger.info("SANITY TESTS ==========================================================")
-        logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
-        logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
-        logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
-        logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
-        logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
+        self.logger.info("SANITY TESTS ==========================================================")
+        self.logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
+        self.logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
+        self.logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
+        self.logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
+        self.logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Uploads the latest backup of our Spotify library to Google Drive.
@@ -262,7 +262,7 @@ class SpotifyFeatures(LogAllMethods):
         
 if __name__=="__main__":
     features = SpotifyFeatures(log_file_name="Test.log")
-    features.skip_track()
+    features.get_playback_state()
         
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

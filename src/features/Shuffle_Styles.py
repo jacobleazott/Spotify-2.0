@@ -131,10 +131,11 @@ class Shuffler(LogAllMethods):
                 track_ids = self._weighted_shuffle(track_ids)
             case _:
                 raise Exception(f"Unknown Shuffle Type: {shuffle_type}")
-            
-        self.spotify.write_to_queue([track_ids[0]])
-        self.spotify.change_playback(skip="next", shuffle=True)
-        self.spotify.write_to_queue(track_ids[1:Settings.MAX_QUEUE_LENGTH])
+        
+        if len(track_ids) > 0:
+            self.spotify.write_to_queue([track_ids[0]])
+            self.spotify.change_playback(skip="next", shuffle=True)
+            self.spotify.write_to_queue(track_ids[1:Settings.MAX_QUEUE_LENGTH])
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
