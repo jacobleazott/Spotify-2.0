@@ -259,5 +259,10 @@ class SpotifyFeatures(LogAllMethods):
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
         
+        
+if __name__=="__main__":
+    features = SpotifyFeatures(log_file_name="Test.log")
+    features.skip_track()
+        
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
