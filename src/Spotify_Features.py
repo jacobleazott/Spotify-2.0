@@ -49,7 +49,6 @@ from datetime import datetime, timedelta
 from glob import glob
 from typing import Union
 
-import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
 from src.helpers.Database_Helpers import DatabaseHelpers
@@ -202,7 +201,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self, track_info=['id', 'name']) -> dict:
+    def get_playback_state(self, track_info: list=['id', 'name', 'preview']) -> dict:
         return self.spotify.get_playback_state(track_info=track_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""

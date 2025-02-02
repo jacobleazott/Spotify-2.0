@@ -117,8 +117,8 @@ class GeneralSpotifyHelpers:
     def __init__(self, scopes: Optional[list[str]]=None, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
         self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
-        cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
-        # cache_handler = spotipy.CacheFileHandler(cache_path=f"tokens/.cache_spotipy_token_{os.environ['CLIENT_USERNAME']}")
+        cache_handler = spotipy.CacheFileHandler(
+            cache_path=f"tokens/.cache_spotipy_token_{os.environ['CLIENT_USERNAME']}")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
                                                                             open_browser=False,
                                                                             cache_handler=cache_handler)
@@ -236,7 +236,8 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_followed_artists(limit=50)
-            , {("artists", "items"): info})
+            , {("artists", "items"): info}
+        )
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Returns list of user's playlists.
@@ -249,7 +250,8 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_playlists(limit=50)
-            , {"items": info})
+            , {"items": info}
+        )
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -377,10 +379,11 @@ class GeneralSpotifyHelpers:
 
         # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
         return self._gather_data(
-            self.sp.playlist_items(playlist_id, limit=100, offset=offset)
+            self.sp.playlist_items(playlist_id, limit=100, offset=offset, market="US")
             , {"items": [["track", elem] if type(elem) is str else ["track"] + elem for elem in track_info] +
                 [["track", "album", elem] if type(elem) is str else ["track", "album"] + elem for elem in album_info]
-                , ("track", "artists"): artist_info})
+                , ("track", "artists"): artist_info}
+        )
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates a new playlist for the user.
@@ -460,7 +463,8 @@ class GeneralSpotifyHelpers:
                                   , country="US"
                                   , limit=50
                                   , include_groups=','.join(album_types))
-            , {"items": info})
+            , {"items": info}
+        )
 
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -541,7 +545,7 @@ class GeneralSpotifyHelpers:
         album_data = []
         for album_chunk in album_chunks:
             album_data += self._gather_data(
-                self.sp.albums(album_chunk)
+                self.sp.albums(album_chunk, market="US")
                 , {"albums": album_info, ("tracks", "items"): track_info, "artists": artist_info}
             )
         return album_data
@@ -559,7 +563,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([track_id], [str])
         
         artist_ids = []
-        for artist_data in self.sp.track(track_id)['artists']:
+        for artist_data in self.sp.track(track_id, market="US")['artists']:
             data = []
             for elem in info:
                 data.append(artist_data[elem])
@@ -573,7 +577,7 @@ class GeneralSpotifyHelpers:
            artist_id - Str of the given artist so we can better tell if it's theirs.
     OUTPUT: List of the tracks we have verified.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def verify_appears_on_tracks(self, tracks: list[str], artist_id: [str]) -> list[str]:
+    def verify_appears_on_tracks(self, tracks: list[str], artist_id: str) -> list[str]:
         validate_inputs([tracks, artist_id], [list, str])
         
         valid_tracks = []
@@ -581,7 +585,7 @@ class GeneralSpotifyHelpers:
             artist_name = self.get_artist_data(track['artists'][0]['id'], ['name'])[0]
             track_name = ''.join(e for e in track['name'] if e.isalnum() or e == " ")
             tracks_data = self.sp.search(f"{track_name}%20artist:{artist_name}", 
-                                         limit=5, type='track')['tracks']['items']
+                                         limit=5, type='track', market="US")['tracks']['items']
             for track_data in tracks_data:
                 track_id = track_data['id']
                 if track_id == track['id']:
@@ -604,19 +608,19 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_track_data(self, track_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([track_id, info], [str, list])
-        return get_generic_field(self.sp.track(track_id), info)
+        return get_generic_field(self.sp.track(track_id, market="US"), info)
 
     def get_artist_data(self, artist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([artist_id, info], [str, list])
-        return get_generic_field(self.sp.artist(artist_id), info)
+        return get_generic_field(self.sp.artist(artist_id, market="US"), info)
 
     def get_album_data(self, album_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([album_id, info], [str, list])
-        return get_generic_field(self.sp.album(album_id), info)
+        return get_generic_field(self.sp.album(album_id, market="US"), info)
 
     def get_playlist_data(self, playlist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([playlist_id, info], [str, list])
-        return get_generic_field(self.sp.playlist(playlist_id), info)
+        return get_generic_field(self.sp.playlist(playlist_id, market="US"), info)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
