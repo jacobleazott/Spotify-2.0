@@ -259,5 +259,18 @@ class SpotifyFeatures(LogAllMethods):
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
         
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Prints out a list of our most featured artists that we do not follow from our collection.
+    INPUT: NA
+    OUTPUT: NA
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def print_most_featured_artists(self) -> list:
+        featured_artists = self.mfeatures.generate_featured_artists_list()
+        simplified_list = [[artist[1][0], artist[1][1], [tmp[1] for tmp in artist[1][2]], artist[1][3]]
+                   for artist in featured_artists if artist[1][1] > 1]
+
+        for artist in simplified_list:
+            print(artist)
+        
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

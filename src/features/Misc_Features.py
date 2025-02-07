@@ -18,7 +18,10 @@ from datetime import datetime
 
 import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators import *
+from src.helpers.Database_Helpers import DatabaseHelpers
 from src.helpers.Settings import Settings
+
+import pprint
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
@@ -202,6 +205,48 @@ class MiscFeatures(LogAllMethods):
                                                                  max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH+1)
         if remove_success:
             self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
+            
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Generates a list of all artists that appear in our 'Master' collection that we do not follow.
+                 This list is ordered first by # of unique artists we follow that they appear with followed by total
+                 number of tracks they appear on.
+    INPUT: min_featured_tracks (optional) - Minimum number of tracks before adding as a featured artist.
+    OUTPUT: List of our featured artists that we do not follow sorted.
+            {<artist_id>: (<artist_name>, <num_tracks_appeared_on>, <followed_artists>, <tracks_appeared_on>),}
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def generate_featured_artists_list(self, min_featured_tracks: int=1) -> list:
+        dbh = DatabaseHelpers(logger=self.logger)
+        tracks_to_ignore = []
+        artist_data = {}
+        artist_ids = [artist['id'] for artist in dbh.db_get_user_followed_artists()]
+        playlist_tracks = dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID)
+
+        for ignored_artist in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS:
+            tracks_to_ignore += dbh.db_get_tracks_from_playlist(ignored_artist)
+        
+        # {'<artist_id>': (<artist_name>, <num_tracks>, <unique_artists>)}
+        for track in playlist_tracks:
+            if track in tracks_to_ignore or track['is_local']:
+                continue
+            tmp_following_artists = []
+            tmp_new_artists = []
+            for artist in dbh.db_get_track_artists(track['id']):
+                if artist['id'] in artist_ids:
+                    tmp_following_artists.append((artist['id'], artist['name']))
+                else:
+                    tmp_new_artists.append((artist['id'], artist['name']))
+            
+            for artist in tmp_new_artists:
+                if artist[0] in artist_data:
+                    tmp_dict_val = list(artist_data[artist[0]])
+                    tmp_dict_val[1] = tmp_dict_val[1] + 1
+                    tmp_dict_val[2] = set(list(tmp_dict_val[2]) + tmp_following_artists)
+                    tmp_dict_val[3].append(track['name'])
+                    artist_data[artist[0]] = tuple(tmp_dict_val)
+                else:
+                    artist_data[artist[0]] = (artist[1], 1, tmp_following_artists, [track['name']])
+        
+        return sorted(artist_data.items(), key=lambda item: (len(item[1][2]), item[1][1]), reverse=True)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
