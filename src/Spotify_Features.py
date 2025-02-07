@@ -202,7 +202,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self, track_info: list=['id', 'name', 'preview']) -> dict:
+    def get_playback_state(self, track_info: list=['id', 'name']) -> dict:
         return self.spotify.get_playback_state(track_info=track_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -258,11 +258,6 @@ class SpotifyFeatures(LogAllMethods):
     def upload_latest_backup_to_drive(self) -> None:
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
-        
-        
-if __name__=="__main__":
-    features = SpotifyFeatures(log_file_name="Test.log")
-    features.get_playback_state()
         
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
