@@ -112,7 +112,7 @@ class SpotifyFeatures(LogAllMethods):
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
         self.mfeatures.generate_artist_release(
             [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name']), 
-                                               key=lambda ar: ar['name'])],
+                                               key=lambda ar: ar['name'].upper())],
             f"Release Radar: {last_month.strftime("%m-%Y")}",
             f"Releases From All Followed Artists From The Month {last_month.strftime("%m-%Y")}",
             start_date=datetime(last_month.year, last_month.month, 1),
