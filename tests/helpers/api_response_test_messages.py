@@ -95,6 +95,7 @@ track_test = {
     'id': 'Tr000',
     'is_local': False,
     'name': 'Fake Track 0',
+    'is_playable': True,
     # 'popularity': 0,
     # 'preview_url': 'spotify_preview_url',
     # 'track_number': 0,

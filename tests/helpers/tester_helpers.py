@@ -57,7 +57,7 @@ def create_track(track_id: str, name: str, album: str, artists: list[dict], is_l
         'artists': artists,
         'is_local': is_local,
         'duration_ms': 1,
-        'preview_url': 'fake_url'
+        'is_playable': True
     }
 
 

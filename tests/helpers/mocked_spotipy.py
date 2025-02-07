@@ -179,7 +179,7 @@ class Spotify():
     def track(self, track_id, market=None):
         return next((track for track in self.tracks if track_id == track['id']), None)
 
-    def artist(self, artist_id):
+    def artist(self, artist_id, market=None):
         return next((artist for artist in self.artists if artist_id == artist['id']), None)
         
     def album(self, album_id, market=None):

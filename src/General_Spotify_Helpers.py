@@ -616,7 +616,7 @@ class GeneralSpotifyHelpers:
 
     def get_artist_data(self, artist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([artist_id, info], [str, list])
-        return get_generic_field(self.sp.artist(artist_id, market="US"), info)
+        return get_generic_field(self.sp.artist(artist_id), info)
 
     def get_album_data(self, album_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([album_id, info], [str, list])
