@@ -117,7 +117,8 @@ class GeneralSpotifyHelpers:
     def __init__(self, scopes: Optional[list[str]]=None, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
         self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
-        cache_handler = spotipy.CacheFileHandler(cache_path="tokens/.cache_spotipy_token")
+        cache_handler = spotipy.CacheFileHandler(
+            cache_path=f"tokens/.cache_spotipy_token_{os.environ['CLIENT_USERNAME']}")
         self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
                                                                             open_browser=False,
                                                                             cache_handler=cache_handler)
@@ -154,13 +155,17 @@ class GeneralSpotifyHelpers:
         
         dict_list = []
         for item in iterator:
+            if item is None:
+                continue
             elem_dict = {}
             # Get Base Iterator Data
             for data_path in list_of_data_paths:
                 data_path = [data_path] if type(data_path) is not list else data_path
                 tmp_item = item
                 for data_path_part in data_path:
-                    tmp_item = tmp_item[data_path_part]
+                    tmp_item = tmp_item.get(data_path_part, None)
+                    if tmp_item is None:
+                        break  # Stop if any part of the path is not found
                 # Generates key w/o first elem since we know what it should be
                 elem_dict['_'.join(data_path[1:]) if len(data_path) > 1 else data_path[0]] = tmp_item
             # Get All other_iterators data
@@ -171,7 +176,9 @@ class GeneralSpotifyHelpers:
                 data_fields = other_iterators[list(other_iterators)[0]]
                 tmp_results = item
                 for iterator_path_part in iterator_path:
-                    tmp_results = tmp_results[iterator_path_part]
+                    tmp_results = tmp_results.get(iterator_path_part, None)
+                    if tmp_results is None:
+                        break  # Stop if any part of the path is not found
                 iterator_path.remove("items") if "items" in iterator_path else None
                 # Generates key like above, but this nests a dictionary for our further iterators
                 elem_dict['_'.join(iterator_path[1:]) if len(iterator_path) > 1 else iterator_path[0]] \
@@ -196,14 +203,16 @@ class GeneralSpotifyHelpers:
         elements = []
         iterator_path = list(iter_dict)[0]
         data_fields = iter_dict[iterator_path]
+        
         while results is not None:
             tmp_results = results
             for iterator_path_part in tuple([iterator_path]) if type(iterator_path) is not tuple else iterator_path:
                 tmp_results = tmp_results[iterator_path_part]
+
             elements += self._iterate_and_grab_data(tmp_results, data_fields, dict(list(iter_dict.items())[1:]))
             results = self._get_next_response(results)
         return elements
-    
+
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
                  out of 'scope' we throw an exception to stop us from doing something we shouldn't.
@@ -231,7 +240,8 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_followed_artists(limit=50)
-            , {("artists", "items"): info})
+            , {("artists", "items"): info}
+        )
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Returns list of user's playlists.
@@ -244,7 +254,8 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_playlists(limit=50)
-            , {"items": info})
+            , {"items": info}
+        )
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -263,7 +274,7 @@ class GeneralSpotifyHelpers:
         playback = self.sp.current_playback()
         ret = None
 
-        if playback['item'] is not None:
+        if playback is not None and playback['item'] is not None:
             ret = {"context": None
                    , "currently_playing_type": playback['currently_playing_type']
                    , "is_playing": playback['is_playing']
@@ -372,10 +383,11 @@ class GeneralSpotifyHelpers:
 
         # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
         return self._gather_data(
-            self.sp.playlist_items(playlist_id, limit=100, offset=offset)
+            self.sp.playlist_items(playlist_id, limit=100, offset=offset, market="US")
             , {"items": [["track", elem] if type(elem) is str else ["track"] + elem for elem in track_info] +
                 [["track", "album", elem] if type(elem) is str else ["track", "album"] + elem for elem in album_info]
-                , ("track", "artists"): artist_info})
+                , ("track", "artists"): artist_info}
+        )
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates a new playlist for the user.
@@ -455,7 +467,8 @@ class GeneralSpotifyHelpers:
                                   , country="US"
                                   , limit=50
                                   , include_groups=','.join(album_types))
-            , {"items": info})
+            , {"items": info}
+        )
 
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -536,7 +549,7 @@ class GeneralSpotifyHelpers:
         album_data = []
         for album_chunk in album_chunks:
             album_data += self._gather_data(
-                self.sp.albums(album_chunk)
+                self.sp.albums(album_chunk, market="US")
                 , {"albums": album_info, ("tracks", "items"): track_info, "artists": artist_info}
             )
         return album_data
@@ -554,7 +567,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([track_id], [str])
         
         artist_ids = []
-        for artist_data in self.sp.track(track_id)['artists']:
+        for artist_data in self.sp.track(track_id, market="US")['artists']:
             data = []
             for elem in info:
                 data.append(artist_data[elem])
@@ -568,7 +581,7 @@ class GeneralSpotifyHelpers:
            artist_id - Str of the given artist so we can better tell if it's theirs.
     OUTPUT: List of the tracks we have verified.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def verify_appears_on_tracks(self, tracks: list[str], artist_id: [str]) -> list[str]:
+    def verify_appears_on_tracks(self, tracks: list[str], artist_id: str) -> list[str]:
         validate_inputs([tracks, artist_id], [list, str])
         
         valid_tracks = []
@@ -576,7 +589,7 @@ class GeneralSpotifyHelpers:
             artist_name = self.get_artist_data(track['artists'][0]['id'], ['name'])[0]
             track_name = ''.join(e for e in track['name'] if e.isalnum() or e == " ")
             tracks_data = self.sp.search(f"{track_name}%20artist:{artist_name}", 
-                                         limit=5, type='track')['tracks']['items']
+                                         limit=5, type='track', market="US")['tracks']['items']
             for track_data in tracks_data:
                 track_id = track_data['id']
                 if track_id == track['id']:
@@ -599,7 +612,7 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_track_data(self, track_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([track_id, info], [str, list])
-        return get_generic_field(self.sp.track(track_id), info)
+        return get_generic_field(self.sp.track(track_id, market="US"), info)
 
     def get_artist_data(self, artist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([artist_id, info], [str, list])
@@ -607,11 +620,11 @@ class GeneralSpotifyHelpers:
 
     def get_album_data(self, album_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([album_id, info], [str, list])
-        return get_generic_field(self.sp.album(album_id), info)
+        return get_generic_field(self.sp.album(album_id, market="US"), info)
 
     def get_playlist_data(self, playlist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([playlist_id, info], [str, list])
-        return get_generic_field(self.sp.playlist(playlist_id), info)
+        return get_generic_field(self.sp.playlist(playlist_id, market="US"), info)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

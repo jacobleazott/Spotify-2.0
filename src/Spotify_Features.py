@@ -202,7 +202,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_playback_state(self, track_info=['id', 'name']) -> dict:
+    def get_playback_state(self, track_info: list=['id', 'name']) -> dict:
         return self.spotify.get_playback_state(track_info=track_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -243,12 +243,12 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
         sanity_tester = SanityTest(logger=self.logger)
-        logger.info("SANITY TESTS ==========================================================")
-        logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
-        logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
-        logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
-        logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
-        logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
+        self.logger.info("SANITY TESTS ==========================================================")
+        self.logger.info(f"Diffs In Major Playlist Sets {sanity_tester.sanity_diffs_in_major_playlist_sets()}")
+        self.logger.info(f"In Progress Artists {sanity_tester.sanity_in_progress_artists()}")
+        self.logger.info(f"Duplicates {sanity_tester.sanity_duplicates()}")
+        self.logger.info(f"Artist Integrity {sanity_tester.sanity_artist_playlist_integrity()}")
+        self.logger.info(f"Contributing Artist Check {sanity_tester.sanity_contributing_artists()}")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Uploads the latest backup of our Spotify library to Google Drive.
@@ -258,6 +258,6 @@ class SpotifyFeatures(LogAllMethods):
     def upload_latest_backup_to_drive(self) -> None:
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
-
+        
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
