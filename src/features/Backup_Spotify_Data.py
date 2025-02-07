@@ -194,6 +194,7 @@ class BackupSpotifyData(LogAllMethods):
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
+        print(f"Parsing ID {playlist_id}")
         # Regular Object Table Entries
         track_table_entries, album_table_entries, artist_table_entries = [], [], []
         # Many To Many Relationship Tables
@@ -207,16 +208,14 @@ class BackupSpotifyData(LogAllMethods):
         self.logger.debug(f"\tTracks #: {len(tracks)}")
         
         for track in tracks:
+            if track['is_playable'] is None:
+                track['is_playable'] = False
             # Replace any None values with a unique identifier so we have all data
-            track = replace_none(track, f"local_track_{track['name']}")
-                
+            if track['is_local']:
+                track = replace_none(track, f"local_track_{track['name']}")
+            
             track_table_entries.append((track['id'], track['name'], track['duration_ms']
                                         , track['is_local'], track['is_playable']))
-            
-            if not track['is_local'] and not track['is_playable']:
-                print((track['id'], track['name'], track['duration_ms']
-                                            , track['is_local'], track['is_playable']))
-            
             album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['artists']]
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['album_artists']]

@@ -155,15 +155,17 @@ class GeneralSpotifyHelpers:
         
         dict_list = []
         for item in iterator:
-            # if item is None:
-            #     continue
+            if item is None:
+                continue
             elem_dict = {}
             # Get Base Iterator Data
             for data_path in list_of_data_paths:
                 data_path = [data_path] if type(data_path) is not list else data_path
                 tmp_item = item
                 for data_path_part in data_path:
-                    tmp_item = tmp_item[data_path_part]
+                    tmp_item = tmp_item.get(data_path_part, None)
+                    if tmp_item is None:
+                        break  # Stop if any part of the path is not found
                 # Generates key w/o first elem since we know what it should be
                 elem_dict['_'.join(data_path[1:]) if len(data_path) > 1 else data_path[0]] = tmp_item
             # Get All other_iterators data
@@ -174,7 +176,9 @@ class GeneralSpotifyHelpers:
                 data_fields = other_iterators[list(other_iterators)[0]]
                 tmp_results = item
                 for iterator_path_part in iterator_path:
-                    tmp_results = tmp_results[iterator_path_part]
+                    tmp_results = tmp_results.get(iterator_path_part, None)
+                    if tmp_results is None:
+                        break  # Stop if any part of the path is not found
                 iterator_path.remove("items") if "items" in iterator_path else None
                 # Generates key like above, but this nests a dictionary for our further iterators
                 elem_dict['_'.join(iterator_path[1:]) if len(iterator_path) > 1 else iterator_path[0]] \
@@ -208,7 +212,7 @@ class GeneralSpotifyHelpers:
             elements += self._iterate_and_grab_data(tmp_results, data_fields, dict(list(iter_dict.items())[1:]))
             results = self._get_next_response(results)
         return elements
-    
+
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
                  out of 'scope' we throw an exception to stop us from doing something we shouldn't.
