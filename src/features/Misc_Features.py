@@ -206,10 +206,9 @@ class MiscFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
-        tracks = [Settings.SHUFFLE_MACRO_ID]
         offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
                     - Settings.LATEST_PLAYLIST_LENGTH
-        tracks += [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
+        tracks = [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
                                                                              offset=offset)]
         
         remove_success = self.spotify.remove_all_playlist_tracks(Settings.LATEST_DEST_PLAYLIST, 

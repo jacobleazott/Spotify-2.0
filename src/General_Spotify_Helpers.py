@@ -309,13 +309,13 @@ class GeneralSpotifyHelpers:
     INPUT: play - True if play, False if pause.
            skip - "next" if skip track, "prev" if previous track.
            shuffle - True/ False if shuffle is enabled.
-           repeat - True/ False if repeat is enabled.
+           repeat - 'off', 'track', or 'context' for the state of repeat.
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def change_playback(self, pause: Optional[bool]=None, 
                         skip: str="", 
                         shuffle: Optional[bool]=None, 
-                        repeat: Optional[bool]=None) -> None:
+                        repeat: str="") -> None:
         self._validate_scope(["user-modify-playback-state"])
         
         if pause == True:
@@ -329,7 +329,7 @@ class GeneralSpotifyHelpers:
         if shuffle != None:
             self.sp.shuffle(shuffle)
         
-        if repeat != None:
+        if repeat != "":
             self.sp.repeat(repeat)
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
