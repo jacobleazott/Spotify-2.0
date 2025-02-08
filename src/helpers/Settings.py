@@ -41,12 +41,12 @@ class SettingsClass:
                                          ORGANIZE_PLAYLIST_MACRO_ID)
     
     # Playlists
-    PLAYLISTS_WE_CAN_DELETE_FROM: tuple = ("3dZVHLVdpOGlSy8oH9WvBi") # 'The 100'
+    PLAYLISTS_WE_CAN_DELETE_FROM: tuple = ("3dZVHLVdpOGlSy8oH9WvBi",) # 'The 100'
     MASTER_MIX_ID: str                  = "6kGQQoelXM2YDOSmqUUzRw"   # 'The Good - Master Mix'
-    PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ("7Mgr45oWF0fzRzdlz0NNgT") # 'Soundtracks - Master Mix'
+    PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ("7Mgr45oWF0fzRzdlz0NNgT",) # 'Soundtracks - Master Mix'
     
     # Latest '100' Configuration
-    LATEST_PLAYLIST_LENGTH: int = 100
+    LATEST_PLAYLIST_LENGTH: int = 255
     LATEST_SOURCE_PLAYLIST: str = MASTER_MIX_ID
     LATEST_DEST_PLAYLIST: str   = "3dZVHLVdpOGlSy8oH9WvBi" # Note this should be in PLAYLISTS_WE_CAN_DELETE_FROM, as a
                                                            #    safety percaution it is not a refernce but a duplicate.

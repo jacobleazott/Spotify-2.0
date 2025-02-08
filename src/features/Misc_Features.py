@@ -12,12 +12,26 @@
 # Current Features:
 #   generate_artist_release - Takes given artist_id(s), playlist name, playlist desc, start/ end date, and creates a 
 #                               new playlist with all the tracks from those artists released within the given dates.
+# 
+#   distribute_tracks_to_collections_from_playlist - Takes an id of a playlist and distributes the tracks within to all
+#                                                      of our 'artist' playlists as well as 'Master' and 'Year'.
+# 
+#   reorganize_playlist - Sorts a playlist by release date and track number. Does not delete but adds to the end.
+# 
+#   update_daily_latest_playlist - Creates a playlist of our 'latest' tracks we have added to our collections. Deletes
+#                                    tracks. 'LATEST_PLAYLIST_LENGTH' determines number of tracks.
+# 
+#   generate_featured_artists_list - Generates a list of all contributing artists from our collection that we do not 
+#                                      currently follow. Attached data is how many tracks they appear on and how many
+#                                      unique artists they collaborate with in our followed artists.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 from datetime import datetime
+from collections import defaultdict
 
 import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators import *
+from src.helpers.Database_Helpers import DatabaseHelpers
 from src.helpers.Settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -202,6 +216,47 @@ class MiscFeatures(LogAllMethods):
                                                                  max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH+1)
         if remove_success:
             self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
+            
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Generates a list of all artists that appear in our 'Master' collection that we do not follow.
+                 This list is ordered first by # of unique artists we follow that they appear with followed by total
+                 number of tracks they appear on.
+    INPUT: min_featured_tracks (optional) - Minimum number of tracks before adding as a featured artist.
+    OUTPUT: List of our featured artists that we do not follow sorted.
+            {<artist_id>: (<artist_name>, <num_tracks_appeared_on>, <followed_artists>, <tracks_appeared_on>),}
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def generate_featured_artists_list(self, min_featured_tracks: int = 1) -> list:
+        tracks_to_ignore = set()
+        dbh = DatabaseHelpers(logger=self.logger)
+        artist_ids = {artist['id'] for artist in dbh.db_get_user_followed_artists()}
+        playlist_tracks = dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID)
+
+        for ignored_artist in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS:
+            tracks_to_ignore.update(track['id'] for track in dbh.db_get_tracks_from_playlist(ignored_artist))
+
+        # (artist_name, num_tracks, unique_artists, track_names)
+        artist_data = defaultdict(lambda: ["", 0, set(), []])  
+
+        for track in playlist_tracks:
+            tmp_following_artists, tmp_new_artists = [], []
+            if track['id'] in tracks_to_ignore or track['is_local']:
+                continue
+
+            for artist in dbh.db_get_track_artists(track['id']):
+                if artist['id'] in artist_ids:
+                    tmp_following_artists.append((artist['id'], artist['name']))
+                else:
+                    tmp_new_artists.append((artist['id'], artist['name']))
+
+            for artist_id, artist_name in tmp_new_artists:
+                artist_entry = artist_data[artist_id]
+                artist_entry[0] = artist_name                   # Store artist name
+                artist_entry[1] += 1                            # Increment track count
+                artist_entry[2].update(tmp_following_artists)   # Update unique artists set
+                artist_entry[3].append(track['name'])           # Store track names
+
+        # Sort by unique artist count and then number of tracks the artist appears on.
+        return sorted(artist_data.items(), key=lambda artist: (len(artist[1][2]), artist[1][1]), reverse=True)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

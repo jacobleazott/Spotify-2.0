@@ -16,30 +16,32 @@
 #   The individual feature should define it's own scope needs (currently 'FEATURE_SCOPES') and apply them themselves.
 #
 # CURRENT FEATURES -
-#
-#   PLAYLIST GENERATORS ═══════════════════════════════════════════════════════════════════════════════════════════════
+# 
+#  PLAYLIST GENERATORS ═══════════════════════════════════════════════════════════════════════════════════════════════
 #   Generate Artist Playlist                    - reference generate_artist_playlist_from_id() / ..._from_playlist()
 #   Generate Monthly Release Playlist           - reference generate_monthly_release()
 #   Generate 'Generic' Artist Release Playlist  - reference generate_release_playlist()
-#
-#   DATA BACKUP ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+# 
+#  DATA BACKUP ═══════════════════════════════════════════════════════════════════════════════════════════════════════
 #   Spotify Library Backup                      - reference Backup_Spotify_Data.py
 #   Log Playback To Databases                   - reference Log_Playback.py
-#
-#   PLAYBACK MODIFIERS ════════════════════════════════════════════════════════════════════════════════════════════════
+# 
+#  PLAYBACK MODIFIERS ════════════════════════════════════════════════════════════════════════════════════════════════
 #   Shuffle Playlist                            - reference Shuffle_Styles.py
 #   Skip Track                                  - reference skip_track()
-#
-#   PLAYLIST ALTERATIONS ══════════════════════════════════════════════════════════════════════════════════════════════
+# 
+#  PLAYLIST ALTERATIONS ══════════════════════════════════════════════════════════════════════════════════════════════
 #   Distribute Tracks To 'Collections'          - reference Misc_Features.py distribute_tracks_to_collections...()
 #   Organize Playlist By Release Date           - reference Misc_Features.py reorganize_playlist()
-#
-#   MISC FEATURES ═════════════════════════════════════════════════════════════════════════════════════════════════════
+#   Update 'Latest' Collections Playlist        - reference Misc_Features.py update_daily_latest_playlist()
+# 
+#  MISC FEATURES ═════════════════════════════════════════════════════════════════════════════════════════════════════
 #   Get Current Playback State                  - reference get_playback_state()
 #   Sanity Checks                               - reference Sanity_Tests.py
 #   Weekly Listening Report                     - reference Weekly_Report.py
 #   Upload Latest Backup To Google Drive        - reference upload_latest_backup_to_drive()
-#
+#   Generate List Of Most Unfollowed Artist     - reference Misc_Features.py generate_featured_artists_list()
+# 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import os
@@ -258,6 +260,19 @@ class SpotifyFeatures(LogAllMethods):
     def upload_latest_backup_to_drive(self) -> None:
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
         DriveUploader(logger=self.logger).upload_file(latest_backup)
+        
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Prints out a list of our most featured artists that we do not follow from our collection.
+    INPUT: NA
+    OUTPUT: NA
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def print_most_featured_artists(self) -> None:
+        featured_artists = self.mfeatures.generate_featured_artists_list()
+        simplified_list = [[artist[1][0], artist[1][1], [tmp[1] for tmp in artist[1][2]], artist[1][3]]
+                   for artist in featured_artists if artist[1][1] > 1]
+
+        for artist in simplified_list:
+            print(artist)
         
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
