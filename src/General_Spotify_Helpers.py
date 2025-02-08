@@ -14,7 +14,7 @@ import calendar
 import inspect
 import logging
 import os
-import spotipy
+# import spotipy
 import time
 
 from datetime import datetime, timedelta
@@ -22,7 +22,8 @@ from typing import Optional
 
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
-          
+from src.Spotipy_Proxy_Server import SpotipyProxy
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
 INPUT: args - List of variables we wish to validate.
@@ -117,13 +118,7 @@ class GeneralSpotifyHelpers:
     def __init__(self, scopes: Optional[list[str]]=None, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
         self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
-        cache_handler = spotipy.CacheFileHandler(
-            cache_path=f"tokens/.cache_spotipy_token_{os.environ['CLIENT_USERNAME']}")
-        self.sp = spotipy.Spotify(auth_manager=spotipy.oauth2.SpotifyOAuth(scope=' '.join(self.scopes),
-                                                                            open_browser=False,
-                                                                            cache_handler=cache_handler)
-                                  , requests_timeout=10
-                                  , retries=10)
+        self.sp = SpotipyProxy()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.

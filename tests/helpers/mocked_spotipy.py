@@ -23,9 +23,9 @@ from src.helpers.decorators import *
 DESCRIPTION: Class that can be used to override 'spotipy' import. Not all functions are implemented or even present.
              Any additional features added into GSH should be added here for unit testing.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class Spotify():
+class MockedSpotipyProxy():
 
-    def __init__(self, auth_manager=None, requests_timeout=None, retries=None):
+    def __init__(self):
         self.user_id = 'Us000'
         self.user_queue, self.prev_songs, self.user_artists, self.artists, \
             self.env_albums, self.tracks, self.playlists = [], [], [], [], [], [], []
@@ -35,8 +35,6 @@ class Spotify():
         self.current_playback_response = artm.current_playback_test_message.copy()
         
         # self.playlist_items_lookup_table = artm.playlist_items_lookup_table_test.copy()
-
-        return None
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # MOCK HELPER METHODS ═════════════════════════════════════════════════════════════════════════════════════════════
@@ -199,13 +197,13 @@ class Spotify():
         return next((playlist for playlist in self.playlists if playlist_id == playlist['id']), None)
 
 
-class oauth2(LogAllMethods):
-    def SpotifyOAuth(scope=None, username=None, open_browser=None, cache_handler=None):
-        return None
+# class oauth2(LogAllMethods):
+#     def SpotifyOAuth(scope=None, username=None, open_browser=None, cache_handler=None):
+#         return None
     
-class CacheFileHandler(LogAllMethods):
-    def __init__(self, cache_path=None):
-        return None
+# class CacheFileHandler(LogAllMethods):
+#     def __init__(self, cache_path=None):
+#         return None
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

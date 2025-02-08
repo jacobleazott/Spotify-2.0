@@ -15,14 +15,14 @@ from unittest import mock
 import src.General_Spotify_Helpers as gsh
 import tests.helpers.tester_helpers as thelp
 
-from tests.helpers import mocked_spotipy
+from tests.helpers.mocked_spotipy import MockedSpotipyProxy
 from src.features.Backup_Spotify_Data import BackupSpotifyData, replace_none, get_column_types
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Backup Spotify Data functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestBackupSpotifyData(unittest.TestCase):
-    @mock.patch('src.General_Spotify_Helpers.spotipy', mocked_spotipy)
+    @mock.patch('src.General_Spotify_Helpers.SpotipyProxy', new=MockedSpotipyProxy)
     def setUp(self):
         self.spotify = gsh.GeneralSpotifyHelpers()
         self.backup = BackupSpotifyData(self.spotify, db_path=":memory:")

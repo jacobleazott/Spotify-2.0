@@ -19,12 +19,12 @@ import tests.helpers.api_response_test_messages as artm
 import tests.helpers.tester_helpers as thelp
 
 from tests.helpers.mocked_Settings import Test_Settings
-from tests.helpers import mocked_spotipy
+from tests.helpers.mocked_spotipy import MockedSpotipyProxy
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-@mock.patch('src.General_Spotify_Helpers.spotipy', mocked_spotipy)
+@mock.patch('src.General_Spotify_Helpers.SpotipyProxy', new=MockedSpotipyProxy)
 class TestGSH(unittest.TestCase):
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
