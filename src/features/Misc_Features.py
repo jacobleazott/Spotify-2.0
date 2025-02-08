@@ -256,7 +256,7 @@ class MiscFeatures(LogAllMethods):
                 artist_entry[3].append(track['name'])           # Store track names
 
         # Sort by unique artist count and then number of tracks the artist appears on.
-        return sorted(artist_data.items(), key=lambda item: (len(item[1][2]), item[1][1]), reverse=True)
+        return sorted(artist_data.items(), key=lambda artist: (len(artist[1][2]), artist[1][1]), reverse=True)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
