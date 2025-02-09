@@ -129,7 +129,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([response], [dict])
         
         ret = None
-        if "next" in response:
+        if "next" in response and response["next"] is not None:
             ret = self.sp.next(response)
         else:
             for key, field in response.items():
