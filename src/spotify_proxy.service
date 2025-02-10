@@ -1,0 +1,20 @@
+[Unit]
+Description=Spotify Proxy Server
+After=network.target
+
+[Service]
+# User=your_username
+WorkingDirectory=/home/$USER/projects/Spotify-2.0
+ExecStart=./bash_scripts/run_Proxy_Server.sh
+Restart=always
+RestartSec=5
+# Optional: if you want to use systemd's logging (journal)
+StandardOutput=syslog
+StandardError=syslog
+
+# Uncomment the next two lines if you want systemd watchdog functionality
+# Type=notify
+# WatchdogSec=30
+
+[Install]
+WantedBy=multi-user.target

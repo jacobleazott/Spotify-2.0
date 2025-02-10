@@ -10,6 +10,7 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import os
+import sys
 import requests
 import spotipy
 import threading
@@ -26,51 +27,46 @@ DESCRIPTION: Creates and manages a flask server as well as our spotipy instance.
 class SpotifyServer():
     
     def __init__(self):
+        client_username = os.getenv('CLIENT_USERNAME')
+        if not client_username:
+            self.logger.error("CLIENT_USERNAME environment variable is missing.")
+            return
+
+        self.logger = get_file_logger(f'logs/0_server.log', log_level=logging.INFO, mode='a')
+        self.logger.info("Starting Server.")
+        
         self.app = Flask(__name__)
         self.setup_routes()
-        
-        self.logger = get_file_logger(f'logs/0_server.log', log_level=logging.INFO, mode='a')
         self.app.logger.handlers = self.logger.handlers
         self.app.logger.setLevel(self.logger.level)
-        # log = logging.getLogger('werkzeug')
-        # log.setLevel(logging.ERROR)  # This stops it from printing every request
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)  # This stops it from printing every request
 
         self.auth_manager = spotipy.oauth2.SpotifyOAuth(
             scope=' '.join(list(Settings.MAX_SCOPE_LIST)),
             open_browser=False,
-            cache_handler=spotipy.CacheFileHandler(
-                cache_path=f"tokens/.cache_spotipy_token_{os.environ['CLIENT_USERNAME']}"
-            )
+            cache_handler=spotipy.CacheFileHandler(cache_path=f"tokens/.cache_spotipy_token_{client_username}")
         )
         self.sp = spotipy.Spotify(auth_manager=self.auth_manager)
+        # self.sp.me() # Force API handshake once to avoid delay later
+        
+        self.logger.info("Server Started With Spotify Connection.")
+        
+        self.stop_event = threading.Event()
         threading.Thread(target=self.token_refresh_thread, daemon=True).start()
-    
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: 
     INPUT: 
     OUTPUT: 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # def setup_routes(self):
-    #     self.app.add_url_rule('/spotipy/<method_name>', 'spotipy_method', self.spotipy_method, methods=['POST'])
-
     def setup_routes(self):
-        @self.app.route('/spotipy/<method_name>', methods=['POST'])
-        def spotipy_method(method_name):
-            payload = request.get_json(force=True)
-            args = payload.get('args', [])
-            kwargs = payload.get('kwargs', {})
-            try:
-                method = getattr(self.sp, method_name)
-                result = method(*args, **kwargs)
-                return jsonify({"result": result})
-            except Exception as error:
-                self.app.logger.error(f"Error calling {method_name}: {str(error)}")
-                return {"error": str(error)}, 500
+        self.app.add_url_rule('/spotipy/<method_name>', 'spotipy_method', self.spotipy_method, methods=['POST'])
         
         @self.app.after_request
         def log_request(response):
-            self.app.logger.info(f"{request.method} {request.path} {response.status_code}")
+            if response.status_code != 200:
+                self.app.logger.info(f"{request.method} {request.path} {response.status_code}")
             return response
             
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -78,30 +74,48 @@ class SpotifyServer():
     INPUT: 
     OUTPUT: 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # Function to refresh the token and update the Spotipy session headers
     def refresh_token(self):
-        token_info = self.auth_manager.get_cached_token()
-        self.sp._session.headers["Authorization"] = f"Bearer {token_info['access_token']}"
-        self.sp.me()
-        self.logger.info("Refreshing Token")
-        self.auth_manager.refresh_access_token(token_info['refresh_token'])
-        token_info2 = self.auth_manager.get_cached_token()
-        if token_info['access_token'] == token_info2['access_token']:
-            self.logger.info("WHAT THE FUCK ------------------------------------------------")
-        else:
-            self.logger.info("Refreshed No Issue")
-        self.sp._session.headers["Authorization"] = f"Bearer {token_info2['access_token']}"
+        try:
+            token_info = self.auth_manager.get_cached_token()
+            new_token_info = self.auth_manager.refresh_access_token(token_info['refresh_token'])
+
+            if token_info['access_token'] == new_token_info['access_token']:
+                self.logger.warning("Token refresh returned the same token.")
+            else:
+                self.logger.info("Token refreshed successfully.")
+
+            self.sp._session.headers["Authorization"] = f"Bearer {new_token_info['access_token']}"
+
+        except Exception as error:
+            self.logger.error(f"Error refreshing token: {error}")
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: 
     INPUT: 
     OUTPUT: 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # Background thread to refresh the token periodically
     def token_refresh_thread(self):
-        while True:
-            self.refresh_token()
-            time.sleep(60 * 5)  # refresh every 50 minutes
+        while not self.stop_event.is_set():
+            # Get the latest token info
+            token_info = self.auth_manager.get_cached_token()
+
+            if not token_info or 'expires_at' not in token_info:
+                self.logger.error("No valid cached token found.")
+                return
+            
+            expires_in = token_info['expires_at'] - time.time()
+
+            if expires_in <= 660:
+                self.logger.warning(f"Token expires in {expires_in / 60:.1f} minutes! Refreshing.")
+                self.refresh_token()
+                token_info = self.auth_manager.get_cached_token()  # Get updated token info
+                expires_in = token_info['expires_at'] - time.time()
+
+            # Calculate next sleep time (wake up 10 mins before expiration)
+            sleep_time = max(expires_in - 600, 60)  # Ensure at least 1 min sleep
+
+            self.logger.info(f"Next refresh in {sleep_time / 60:.1f} minutes.")
+            self.stop_event.wait(sleep_time)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: 
@@ -112,15 +126,23 @@ class SpotifyServer():
         payload = request.get_json(force=True)
         args = payload.get('args', [])
         kwargs = payload.get('kwargs', {})
+
         try:
-            # Get the method from the Spotipy instance
             method = getattr(self.sp, method_name)
-            # Call the method with the provided arguments
-            result = method(*args, **kwargs)
-            return jsonify({"result": result})
-        except Exception as e:
-            self.logger.error(f"Error during {method_name}: {e}")  # Add additional logging here
-            return jsonify({"error": str(e)}), 500
+            return jsonify({"result": method(*args, **kwargs)})
+
+        except AttributeError as error:
+            self.app.logger.error(f"Invalid Spotipy method '{method_name}': {error}")
+            return jsonify({"error": f"Invalid method '{method_name}': {error}"}), 400
+
+        except TypeError as error:
+            self.app.logger.error(f"Argument error or non-callable method '{method_name}': {error}")
+            return jsonify({"error": f"Incorrect arguments or non-callable method '{method_name}': {error}"}), 400
+
+        except Exception as error:
+            self.app.logger.error(f"Unexpected error calling {method_name}: {error}")
+            return jsonify({"error": str(error)}), 500
+
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: 
@@ -129,6 +151,21 @@ class SpotifyServer():
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run(self):
         self.app.run(host="0.0.0.0", port=5000)
+
+
+if __name__ == '__main__':
+    
+    while True:
+        try:
+            server = SpotifyServer()
+            server.run()
+        except Exception as e:
+            # Log the exception, wait briefly, then restart.
+            logging.error(f"Server crashed: {e}. Restarting in 5 seconds...")
+            time.sleep(5)
+        else:
+            # If server.run() ever exits without exception, exit the loop.
+            break
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -187,10 +224,6 @@ class SpotipyProxy:
                         attempt += 1
 
         return method
-
-
-if __name__ == '__main__':
-    SpotifyServer().run()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
