@@ -1,0 +1,13 @@
+[Unit]
+Description=Spotify Proxy Server
+After=network.target
+
+[Service]
+User=jaleazo
+WorkingDirectory=/home/jaleazo/projects/Spotify-2.0
+ExecStart=sh /home/jaleazo/projects/Spotify-2.0/bash_scripts/run_Proxy_Server.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

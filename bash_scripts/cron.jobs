@@ -4,7 +4,8 @@
 PROJ_PATH=/home/jaleazo/prod/Spotify-2.0
 
 * * * * *  $PROJ_PATH/bash_scripts/Proj.sh >> $PROJ_PATH/logs/Implementations_Cron.log 2>&1  # Every Minute
+* * * * *  ~/projects/Spotify-2.0/bash_scripts/Proj.sh >> ~/projects/Spotify-2.0/logs/Implementations_Cron.log 2>&1  # Every Minute
 
 # Auto refreshes cron with this file
-* * * * *  crontab $PROJ_PATH/bash_scripts/cron.jobs
+# * * * * *  crontab $PROJ_PATH/bash_scripts/cron.jobs
 # newline is needed for cron syntax pls don't delete

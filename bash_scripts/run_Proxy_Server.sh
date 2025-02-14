@@ -7,4 +7,4 @@ fi
 export PYTHONPATH=$(pwd)/src:$PYTHONPATH
 source .venv/bin/activate
 source tokens/spotify_token.sh
-python3 src/Spotipy_Proxy_Server.py
+python3 src/proxy/Spotify_Proxy_Server.py

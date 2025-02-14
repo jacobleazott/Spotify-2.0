@@ -14,7 +14,6 @@ import calendar
 import inspect
 import logging
 import os
-# import spotipy
 import time
 
 from datetime import datetime, timedelta
@@ -22,7 +21,7 @@ from typing import Optional
 
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
-from src.Spotipy_Proxy_Server import SpotipyProxy
+from src.proxy.Spotipy_Proxy import SpotipyProxy
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
