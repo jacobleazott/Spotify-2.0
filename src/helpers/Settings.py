@@ -31,12 +31,10 @@ class SettingsClass:
     LOGGING_INTERVAL_S: int     = 15
     
     # Macro IDs
-    SHUFFLE_MACRO_ID: str             = "2DlsEWns58UPs5X7PXrPJI" # 'Meditation'
     GEN_ARTIST_MACRO_ID: str          = "24NFf8j4Hc21IxQK7POU6f" # 'Creating New Melodies'
     DISTRIBUTE_TRACKS_MACRO_ID: str   = "2gps7VcJwo6nVmAxb9X3y2" # 'distributing'
     ORGANIZE_PLAYLIST_MACRO_ID: str   = "7mmImiqGDVDjH17htwQPeO" # 'Let's Organize'
-    MACRO_LIST: tuple                 = (SHUFFLE_MACRO_ID, 
-                                         GEN_ARTIST_MACRO_ID, 
+    MACRO_LIST: tuple                 = (GEN_ARTIST_MACRO_ID, 
                                          DISTRIBUTE_TRACKS_MACRO_ID, 
                                          ORGANIZE_PLAYLIST_MACRO_ID)
     
