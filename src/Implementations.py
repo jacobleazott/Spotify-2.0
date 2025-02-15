@@ -62,14 +62,18 @@ INPUT: method - Func that we will be calling from SpotifyFeatures.
        kwargs - List of kwargs we are passing to 'method'.
 OUTPUT: NA, it does however add the thread to the global 'threads'.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def startup_feature_thread(method, *args, log_file_name="Default.log", **kwargs):
+def startup_feature_thread(method, *args, log_file_name="Default.log", run_parallel=True, **kwargs):
     global threads
     tmp_feature = SpotifyFeatures(log_file_name=log_file_name)
     # Here we bind the method we passed in to our new class. Prevents us from unnecessarily creating new objects
     bound_method = method.__get__(tmp_feature)
     thread = threading.Thread(target=bound_method, args=args, kwargs=kwargs, daemon=True)
     thread.start()
-    threads.append(thread)
+
+    if run_parallel:
+        threads.append(thread)
+    else:
+        thread.join()
     
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -163,20 +167,35 @@ def main():
     # DATE TRIGGERS ══════════════════════════════════════════════════════════════════════════════════════════════════
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # Backup Library - Run Every Day At 2 AM
-    features.backup_spotify_library() if check_date_time(start_time, hour=2, minute=0) else None
+    if check_date_time(start_time, hour=2, minute=0):
+        startup_feature_thread(SpotifyFeatures.backup_spotify_library
+                               , log_file_name="Backup-Library.log"
+                               , run_parallel=False)
     
-    # Update Latest 100 Playlist - Run Every Day At 2 AM
-    features.update_daily_latest_playlist() if check_date_time(start_time, hour=2, minute=0) else None
+    # Update 'Latest' Playlist - Run Every Day At 2 AM
+    if check_date_time(start_time, hour=2, minute=0):
+        startup_feature_thread(SpotifyFeatures.update_daily_latest_playlist
+                               , log_file_name="Update-Latest-Playlist.log"
+                               , run_parallel=False)
     
     # Weekly Report - Run Every Monday At 3 AM
-    features.generate_weekly_report() if check_date_time(start_time, weekday=0, hour=3, minute=0) else None
+    if check_date_time(start_time, weekday=0, hour=3, minute=0):
+        startup_feature_thread(SpotifyFeatures.generate_weekly_report
+                               , log_file_name="Weekly-Report.log"
+                               , run_parallel=False)
     
     # Upload Library Backup To Google - Run Every Sunday and Wednesday At 2 AM
-    features.upload_latest_backup_to_drive() if check_date_time(start_time, weekday=6, hour=2, minute=0) else None
-    features.upload_latest_backup_to_drive() if check_date_time(start_time, weekday=2, hour=2, minute=0) else None
+    if check_date_time(start_time, weekday=6, hour=2, minute=0) \
+            or check_date_time(start_time, weekday=2, hour=2, minute=0):
+        startup_feature_thread(SpotifyFeatures.upload_latest_backup_to_drive
+                               , log_file_name="Drive-Upload.log"
+                               , run_parallel=False)
 
     # Monthly Release - Run The 1st of Every Month At 1 AM
-    features.generate_monthly_release() if check_date_time(start_time, day=1, hour=1, minute=0) else None
+    if check_date_time(start_time, day=1, hour=1, minute=0):
+        startup_feature_thread(SpotifyFeatures.generate_monthly_release
+                               , log_file_name="Monthly-Release.log"
+                               , run_parallel=False)
     # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
     # We want to wait for any threads we triggered in our playback macros to not cut them off early.

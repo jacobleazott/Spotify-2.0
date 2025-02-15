@@ -10,6 +10,7 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import functools
 import logging
+import requests
 from typing import Union, Optional
 
 from src.helpers.Settings import Settings
@@ -24,16 +25,17 @@ OUTPUT: Logger Object
 def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w', 
                     console: bool=False) -> logging.Logger:
     logger = logging.getLogger(filename)
-    logger.setLevel(log_level)
-    file_handler = logging.FileHandler(filename, mode=mode)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
-        datefmt=f'%Y-%m-%d %H:%M:%S'))
-    logger.addHandler(file_handler)
+    if not logger.handlers:
+        logger.setLevel(log_level)
+        file_handler = logging.FileHandler(filename, mode=mode)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
+            datefmt=f'%Y-%m-%d %H:%M:%S'))
+        logger.addHandler(file_handler)
 
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d - %(message)s'))
-        logger.addHandler(console_handler)
+        if console:
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d - %(message)s'))
+            logger.addHandler(console_handler)
     
     return logger
 
@@ -73,6 +75,12 @@ def log_func(_func=None):
             try:
                 result = func(*args, **kwargs)
                 return result
+            except requests.exceptions.ConnectionError as e:
+                logger.error("Failed to establish connection to proxy server: %s", e)
+                raise requests.exceptions.ConnectionError("Connection to proxy server failed")
+            except requests.exceptions.RequestException as e:
+                logger.error("Request to Spotify API failed: %s", e)
+                raise requests.exceptions.RequestException("Request to Spotify API failed")
             except Exception as e:
                 logger.error(f"Exception raised in {func.__name__}. exception: {str(e)}", exc_info=True)
                 raise e
