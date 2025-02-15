@@ -168,8 +168,6 @@ class TestBackupSpotifyData(unittest.TestCase):
             self.backup.db_conn.execute("DELETE FROM playlists")
             self.backup.insert_many("playlists", test_data, batch_size=0)        
             self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 17)
-        
-        self.assertEqual(1, 2)
 
     def test_create_backup_data_db(self):
         # This method is just creating sqlite tables, nothing to unit test since we will fail the other unit tests if
