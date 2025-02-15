@@ -197,13 +197,4 @@ class MockedSpotipyProxy():
         return next((playlist for playlist in self.playlists if playlist_id == playlist['id']), None)
 
 
-# class oauth2(LogAllMethods):
-#     def SpotifyOAuth(scope=None, username=None, open_browser=None, cache_handler=None):
-#         return None
-    
-# class CacheFileHandler(LogAllMethods):
-#     def __init__(self, cache_path=None):
-#         return None
-
-
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

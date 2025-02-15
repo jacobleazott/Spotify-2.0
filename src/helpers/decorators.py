@@ -24,16 +24,17 @@ OUTPUT: Logger Object
 def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w', 
                     console: bool=False) -> logging.Logger:
     logger = logging.getLogger(filename)
-    logger.setLevel(log_level)
-    file_handler = logging.FileHandler(filename, mode=mode)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
-        datefmt=f'%Y-%m-%d %H:%M:%S'))
-    logger.addHandler(file_handler)
+    if not logger.handlers:
+        logger.setLevel(log_level)
+        file_handler = logging.FileHandler(filename, mode=mode)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d - %(message)s', 
+            datefmt=f'%Y-%m-%d %H:%M:%S'))
+        logger.addHandler(file_handler)
 
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d - %(message)s'))
-        logger.addHandler(console_handler)
+        if console:
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(logging.Formatter('%(filename)s:%(lineno)d - %(message)s'))
+            logger.addHandler(console_handler)
     
     return logger
 
