@@ -27,7 +27,7 @@ DESCRIPTION: Creates and manages a flask server as well as our spotipy instance.
 class SpotifyServer():
     
     def __init__(self):
-        self.logger = get_file_logger(f'logs/0_server.log', log_level=logging.INFO, mode='a')
+        self.logger = get_file_logger(f'logs/Proxy-Server.log', log_level=logging.INFO, mode='a')
 
         self.client_username = os.getenv('CLIENT_USERNAME')
         if not self.client_username:
@@ -131,7 +131,7 @@ class SpotifyServer():
                 if not success:
                     self.initialize_spotipy()
 
-            sleep_time = max(expires_in - 600, 60)
+            sleep_time = max(self.auth_manager.get_cached_token()['expires_at'] - time.time() - 600, 60)
             self.logger.info(f"Next refresh in {sleep_time / 60:.1f} minutes.")
             self.stop_event.wait(sleep_time)
 
