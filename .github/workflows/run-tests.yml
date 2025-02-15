@@ -1,14 +1,12 @@
-name: Run Pytest on Push
+name: Run Spotify-2.0 Tests
 
 on:  
   push:  
     branches: 
       - main
-      - "BRO-*"
   pull_request:  
     branches:
       - main
-    types: [opened, synchronize]  # Ignore redundant push events
 
 jobs:
   test:
