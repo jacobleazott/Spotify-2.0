@@ -62,9 +62,7 @@ pip install -r startup/requirements.txt
 ```
 
 ## Proxy Server Setup
-This project works by having a proxy server setup that handles the 'spotipy' object. This includes API connection, 
-token refreshes, and any server error handling. This way any application that needs to gather spotify data simply
-queries the proxy server instead of handling the connection itself.
+This project works by having a proxy server setup that handles the 'spotipy' object. This includes API connection, token refreshes, and any server error handling. This way any application that needs to gather spotify data simply queries the proxy server instead of handling the connection itself.
 
 ```bash
 sudo cp src/proxy/spotify_proxy.service /etc/systemd/system/spotify_proxy.service
