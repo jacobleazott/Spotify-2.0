@@ -1,7 +1,12 @@
-***
+___
 # Spotify-2.0
 
-## Project Description
+## Disclaimer
+This project can and will alter your Spotify library. This includes, but is not limited to, creating new playlists, adding tracks to playlists, removing tracks from playlists, and altering playback. I strongly recommend reviewing the code before allowing it to modify your library. This is a passion project of mine, and I take zero responsibility for any changes, additions, or deletions made to your personal Spotify library. I have developed my own safeguards and secondary backups so that I can restore my library if it is altered (thankfully, this has never happened).
+
+**You Have Been Warned**
+___
+# Project Description
 A collection of features and improvements to Spotify using their web API. A full list of features can be found in the header of `Spotify_Features.py`.
 
 More in-depth design and implementation methodology can be found in the headers of the source code, specifically in `Implementations.py`, `Spotify_Features.py`, and `General_Spotify_Helpers.py`. Below is a basic overview of the code structure, broken down into three "levels" to help organize functionality.
@@ -44,12 +49,6 @@ I've recently started exploring various soundtracks. Normally, I go through an e
 The main playlists described above form what I call 'collections.' The `__` collection contains every artist playlist in my library, while the "Years" collection includes every year playlist (starting from 2017). Adding all the "Years" playlists together should produce the exact same track list as the "Master" playlist. The same is true for the `__` collection, except that the "Soundtracks" playlist is added, as its tracks don't have associated artists but are present in the "Years" and "Master" collections.
 
 ___
-# Disclaimer
-This project can and will alter your Spotify library. This includes, but is not limited to, creating new playlists, adding tracks to playlists, removing tracks from playlists, and altering playback. I strongly recommend reviewing the code before allowing it to modify your library. This is a passion project of mine, and I take zero responsibility for any changes, additions, or deletions made to your personal Spotify library. I have developed my own safeguards and secondary backups so that I can restore my library if it is altered (thankfully, this has never happened).
-
-**You Have Been Warned**
-
-___
 # Setup
 
 ## Environment Setup
@@ -61,6 +60,18 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r startup/requirements.txt
 ```
+
+## Proxy Server Setup
+This project works by having a proxy server setup that handles the 'spotipy' object. This includes API connection, token refreshes, and any server error handling. This way any application that needs to gather spotify data simply queries the proxy server instead of handling the connection itself.
+
+```bash
+sudo cp src/proxy/spotify_proxy.service /etc/systemd/system/spotify_proxy.service
+sudo systemctl daemon-reload
+sudo systemctl enable proxy-server.service
+sudo systemctl start proxy-server.service
+sudo systemctl status proxy-server.service
+```
+Check the status from the last command and verify all is working well.
 
 ## Tokens
 
