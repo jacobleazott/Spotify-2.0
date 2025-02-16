@@ -1,0 +1,20 @@
+[run]
+branch = True
+source = src
+
+[report]
+exclude_lines =
+    # Ignore comments
+    ^\s*#.*
+    ^\s*""".*"""$
+    ^\s*'''.*'''$
+    
+    # Ignore import statements
+    ^\s*import .*
+    ^\s*from .*
+
+    # Ignore `if __name__ == "__main__"` blocks
+    if __name__ == .__main__.:
+
+    # Ignore pass statements
+    ^\s*pass\s*$

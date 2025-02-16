@@ -3,6 +3,10 @@
 *.db
 *.log
 
+.coverage
+htmlcov/
+.coverage.*
+
 .idea/
 .venv/
 __pycache__/
