@@ -6,6 +6,8 @@
 .coverage
 htmlcov/
 .coverage.*
+coverage.xml
+*,cover
 
 .idea/
 .venv/

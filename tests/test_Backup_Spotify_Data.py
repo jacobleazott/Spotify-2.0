@@ -210,8 +210,8 @@ class TestBackupSpotifyData(unittest.TestCase):
             , 'albums': [('Al002', 'Fake Album 2', '0000-01-01')
                        , ('Al003', 'Fake Album 3', '0000-01-01')
                        , ('Al004', 'Fake Album 4', '0000-01-01')]
-            , 'tracks': [('Tr002', 'Fake Track 2', 1, 0, 1)
-                       , ('Tr003', 'Fake Track 3', 1, 0, 1)
+            , 'tracks': [('Tr002', 'Fake Track 2', 1, 0, 0)
+                       , ('Tr003', 'Fake Track 3', 1, 0, 0)
                        , ('Tr004', 'Fake Track 4', 1, 0, 1)]
             , 'playlists_tracks': [('Pl002', 'Tr002'), ('Pl002', 'Tr003'), ('Pl002', 'Tr004')]
             , 'tracks_artists': [('Tr002', 'Ar002'), ('Tr003', 'Ar002'), ('Tr004', 'Ar002')]
@@ -221,6 +221,15 @@ class TestBackupSpotifyData(unittest.TestCase):
         
         for key, value in expected_table_values.items():
             self.assertEqual(self.backup.db_conn.execute(f"SELECT * FROM '{key}'").fetchall(), value)
+            
+    def test_insert_tracks_into_db_from_playlist_duplicates(self):
+        # Test local tracks and duplicates
+        thelp.create_env(self.spotify)
+        self.backup.insert_many("playlists", [("Pl004", "Fake name", "Fake desc")])   
+        self.backup.insert_tracks_into_db_from_playlist("Pl004")
+        self.assertEqual(self.backup.db_conn.execute("SELECT * FROM tracks").fetchall()
+            , [  ('Tr001', 'Fake Track 1', 1, 0, 0)
+               , ('local_track_Fake Local Track 1', 'Fake Local Track 1', 1, 1, 0)])
 
     def test_add_user_playlists_to_db(self):
         self.backup.add_user_playlists_to_db()
@@ -248,6 +257,18 @@ class TestBackupSpotifyData(unittest.TestCase):
 
         table_lens = [self.backup.db_conn.execute(f"SELECT COUNT(*) FROM '{table}'").fetchone()[0] for table in tables]
         self.assertEqual(table_lens, [4, 5, 7, 9, 3, 11, 11, 9, 7])
+        
+    def test_exit(self):
+        mock_db_conn = mock.MagicMock()
+        self.backup.db_conn = mock_db_conn
+        self.backup.close()
+        mock_db_conn.close.assert_called_once()
+        self.assertIsNone(self.backup.db_conn)
+    
+    def test_close_when_no_connection(self):
+        self.backup.db_conn = None
+        self.backup.close()
+        self.assertIsNone(self.backup.db_conn)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

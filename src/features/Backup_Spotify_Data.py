@@ -9,6 +9,7 @@
 # This script simply takes all of the users current followed artists and playlists and backs them up to an SQLite DB.
 #   It utilizes a simple many to many relationship table for playlists and tracks.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import atexit
 import logging
 import sqlite3
 from datetime import datetime
@@ -78,10 +79,12 @@ class BackupSpotifyData(LogAllMethods):
         self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         self.db_conn = sqlite3.connect(db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
+        atexit.register(self.close)
         
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         if self.db_conn:
             self.db_conn.close()
+            self.db_conn = None
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Inserts a variable amount of elements into a database table while verifying the types of your 'values'
