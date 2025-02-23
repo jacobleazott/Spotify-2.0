@@ -29,6 +29,7 @@ from datetime import datetime
 from enum import unique, Enum
 from glob import glob
 
+import src.General_Spotify_Helpers as gsh
 from src.helpers.Database_Helpers import DatabaseHelpers
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
@@ -45,11 +46,9 @@ class ShuffleType(Enum):
 DESCRIPTION: Feature class that implements various shuffle methodologies. Currently works only on full playlists.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Shuffler(LogAllMethods):
-    FEATURE_SCOPES = ["user-modify-playback-state"]
 
     def __init__(self, spotify, tcdb_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
-        self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         self.dbh = DatabaseHelpers(logger=self.logger)
         self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
@@ -117,6 +116,7 @@ class Shuffler(LogAllMethods):
            shuffle_type - Specific shuffle type we will be applying to the tracks from 'playlist_id'.
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-modify-playback-state"])
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         self.logger.info(f"Shuffle Type: {shuffle_type}, Playlist: {playlist_id}")
         track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 

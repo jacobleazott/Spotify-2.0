@@ -81,10 +81,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_artist_playlist_from_id(self, artist_id: str) -> None:
-        self.spotify.scopes = [  "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , "playlist-read-private"]
-        
         artist_name = self.spotify.get_artist_data(artist_id, ['name'])[0]
         self.mfeatures.generate_artist_release([artist_id], 
                                                f"{artist_name} GO THROUGH", 
@@ -96,8 +92,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_artist_playlist_from_playlist(self, playlist_id: str) -> None:
-        self.spotify.scopes = ["playlist-read-private"]
-        
         artist_id = self.mfeatures.get_first_artist_from_playlist(playlist_id)
         self.generate_artist_playlist_from_id(artist_id)
         
@@ -106,19 +100,16 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-follow-read"])
     def generate_monthly_release(self) -> None:
-        self.spotify.scopes = [  "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , "playlist-read-private"
-                               , "user-follow-read"]
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
         self.mfeatures.generate_artist_release(
-            [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name']), 
-                                               key=lambda ar: ar['name'].upper())],
-            f"Release Radar: {last_month.strftime("%m-%Y")}",
-            f"Releases From All Followed Artists From The Month {last_month.strftime("%m-%Y")}",
-            start_date=datetime(last_month.year, last_month.month, 1),
-            end_date=datetime(last_month.year, last_month.month, 1).replace(day=last_month.day))
+            [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name'])
+                                                        , key=lambda ar: ar['name'].upper())]
+            , f"Release Radar: {last_month.strftime("%m-%Y")}"
+            , f"Releases From All Followed Artists From The Month {last_month.strftime("%m-%Y")}"
+            , start_date=datetime(last_month.year, last_month.month, 1)
+            , end_date=datetime(last_month.year, last_month.month, 1).replace(day=last_month.day))
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a new playlist with all released tracks within given date range for all given artists.
@@ -128,17 +119,13 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_release_playlist(self, artist_ids: list[str], start_date: datetime, end_date: datetime) -> None:
-        self.spotify.scopes = [  "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , "playlist-read-private"]
-        
         self.mfeatures.generate_artist_release(
-            artist_ids, 
-            f"Release Radar: {start_date.strftime(f"%m-%d-%Y")} -> {end_date.strftime(f"%m-%d-%Y")}",
-            f"Releases From *given* Artists From {start_date.strftime(f"%m-%d-%Y")} -> \
-                                                 {end_date.strftime(f"%m-%d-%Y")}",
-            start_date=start_date,
-            end_date=end_date)
+            artist_ids
+            , f"Release Radar: {start_date.strftime(f"%m-%d-%Y")} -> {end_date.strftime(f"%m-%d-%Y")}"
+            , f"Releases From *given* Artists From {start_date.strftime(f"%m-%d-%Y")} -> \
+                                                 {end_date.strftime(f"%m-%d-%Y")}"
+            , start_date=start_date
+            , end_date=end_date)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Takes the user's entire spotify library (playlists, tracks, artists) and saves it off to a db.
@@ -181,10 +168,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def distribute_tracks_to_collections(self, playlist_id: str) -> None:
-        self.spotify.scopes = [  "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , "playlist-read-private"
-                               , "user-follow-read"]
         self.mfeatures.distribute_tracks_to_collections_from_playlist(playlist_id)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -194,9 +177,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def organize_playlist_by_date(self, playlist_id: str) -> None:
-        self.spotify.scopes = [  "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , "playlist-read-private"]
         self.mfeatures.reorganize_playlist(playlist_id)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -204,6 +184,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: NA
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-read-playback-state"])
     def get_playback_state(self, track_info: list=['id', 'name']) -> dict:
         return self.spotify.get_playback_state(track_info=track_info)
     
@@ -214,11 +195,6 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: NA
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def update_daily_latest_playlist(self) -> None:
-        self.spotify.scopes = [  "playlist-read-private"
-                               , "playlist-read-collaborative"
-                               , "playlist-modify-public"
-                               , "playlist-modify-private"
-                               , Settings.DELETE_SCOPE]
         self.mfeatures.update_daily_latest_playlist()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -273,6 +249,6 @@ class SpotifyFeatures(LogAllMethods):
 
         for artist in simplified_list:
             print(artist)
-        
+
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

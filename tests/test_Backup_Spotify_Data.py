@@ -26,7 +26,7 @@ class TestBackupSpotifyData(unittest.TestCase):
     def setUp(self):
         self.spotify = gsh.GeneralSpotifyHelpers()
         self.backup = BackupSpotifyData(self.spotify, db_path=":memory:")
-        self.backup.create_backup_data_db()
+        self.backup._create_backup_data_db()
 
     def test_replace_none(self):
         # Test replacing None values in a simple dictionary.
@@ -107,66 +107,66 @@ class TestBackupSpotifyData(unittest.TestCase):
             )""")
         self.assertEqual(get_column_types(self.backup.db_conn, "test_unsupported"), [int, str])
 
-    def test_insert_many(self):
+    def test__insert_many(self):
         # Test that inserting an empty list does nothing.
-        self.backup.insert_many("artists", [])
+        self.backup._insert_many("artists", [])
         self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM artists").fetchone()[0], 0)
         
         # Test inserting with inconsistent row lengths.
         with self.assertRaises(sqlite3.ProgrammingError):
-            self.backup.insert_many("artists", [("artist_1", "Artist One"), ("artist_2")])
+            self.backup._insert_many("artists", [("artist_1", "Artist One"), ("artist_2")])
 
         # Test inserting wrong data types into the columns.
         with self.assertRaises(ValueError):
-            self.backup.insert_many("tracks", [("track_1", "Track One", "not_an_int", 0, 1)])
+            self.backup._insert_many("tracks", [("track_1", "Track One", "not_an_int", 0, 1)])
 
         # Test inserting into a table that doesn't exist.
         with self.assertRaises(sqlite3.OperationalError):
-            self.backup.insert_many("nonexistent_table", [("value1", "value2")])
+            self.backup._insert_many("nonexistent_table", [("value1", "value2")])
             
         # Test inserting data with fields that don't exist in the table.
         with self.assertRaises(sqlite3.OperationalError):
-            self.backup.insert_many("artists", [("artist_1", "Artist One", "ExtraField")])
+            self.backup._insert_many("artists", [("artist_1", "Artist One", "ExtraField")])
             
         # Test inserting data with foreign key that does not exist in the referenced table.
         with self.assertRaises(sqlite3.IntegrityError):
-            self.backup.insert_many("albums_artists", [("album_1", "nonexistant_artist")])
+            self.backup._insert_many("albums_artists", [("album_1", "nonexistant_artist")])
         
         # Test inserting duplicate data.
-        self.backup.insert_many("artists", [("artist_1", "Artist One")])
+        self.backup._insert_many("artists", [("artist_1", "Artist One")])
         res = self.backup.db_conn.execute("SELECT COUNT(*) FROM artists WHERE id = ?", ("artist_1",)).fetchone()[0]
         self.assertEqual(res, 1)
         
         # Attempt to insert duplicate data.
-        self.backup.insert_many("artists", [("artist_1", "Artist Duplicate")])
+        self.backup._insert_many("artists", [("artist_1", "Artist Duplicate")])
         res = self.backup.db_conn.execute("SELECT COUNT(*) FROM artists WHERE id = ?", ("artist_1",)).fetchone()[0]
         self.assertEqual(res, 1)
         
         # Test batch_size with equal sets
         test_data = [(f"playlist_{i}", f"Playlist {i}", f"Desc {i}") for i in range(10)]
         self.backup.db_conn.execute("DELETE FROM playlists")
-        self.backup.insert_many("playlists", test_data, batch_size=5)        
+        self.backup._insert_many("playlists", test_data, batch_size=5)        
         self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 10)
         # Test unequal batches
         test_data = [(f"playlist_{i}", f"Playlist {i}", f"Desc {i}") for i in range(17)]
         self.backup.db_conn.execute("DELETE FROM playlists")
-        self.backup.insert_many("playlists", test_data, batch_size=5)        
+        self.backup._insert_many("playlists", test_data, batch_size=5)        
         self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 17)
         # Test inserting less than batch_size
         test_data = [(f"playlist_{i}", f"Playlist {i}", f"Desc {i}") for i in range(1)]
         self.backup.db_conn.execute("DELETE FROM playlists")
-        self.backup.insert_many("playlists", test_data, batch_size=5)        
+        self.backup._insert_many("playlists", test_data, batch_size=5)        
         self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 1)
         # Test batch_size of 1
         test_data = [(f"playlist_{i}", f"Playlist {i}", f"Desc {i}") for i in range(4)]
         self.backup.db_conn.execute("DELETE FROM playlists")
-        self.backup.insert_many("playlists", test_data, batch_size=1)        
+        self.backup._insert_many("playlists", test_data, batch_size=1)        
         self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 4)
         # Test batch_size of 0
         with self.assertRaises(ValueError):
             test_data = [(f"playlist_{i}", f"Playlist {i}", f"Desc {i}") for i in range(17)]
             self.backup.db_conn.execute("DELETE FROM playlists")
-            self.backup.insert_many("playlists", test_data, batch_size=0)        
+            self.backup._insert_many("playlists", test_data, batch_size=0)        
             self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM playlists").fetchone()[0], 17)
 
     def test_create_backup_data_db(self):
@@ -178,7 +178,7 @@ class TestBackupSpotifyData(unittest.TestCase):
         thelp.create_env(self.spotify)
         # Test basic insert/ duplicate
         for _ in range(2):
-            self.backup.add_followed_artists_to_db()
+            self.backup._add_followed_artists_to_db()
             self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM followed_artists").fetchone()[0]
                              , len(self.spotify.sp.user_artists))
             self.assertEqual(self.backup.db_conn.execute("SELECT COUNT(*) FROM artists").fetchone()[0]
@@ -191,17 +191,17 @@ class TestBackupSpotifyData(unittest.TestCase):
                   , "tracks_artists", "tracks_albums", "albums_artists"]
 
         # Test adding empty playlist doesn't add anything
-        self.backup.insert_tracks_into_db_from_playlist("Pl001")
+        self.backup._insert_tracks_into_db_from_playlist("Pl001")
         table_lens = [self.backup.db_conn.execute(f"SELECT COUNT(*) FROM '{table}'").fetchone()[0] for table in tables]
         self.assertEqual(any(table_lens), False)
         
         # Test we fail because playlist doesn't exist in 'playlists' table yet
         with self.assertRaises(sqlite3.IntegrityError):
-            self.backup.insert_tracks_into_db_from_playlist("Pl002")
+            self.backup._insert_tracks_into_db_from_playlist("Pl002")
         
         # Test size of tables after we insert
-        self.backup.insert_many("playlists", [("Pl002", "Fake name", "Fake desc")])   
-        self.backup.insert_tracks_into_db_from_playlist("Pl002")
+        self.backup._insert_many("playlists", [("Pl002", "Fake name", "Fake desc")])   
+        self.backup._insert_tracks_into_db_from_playlist("Pl002")
         
         # Test expected values from that playlist insertion
         expected_table_values = {
@@ -225,14 +225,14 @@ class TestBackupSpotifyData(unittest.TestCase):
     def test_insert_tracks_into_db_from_playlist_duplicates(self):
         # Test local tracks and duplicates
         thelp.create_env(self.spotify)
-        self.backup.insert_many("playlists", [("Pl004", "Fake name", "Fake desc")])   
-        self.backup.insert_tracks_into_db_from_playlist("Pl004")
+        self.backup._insert_many("playlists", [("Pl004", "Fake name", "Fake desc")])   
+        self.backup._insert_tracks_into_db_from_playlist("Pl004")
         self.assertEqual(self.backup.db_conn.execute("SELECT * FROM tracks").fetchall()
             , [  ('Tr001', 'Fake Track 1', 1, 0, 0)
                , ('local_track_Fake Local Track 1', 'Fake Local Track 1', 1, 1, 0)])
 
     def test_add_user_playlists_to_db(self):
-        self.backup.add_user_playlists_to_db()
+        self.backup._add_user_playlists_to_db()
         
         tables = ["playlists", "artists", "albums", "tracks", "playlists_tracks"
                   , "tracks_artists", "tracks_albums", "albums_artists"]
@@ -242,7 +242,7 @@ class TestBackupSpotifyData(unittest.TestCase):
         self.assertEqual(any(table_lens), False)
         
         thelp.create_env(self.spotify)
-        self.backup.add_user_playlists_to_db()
+        self.backup._add_user_playlists_to_db()
         
         # Test adding empty playlist doesn't add anything
         table_lens = [self.backup.db_conn.execute(f"SELECT COUNT(*) FROM '{table}'").fetchone()[0] for table in tables]

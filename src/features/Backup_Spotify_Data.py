@@ -14,6 +14,7 @@ import logging
 import sqlite3
 from datetime import datetime
 
+import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators import *
 from src.helpers.Settings import Settings
 
@@ -71,12 +72,9 @@ def get_column_types(db_conn, table: str) -> list:
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class BackupSpotifyData(LogAllMethods):
-    FEATURE_SCOPES = ["user-follow-read"
-                    , "playlist-read-private"]
     
     def __init__(self, spotify, db_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
-        self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         self.db_conn = sqlite3.connect(db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
         atexit.register(self.close)
@@ -94,7 +92,7 @@ class BackupSpotifyData(LogAllMethods):
            batch_size - How many 'values' we can add into a table at once for performance issues.
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""""" 
-    def insert_many(self, table: str, values: Union[list[dict], list[tuple], list], batch_size: int=500) -> None:
+    def _insert_many(self, table: str, values: Union[list[dict], list[tuple], list], batch_size: int=500) -> None:
         if not values:
             return  # No data to insert
 
@@ -122,7 +120,7 @@ class BackupSpotifyData(LogAllMethods):
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def create_backup_data_db(self) -> None:
+    def _create_backup_data_db(self) -> None:
         with self.db_conn:
             self.db_conn.executescript("""
                 PRAGMA foreign_keys = ON;
@@ -185,18 +183,20 @@ class BackupSpotifyData(LogAllMethods):
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def add_followed_artists_to_db(self) -> None:
+    @gsh.scopes(["user-follow-read"])
+    def _add_followed_artists_to_db(self) -> None:
         artists = self.spotify.get_user_artists(info=["id", "name"])
         self.logger.info(f"\t Inserting {len(artists)} Artists")
-        self.insert_many("artists", artists)
-        self.insert_many("followed_artists", [artist['id'] for artist in artists])
+        self._insert_many("artists", artists)
+        self._insert_many("followed_artists", [artist['id'] for artist in artists])
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
     INPUT: playlist_id - Id that we will be using to grab tracks and link together in our db.
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
+    @gsh.scopes(["playlist-read-private"])
+    def _insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
         # Regular Object Table Entries
         track_table_entries, album_table_entries, artist_table_entries = [], [], []
         # Many To Many Relationship Tables
@@ -226,27 +226,28 @@ class BackupSpotifyData(LogAllMethods):
             tracks_albums_entries.append((track['id'], track['album_id']))
             album_artists_entries += [(track['album_id'], artist['id']) for artist in track['album_artists']]
             
-        self.insert_many("tracks", track_table_entries)
-        self.insert_many("albums", album_table_entries)
-        self.insert_many("artists", artist_table_entries)
-        self.insert_many("playlists_tracks", playlists_tracks_entries)
-        self.insert_many("tracks_artists", tracks_artists_entries)
-        self.insert_many("tracks_albums", tracks_albums_entries)
-        self.insert_many("albums_artists", album_artists_entries)
+        self._insert_many("tracks", track_table_entries)
+        self._insert_many("albums", album_table_entries)
+        self._insert_many("artists", artist_table_entries)
+        self._insert_many("playlists_tracks", playlists_tracks_entries)
+        self._insert_many("tracks_artists", tracks_artists_entries)
+        self._insert_many("tracks_albums", tracks_albums_entries)
+        self._insert_many("albums_artists", album_artists_entries)
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds all user playlists into our database.
     INPUT: NA
     Output: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def add_user_playlists_to_db(self) -> None:
+    @gsh.scopes(["playlist-read-private"])
+    def _add_user_playlists_to_db(self) -> None:
         user_playlists = self.spotify.get_user_playlists(info=["id", "name", "description"])
         self.logger.info(f"\t Inserting {len(user_playlists)} Playlists")
-        self.insert_many("playlists", user_playlists)
+        self._insert_many("playlists", user_playlists)
         
         for playlist in user_playlists:
             self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
-            self.insert_tracks_into_db_from_playlist(playlist['id'])
+            self._insert_tracks_into_db_from_playlist(playlist['id'])
             
         self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
 
@@ -258,9 +259,9 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
-        self.create_backup_data_db()
-        self.add_followed_artists_to_db()
-        self.add_user_playlists_to_db()
+        self._create_backup_data_db()
+        self._add_followed_artists_to_db()
+        self._add_user_playlists_to_db()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

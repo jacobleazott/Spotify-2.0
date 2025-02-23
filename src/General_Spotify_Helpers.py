@@ -16,7 +16,9 @@ import logging
 import os
 import time
 
+from contextlib import contextmanager
 from datetime import datetime, timedelta
+from functools import wraps
 from typing import Optional
 
 from src.helpers.decorators import *
@@ -103,6 +105,22 @@ def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_d
     return valid_elements
 
 
+def scopes(scopes_list):
+    # This is the decorator that gets returned
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            # Set scopes before running the function
+            self.spotify._scopes = scopes_list  # Use the renamed attribute
+            try:
+                # Execute the function with the scopes set
+                return func(self, *args, **kwargs)
+            finally:
+                # Reset the scopes back to an empty list after function execution
+                self.spotify._scopes = []  # Correctly resetting the scopes
+        return wrapper
+    return decorator  # Return the decorator
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstract helper that uses spotipy. Handles are token authorization and offers abstract methods
              to better access spotify's api.
@@ -114,9 +132,9 @@ class GeneralSpotifyHelpers:
            username - User id we use for auth and operations (requires prior authorization for scopes).
     OUTPUT: NA
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def __init__(self, scopes: Optional[list[str]]=None, logger: logging.Logger=None) -> None:
+    def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
-        self.scopes = scopes if scopes is not None else list(Settings.MAX_SCOPE_LIST)
+        self._scopes = []
         self.sp = SpotipyProxy()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -216,8 +234,8 @@ class GeneralSpotifyHelpers:
     def _validate_scope(self, desired_scopes: list[str]) -> None:
         validate_inputs([desired_scopes], [list])
         
-        if set(desired_scopes).intersection(set(self.scopes)) != set(desired_scopes):
-            raise Exception(f"SCOPE PROTECTION: {desired_scopes} NOT IN {self.scopes}")
+        if set(desired_scopes).intersection(set(self._scopes)) != set(desired_scopes):
+            raise Exception(f"SCOPE PROTECTION: {desired_scopes} NOT IN {self._scopes}")
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # USER ════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -619,6 +637,6 @@ class GeneralSpotifyHelpers:
     def get_playlist_data(self, playlist_id: str, info: list[str]=['id']) -> list[str]:
         validate_inputs([playlist_id, info], [str, list])
         return get_generic_field(self.sp.playlist(playlist_id, market="US"), info)
-
+    
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

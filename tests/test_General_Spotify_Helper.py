@@ -17,6 +17,7 @@ from unittest import mock
 import src.General_Spotify_Helpers as gsh
 import tests.helpers.api_response_test_messages as artm
 import tests.helpers.tester_helpers as thelp
+from src.helpers.Settings import Settings
 
 from tests.helpers.mocked_Settings import Test_Settings
 from tests.helpers.mocked_spotipy import MockedSpotipyProxy
@@ -199,6 +200,7 @@ class TestGSH(unittest.TestCase):
     
     def test_get_next_response(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
         # No 'next'
         test_response = {'id': '0', 'name': 'bob'}
@@ -239,7 +241,8 @@ class TestGSH(unittest.TestCase):
                         , "playlist-modify-private"
                         , "user-library-read"]
         
-        spotify = gsh.GeneralSpotifyHelpers(scopes=test_scopes)
+        spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes=test_scopes
 
         with self.assertRaises(Exception): spotify._validate_scope()
         with self.assertRaises(Exception): spotify._validate_scope("user-read-private")
@@ -260,6 +263,7 @@ class TestGSH(unittest.TestCase):
     def test_get_user_artists(self):
         # Currently don't have any way to add or remove followed artists since I never want the project to do this.
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         self.assertEqual(spotify.get_user_artists(), [{'id': 'Ar002'}, {'id': 'Ar003'}, {'id': 'Ar004'}])
@@ -269,6 +273,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_user_playlists(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         self.assertEqual(spotify.get_user_playlists(), 
@@ -292,6 +297,7 @@ class TestGSH(unittest.TestCase):
     def test_get_playback_state(self):
         # A lot of this functionality is also tested under the 'test_change_playback()'
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
         # Test "Normal" Return
         self.assertEqual(spotify.get_playback_state(), {
@@ -330,6 +336,7 @@ class TestGSH(unittest.TestCase):
     @mock.patch("time.sleep", return_value=None)
     def test_write_to_queue(self, mock_sleep):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         # Verify Queue Is Empty Before Testing
         self.assertEqual(spotify.sp.user_queue, [])
@@ -345,6 +352,7 @@ class TestGSH(unittest.TestCase):
 
     def test_change_playback(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         # No Changes
         spotify.change_playback()
@@ -391,6 +399,7 @@ class TestGSH(unittest.TestCase):
     
     def test_add_tracks_to_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         # Verify Playlist Is Empty
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
@@ -414,6 +423,7 @@ class TestGSH(unittest.TestCase):
     def test_add_unique_tracks_to_playlist(self):
         # Same test as 'test_add_tracks_to_playlist()' except that duplicates shouldn't be added.
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         # Verify Playlist Is Empty
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
@@ -436,6 +446,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         # Empty Playlist
@@ -490,6 +501,7 @@ class TestGSH(unittest.TestCase):
 
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
         empty_id = spotify.create_playlist("")
         self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["", ""])
@@ -514,6 +526,7 @@ class TestGSH(unittest.TestCase):
 
     def test_change_playlist_details(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
         empty_id = spotify.create_playlist("")
         spotify.change_playlist_details(empty_id, name="Tester")
@@ -530,6 +543,7 @@ class TestGSH(unittest.TestCase):
     @mock.patch('src.General_Spotify_Helpers.Settings', Test_Settings)
     def test_remove_all_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         Test_Settings.PLAYLISTS_WE_CAN_DELETE_FROM = ["Pl100"]
@@ -538,7 +552,7 @@ class TestGSH(unittest.TestCase):
         
         with self.assertRaises(Exception): spotify.remove_all_playlist_tracks("Pl100")
 
-        spotify.scopes.append(Test_Settings.DELETE_SCOPE)
+        spotify._scopes.append(Test_Settings.DELETE_SCOPE)
         
         self.assertEqual(len(spotify.sp.playlist_items("Pl002")['items']), 3)
         
@@ -559,6 +573,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_artist_albums(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         # Fake Field
@@ -612,6 +627,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
 
         # Non Existant Album ID
@@ -688,6 +704,7 @@ class TestGSH(unittest.TestCase):
 
     def test_get_track_artists(self):
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
         
         # Test for invalid inputs
@@ -716,6 +733,7 @@ class TestGSH(unittest.TestCase):
     def test_get_track_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_track_data('Tr001', info=['name']), ['Fake Track 1'])
@@ -726,6 +744,7 @@ class TestGSH(unittest.TestCase):
     def test_get_artist_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_artist_data('Ar001', info=['name']), ['Fake Artist 1'])
@@ -734,6 +753,7 @@ class TestGSH(unittest.TestCase):
     def test_get_album_data(self):
         # Don't need to test much since we already unit test 'get_generic_field' extensively
         spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         thelp.create_env(spotify)
 
         self.assertEqual(spotify.get_album_data('Al001', info=['name']), ['Fake Album 1'])
