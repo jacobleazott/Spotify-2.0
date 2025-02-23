@@ -90,7 +90,7 @@ class BackupSpotifyData(LogAllMethods):
     INPUT: table - What table we will insert into (str).
            values - What data will be inserted into the table.
            batch_size - How many 'values' we can add into a table at once for performance issues.
-    Output: NA
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""""" 
     def _insert_many(self, table: str, values: Union[list[dict], list[tuple], list], batch_size: int=500) -> None:
         if not values:
@@ -117,8 +117,8 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates the necessary tables for our SQLite db. These include the artist table, playback table, tracks
                  table, and the playlists-tracks many to many relationship table.
-    INPUT: NA
-    Output: NA
+    INPUT: N/A
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _create_backup_data_db(self) -> None:
         with self.db_conn:
@@ -180,8 +180,8 @@ class BackupSpotifyData(LogAllMethods):
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Queries all followed artists by the user, inserts them into the database.
-    INPUT: NA
-    Output: NA
+    INPUT: N/A
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["user-follow-read"])
     def _add_followed_artists_to_db(self) -> None:
@@ -193,7 +193,7 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Fills all appropriate tables from the tracks from a given playlist.
     INPUT: playlist_id - Id that we will be using to grab tracks and link together in our db.
-    Output: NA
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-read-private"])
     def _insert_tracks_into_db_from_playlist(self, playlist_id: str) -> None:
@@ -236,8 +236,8 @@ class BackupSpotifyData(LogAllMethods):
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds all user playlists into our database.
-    INPUT: NA
-    Output: NA
+    INPUT: N/A
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-read-private"])
     def _add_user_playlists_to_db(self) -> None:
@@ -254,8 +254,8 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
                  our playlists including all track and artist data from anything in those playlists.
-    INPUT: NA
-    Output: NA
+    INPUT: N/A
+    Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")

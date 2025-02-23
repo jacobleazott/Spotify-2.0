@@ -88,7 +88,7 @@ class MiscFeatures(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Distributes tracks from given playlist into their respective 'good', 'year', and 'artist' playlists.
     INPUT: playlist_id - Id of playlist we will grab tracks from to distribute to our collections.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-modify-public"
                  , "playlist-modify-private"
@@ -158,7 +158,7 @@ class MiscFeatures(LogAllMethods):
                  at the bottom so we never mess with deleting tracks. The tracks are ordered by release date and then
                  ordered by album/ disc number/ track number.
     INPUT: playlist_id - Id of playlist we are going to "reorganize".
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-modify-public"
                  , "playlist-modify-private" 
@@ -210,8 +210,8 @@ class MiscFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs the latest 'PLAYLIST_LENGTH' tracks from 'SOURCE_PLAYLIST' and adds them to our 'DEST_PLAYLIST'
                  playlist after emptying it.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["playlist-read-private"
                  , "playlist-read-collaborative"

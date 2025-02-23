@@ -46,7 +46,7 @@ class WeeklyReport(LogAllMethods):
                  the referenced location.
     INPUT: subject - Str title of the email.
            body - Str html body of the email.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def send_email(self, subject, body):
         msgRoot = MIMEMultipart('related')
@@ -73,7 +73,7 @@ class WeeklyReport(LogAllMethods):
             
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a bar plot for the last week of listening shown in hours Sunday-Saturday.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: Saves off a listening_data_plot.png file for use later.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def gen_playback_graph(self):

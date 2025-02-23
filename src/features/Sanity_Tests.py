@@ -68,8 +68,8 @@ class SanityTest(LogAllMethods):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Grabs all '__', year, master, and track disregard playlists for later internal use.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _gather_playlist_data(self):
         self.user_followed_artists = self.dbh.db_get_user_followed_artists()
@@ -133,7 +133,7 @@ class SanityTest(LogAllMethods):
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Comparison sanity test for our 3 playlist sets. ie tracks in master but not years etc...
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of collections with their respective tracks that are missing from the varying collections.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_diffs_in_major_playlist_sets(self):
@@ -173,7 +173,7 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Finds any current "in progress" artists just as a sanity check that we do follow all of our 
                  contributing artists.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of '__' playlists that the user currently doesn't follow the artist for.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_in_progress_artists(self):
@@ -186,7 +186,7 @@ class SanityTest(LogAllMethods):
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Finds any duplicate tracks (id's) in each of our 3 collections individually and years combined.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of string formatted tracks that are duplicates in their respective collection.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_duplicates(self):
@@ -207,7 +207,7 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Goes through all combined '__' tracks and finds any that should be in more playlists. ie. tracks that
                  have multiple contributing artists we follow should be in every single one of those '__' playlists.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of string formatted missing tracks from specified playlists.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""  
     def sanity_contributing_artists(self):
@@ -239,7 +239,7 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Goes through a '__' playlist to determine if every track in that playlist has the supporting artist of 
                  that specific playlist.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of tracks that do not belong in varying playlists.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_artist_playlist_integrity(self):
@@ -260,7 +260,7 @@ class SanityTest(LogAllMethods):
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Goes through all of our tracks and lets us know if a track is no longer 'playable' by Spotify.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of tracks that cannot be currently played but are not local.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def sanity_playable_tracks(self) -> list[dict]:

@@ -30,7 +30,7 @@ class MethodInvoker:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Simply assigns the given object that we will be method invoking manually.
     INPUT: obj - Non builtin obj instance.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, obj) -> None:
         self.obj = obj
@@ -73,7 +73,7 @@ class MethodInvoker:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generates a dict of all methods and their name for our current obj.
     INPUT: methods - List of available methods from our obj.
-    OUTPUT: NA (prints to table to console).
+    OUTPUT: N/A (prints to table to console).
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_available_classes(self) -> dict:
         return {
@@ -87,8 +87,8 @@ class MethodInvoker:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Displays all available classes within our object, if another class is selected we continue to
                  programatically print out all available classes until one is chosen.
-    INPUT: NA
-    OUTPUT: NA (self.obj is updated to point to the desired class).
+    INPUT: N/A
+    OUTPUT: N/A (self.obj is updated to point to the desired class).
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def select_class(self) -> None:
         parent_name = type(self.obj).__name__
@@ -115,7 +115,7 @@ class MethodInvoker:
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generically display all of the avaialable methods and arguments for those methods.
-    INPUT: NA.
+    INPUT: N/A.
     OUTPUT: Dict of all methods, key value pair being (name, method) with method being the actual obj reference.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def display_available_methods(self):
@@ -140,8 +140,8 @@ class MethodInvoker:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Handles obtaining the user's desired class, method, and all potential arguments before running said
                  method with arguments.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def invoke_method(self):
         self.select_class()

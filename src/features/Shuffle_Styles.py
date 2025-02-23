@@ -114,7 +114,7 @@ class Shuffler(LogAllMethods):
                  it then adds those now 'shuffled' tracks to the user's queue.
     INPUT: playlist_id - Id of the playlist we will be grabbing the tracks from.
            shuffle_type - Specific shuffle type we will be applying to the tracks from 'playlist_id'.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["user-modify-playback-state"])
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:

@@ -42,8 +42,8 @@ threads = []
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Monitor method that when run as a seperate thread will exit the program if it goes over our set time.
              This is very helpful if we are ever worried about our service hanging. This can automatically do cleanup.
-INPUT: NA
-OUTPUT: NA
+INPUT: N/A
+OUTPUT: N/A
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def monitor_script_runtime():
     start_time = datetime.now()
@@ -60,7 +60,7 @@ INPUT: method - Func that we will be calling from SpotifyFeatures.
        args - List of args we are passing to 'method'.
        log_file_name - Log filename we want to use.
        kwargs - List of kwargs we are passing to 'method'.
-OUTPUT: NA, it does however add the thread to the global 'threads'.
+OUTPUT: N/A, it does however add the thread to the global 'threads'.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def startup_feature_thread(method, *args, log_file_name="Default.log", run_parallel=True, **kwargs):
     global threads
@@ -101,7 +101,7 @@ def check_date_time(cur_time: datetime, day: int=None, weekday: int=None, hour: 
 DESCRIPTION: Grabs current playback, triggers any macros based upon the playback by starting up a new SpotifyFeatures
              thread. Additionally, assuming no macro was triggered logs the track_id to our listening databases.
 INPUT: spotify_features - SpotifyFeatures object we will use to grab playback, and call the log playback to.
-OUTPUT: NA
+OUTPUT: N/A
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def log_and_macro(spotify_features) -> None:
     playback = spotify_features.get_playback_state()

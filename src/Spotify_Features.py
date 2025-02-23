@@ -78,7 +78,7 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a playlist for an artist's entire discography.
     INPUT: artist_id - Id of the artist to create for their entire discography.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_artist_playlist_from_id(self, artist_id: str) -> None:
         artist_name = self.spotify.get_artist_data(artist_id, ['name'])[0]
@@ -89,7 +89,7 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a playlist for an artist's entire discography using a playlist to grab said artist.
     INPUT: playlist_id - Id of the playlist to grab the first artist we see (non macro)
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_artist_playlist_from_playlist(self, playlist_id: str) -> None:
         artist_id = self.mfeatures.get_first_artist_from_playlist(playlist_id)
@@ -97,8 +97,8 @@ class SpotifyFeatures(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a new playlist with all released tracks from the last month from all of the user's artists.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["user-follow-read"])
     def generate_monthly_release(self) -> None:
@@ -116,7 +116,7 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: artist_ids - artist_ids we will be grabbing tracks from.
            start_date - start day of range for track collection.
            end_date - end day of range for track collection.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_release_playlist(self, artist_ids: list[str], start_date: datetime, end_date: datetime) -> None:
         self.mfeatures.generate_artist_release(
@@ -129,8 +129,8 @@ class SpotifyFeatures(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Takes the user's entire spotify library (playlists, tracks, artists) and saves it off to a db.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def backup_spotify_library(self) -> None:
         BackupSpotifyData(self.spotify, logger=self.logger).backup_data()
@@ -139,7 +139,7 @@ class SpotifyFeatures(LogAllMethods):
     DESCRIPTION: Log the given track_id as a listened track to our listening and track_count db's.
     INPUT: track_id - Id of track we will be logging as a 'listened' to track.
            track_name - Name of track we will be logging.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def log_playback_to_db(self, playback: dict) -> None:
         inc_tcdb = True
@@ -157,7 +157,7 @@ class SpotifyFeatures(LogAllMethods):
     DESCRIPTION: Creates our shuffle feature and passes in our logger, spotify, and shuffle type.
     INPUT: playlist_id - Id of playlist we will be shuffling.
            shuffle_type - ShuffleType Enum of how we will shuffle the playlist (ref Shuffle_Styles.py).
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def shuffle_playlist(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         Shuffler(self.spotify, logger=self.logger).shuffle(playlist_id, shuffle_type)
@@ -165,7 +165,7 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Distributes given playlist tracks to their respective collections (Good, Year, __Artist).
     INPUT: playlist_id - Id of playlist we will pull tracks from to distribute.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def distribute_tracks_to_collections(self, playlist_id: str) -> None:
         self.mfeatures.distribute_tracks_to_collections_from_playlist(playlist_id)
@@ -174,14 +174,14 @@ class SpotifyFeatures(LogAllMethods):
     DESCRIPTION: Organizes tracks in a playlist by release date and track #. Adds the tracks back to the playlist.
                  NO DELETION OCCURS
     INPUT: playlist_id - Id of playlist we will 'organize'.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def organize_playlist_by_date(self, playlist_id: str) -> None:
         self.mfeatures.reorganize_playlist(playlist_id)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Returns the user's current playback (limited info).
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["user-read-playback-state"])
@@ -191,24 +191,24 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Updates our "latest" playlist with the "latest" tracks in our main playlist. 
                  NOTE THIS DELETES THE "latest" PLAYLIST CONTENTS.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def update_daily_latest_playlist(self) -> None:
         self.mfeatures.update_daily_latest_playlist()
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Skips current user track.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def skip_track(self) -> None:
         self.spotify.change_playback(skip="next")
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates a weekly report of various metrics and checks on the user's collection.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_weekly_report(self) -> None:
         sanity_tester = SanityTest(logger=self.logger)
@@ -216,8 +216,8 @@ class SpotifyFeatures(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Runs various santiy checks against the user's collection to verify nothing has been mismanaged.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def run_sanity_checks(self) -> None:
         sanity_tester = SanityTest(logger=self.logger)
@@ -230,8 +230,8 @@ class SpotifyFeatures(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Uploads the latest backup of our Spotify library to Google Drive.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_latest_backup_to_drive(self) -> None:
         latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
@@ -239,8 +239,8 @@ class SpotifyFeatures(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Prints out a list of our most featured artists that we do not follow from our collection.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def print_most_featured_artists(self) -> None:
         featured_artists = self.mfeatures.generate_featured_artists_list()

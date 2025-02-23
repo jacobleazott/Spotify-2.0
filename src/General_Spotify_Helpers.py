@@ -16,8 +16,7 @@ import logging
 import os
 import time
 
-from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
 from typing import Optional
 
@@ -29,7 +28,7 @@ from src.proxy.Spotipy_Proxy import SpotipyProxy
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
 INPUT: args - List of variables we wish to validate.
        types - List of python types the 'args' should be.
-OUTPUT: NA, will raise exception if types are not correct.
+OUTPUT: N/A, will raise exception if types are not correct.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def validate_inputs(args, types):
     assert isinstance(args, list) and isinstance(types, list)
@@ -104,7 +103,11 @@ def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_d
             valid_elements.append(element)
     return valid_elements
 
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Scopes decorator, this will set the scopes for the function and reset them after the function is done.
+INPUT: scopes_list - List of scopes to set for the function.
+OUTPUT: N/A.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def scopes(scopes_list):
     # This is the decorator that gets returned
     def decorator(func):
@@ -130,7 +133,7 @@ class GeneralSpotifyHelpers:
     DESCRIPTION: Creates the spotipy object for the given 'username' and 'scope'.
     INPUT: scope - List of spotify scopes to request access for, note MAX_SCOPE IS ALWAYS PASSED IN.
            username - User id we use for auth and operations (requires prior authorization for scopes).
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
@@ -229,7 +232,7 @@ class GeneralSpotifyHelpers:
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
                  out of 'scope' we throw an exception to stop us from doing something we shouldn't.
     INPUT: desired_scopes - List of desired scopes to compare against our instantiated list.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _validate_scope(self, desired_scopes: list[str]) -> None:
         validate_inputs([desired_scopes], [list])
@@ -307,7 +310,7 @@ class GeneralSpotifyHelpers:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Overwrites spotify queue with given tracks.
     INPUT: tracks - The tracks that will be written to the queue.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def write_to_queue(self, tracks: list[str]) -> None:
         self._validate_scope(["user-modify-playback-state"])
@@ -322,7 +325,7 @@ class GeneralSpotifyHelpers:
            skip - "next" if skip track, "prev" if previous track.
            shuffle - True/ False if shuffle is enabled.
            repeat - 'off', 'track', or 'context' for the state of repeat.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def change_playback(self, pause: Optional[bool]=None, 
                         skip: str="", 
@@ -352,7 +355,7 @@ class GeneralSpotifyHelpers:
     DESCRIPTION: Adds given tracks into the given playlist.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
            track_ids - List of track ids we will be adding to the playlist.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
@@ -366,7 +369,7 @@ class GeneralSpotifyHelpers:
     DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
            track_ids - List of track ids we will be adding to the playlist.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def add_unique_tracks_to_playlist(self, playlist_id: str, track_ids: list[str]) -> None:
         self._validate_scope(["playlist-modify-public", "playlist-modify-private"])
@@ -422,7 +425,7 @@ class GeneralSpotifyHelpers:
     INPUT: playlist_id - Id of playlist we will change the description/ name of.
            name - Name we will use to overwrite the current playlist name.
            description - Description we will use to overwrite the current description.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def change_playlist_details(self, playlist_id: str, 
                                 name: Optional[str]=None, 

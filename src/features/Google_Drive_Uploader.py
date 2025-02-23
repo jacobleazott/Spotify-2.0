@@ -34,8 +34,8 @@ class DriveUploader(LogAllMethods):
     DESCRIPTION: Goes through authorization flow for our creds. We need to manually login and give access if the creds
                  ever go missing or it's our first run through. It handles any token refresh and just sets up our 
                  'GoogleDrive' object for later use.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def authorize(self) -> None:
         gauth = GoogleAuth()
@@ -56,7 +56,7 @@ class DriveUploader(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Takes a given file and uploads it to Google Drive.
     INPUT: file - The full filepath of the file we wish to upload to our Google Drive.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def upload_file(self, file: str) -> None:
         gfile = self.drive.CreateFile({'title': os.path.basename(file), 'parents': [{'id': Settings.DRIVE_FOLDER_ID}]})
