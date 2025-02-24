@@ -22,14 +22,14 @@ import smtplib
 import sqlite3
 import textwrap
 
-from datetime import datetime, timedelta
-from email.mime.image import MIMEImage
+from datetime             import datetime, timedelta
+from email.mime.image     import MIMEImage
 from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from PIL import Image
+from email.mime.text      import MIMEText
+from PIL                  import Image
 
 from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.

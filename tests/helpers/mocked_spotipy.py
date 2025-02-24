@@ -11,11 +11,6 @@
 #   mock each function in our class here when we override the import things should all work as intendeddef  
 # Docs - https://spotipy.readthedocs.io/en/2.24.0/
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging as log
-import os
-import sys
-from pprint import pprint
-
 import tests.helpers.api_response_test_messages as artm
 from src.helpers.decorators import *
 

@@ -14,11 +14,11 @@
 import os
 import logging
 
-from pydrive.auth import GoogleAuth
+from pydrive.auth  import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstracted google drive api handler to upload single 'simple' (< 5MB) files. 

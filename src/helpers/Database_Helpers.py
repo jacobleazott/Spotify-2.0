@@ -25,7 +25,7 @@ import sqlite3
 from glob import glob
 
 from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of methods similar to GSH that grab from our latest local backup rather than spotify itself.

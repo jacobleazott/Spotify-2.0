@@ -20,19 +20,18 @@
 #               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
 #               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import os
 import logging
 import random
 import sqlite3
 
 from datetime import datetime
-from enum import unique, Enum
-from glob import glob
+from enum     import unique, Enum
 
 import src.General_Spotify_Helpers as gsh
+
 from src.helpers.Database_Helpers import DatabaseHelpers
-from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.decorators       import *
+from src.helpers.Settings         import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Enum to define our different shuffle styles for playlists.

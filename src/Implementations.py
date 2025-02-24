@@ -30,12 +30,12 @@ import threading
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
-from datetime import datetime, timedelta
+from apscheduler.triggers.interval     import IntervalTrigger
+from datetime                          import datetime, timedelta
 
 from src.features.Shuffle_Styles import ShuffleType
-from src.Spotify_Features import SpotifyFeatures
-from src.helpers.Settings import Settings
+from src.Spotify_Features        import SpotifyFeatures
+from src.helpers.Settings        import Settings
 
 threads = []
 

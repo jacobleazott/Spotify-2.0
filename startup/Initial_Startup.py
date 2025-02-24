@@ -10,22 +10,19 @@
 #   accessing the least amount of permissions and creates a backup of the entire user's library. This file should be
 #   verified through some simple sqlite queries and be uploaded/ saved off somewhere safe. 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging
 import os
 import smtplib
 
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from glob import glob
+from glob            import glob
 
-import General_Spotify_Helpers as gsh
+import src.General_Spotify_Helpers as gsh
 
-from Backup_Spotify_Data import BackupSpotifyData
-from Google_Drive_Uploader import DriveUploader
-from Shuffle_Styles import Shuffler, ShuffleType
-from decorators import *
-from Settings import Settings
+from src.features.Backup_Spotify_Data   import BackupSpotifyData
+from src.features.Google_Drive_Uploader import DriveUploader
+from src.features.Shuffle_Styles        import Shuffler, ShuffleType
+from src.helpers.decorators             import *
+from src.helpers.Settings               import Settings
 
 logger = get_file_logger("logs/initial_startup.log", mode='a', console=True)
 

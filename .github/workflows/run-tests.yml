@@ -32,5 +32,5 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          coverage run -m pytest --disable-warnings
+          coverage run -m pytest tests "$@"
           coverage report

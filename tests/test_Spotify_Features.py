@@ -1,17 +1,28 @@
+# ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
+# ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
+# ╠══╣                                                                                                             ╠══╣
+# ║  ║    UNIT TESTS - SPOTIFY FEATURES            CREATED: 2024-02-16          https://github.com/jacobleazott    ║  ║
+# ║══║                                                                                                             ║══║
+# ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
+# ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
+# ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
+# Unit tests for all functionality out of 'Spotify_Features.py'.
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
 import unittest
 from unittest import mock
 from datetime import datetime, timedelta
-from pprint import pprint
 
-from src.Spotify_Features import SpotifyFeatures
-from src.features.Shuffle_Styles import ShuffleType
 import tests.helpers.tester_helpers as thelp
-import src.General_Spotify_Helpers as gsh
 
-from src.helpers.Settings import Settings
-from tests.helpers.mocked_spotipy import MockedSpotipyProxy
+from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
+from src.Spotify_Features           import SpotifyFeatures
+from src.features.Shuffle_Styles    import ShuffleType
+from src.helpers.Settings           import Settings
 
-
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Unit test collection for all Spotify Features functionality.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestSpotifyFeatures(unittest.TestCase):
     
     @mock.patch('src.General_Spotify_Helpers.SpotipyProxy', new=MockedSpotipyProxy)
@@ -20,10 +31,10 @@ class TestSpotifyFeatures(unittest.TestCase):
         self.spotify_features = SpotifyFeatures()
         self.mock_misc_features = MockMiscFeatures()
         self.addCleanup(self.verify_scopes)
-        
+    
     def verify_scopes(self):
         assert self.spotify_features.spotify._scopes == []
-        
+    
     @mock.patch('src.Spotify_Features.MiscFeatures')
     @mock.patch('src.General_Spotify_Helpers.GeneralSpotifyHelpers')
     @mock.patch('src.Spotify_Features.get_file_logger')
@@ -44,7 +55,7 @@ class TestSpotifyFeatures(unittest.TestCase):
         self.mock_misc_features.generate_artist_release.assert_called_once_with(['Ar005']
                                                                                 , 'Fake Artist 5 GO THROUGH'
                                                                                 , mock.ANY)
-            
+    
     def test_generate_artist_playlist_from_playlist(self):
         thelp.create_env(self.spotify_features.spotify)
         self.mock_misc_features.get_first_artist_from_playlist.return_value = 'Ar002'
@@ -53,7 +64,7 @@ class TestSpotifyFeatures(unittest.TestCase):
         self.mock_misc_features.generate_artist_release.assert_called_once_with(['Ar002']
                                                                                 , 'Fake Artist 2 GO THROUGH'
                                                                                 , mock.ANY)
-            
+    
     def test_generate_monthly_release(self):
         thelp.create_env(self.spotify_features.spotify)
         self.spotify_features.generate_monthly_release()
@@ -64,7 +75,7 @@ class TestSpotifyFeatures(unittest.TestCase):
                                             ['Ar002', 'Ar003', 'Ar004']
                                             , mock.ANY, mock.ANY
                                             , start_date=expected_start_date, end_date=expected_end_date)
-            
+    
     def test_generate_release_playlist(self):
         thelp.create_env(self.spotify_features.spotify)
         start_date = datetime(2023, 1, 1)
@@ -136,7 +147,6 @@ class TestSpotifyFeatures(unittest.TestCase):
         self.spotify_features.log_playback_to_db(playback)
         MockLogPlayback().log_track.assert_called_once_with(playback, True)
         MockLogPlayback().log_track.reset_mock()
-        
     
     @mock.patch('src.Spotify_Features.Shuffler')
     def test_shuffle_playlist(self, MockShuffler):
@@ -156,7 +166,7 @@ class TestSpotifyFeatures(unittest.TestCase):
         playlist_id = 'test_playlist_id'
         self.spotify_features.organize_playlist_by_date(playlist_id)
         self.mock_misc_features.reorganize_playlist.assert_called_once_with(playlist_id)
-        
+    
     @mock.patch('src.General_Spotify_Helpers.GeneralSpotifyHelpers.get_playback_state')
     def test_get_playback_state(self, MockGetPlaybackState):
         self.spotify_features.get_playback_state()
@@ -199,7 +209,7 @@ class TestSpotifyFeatures(unittest.TestCase):
 
         actual_calls = [call for call in MockSanityTest().mock_calls if '__str__' not in str(call)]
         self.assertCountEqual(actual_calls, expected_calls)
-        
+    
     @mock.patch('src.Spotify_Features.DriveUploader')
     @mock.patch('src.Spotify_Features.glob')
     @mock.patch('os.path.getmtime')
@@ -229,3 +239,6 @@ class TestSpotifyFeatures(unittest.TestCase):
           , ('Artist Id 2', ['Artist 2', 8, ['Artist 20'], ['Track 2']])]
         self.spotify_features.print_most_featured_artists()
         self.mock_misc_features.generate_featured_artists_list.assert_called_once()
+
+
+# FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

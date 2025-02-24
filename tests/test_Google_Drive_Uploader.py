@@ -12,7 +12,7 @@ import unittest
 from unittest import mock
 
 from src.features.Google_Drive_Uploader import DriveUploader
-from tests.helpers.mocked_Settings import Test_Settings
+from tests.helpers.mocked_Settings      import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Google Drive Uploader functionality.
