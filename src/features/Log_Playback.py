@@ -16,6 +16,7 @@
 #   of calls. However, right now we query ever 15s so we count a track as listened if we've listened to 16-30s of it.
 #   This gives us an ability to immediately skip songs and not worry about it counting against us in later features.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import atexit
 import logging
 import pickle
 import sqlite3
@@ -37,12 +38,15 @@ class LogPlayback(LogAllMethods):
         self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
         self.ldb_conn = None
         self.tcdb_conn = None
+        atexit.register(self.close)
         
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         if self.ldb_conn:
             self.ldb_conn.close()
+            self.ldb_conn = None
         if self.tcdb_conn:
             self.tcdb_conn.close()
+            self.tcdb_conn = None
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
