@@ -85,7 +85,7 @@ def create_playlist(playlist_id: str, name: str, description: str, tracks: list[
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
 INPUT: args - List of variables we wish to validate.
        types - List of python types the 'args' should be.
-OUTPUT: NA
+OUTPUT: N/A
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def create_env(spotify_mocked):
     # Create Artists

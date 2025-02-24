@@ -150,7 +150,6 @@ class SpotifyFeatures(LogAllMethods):
                                   if playlist['id'] == playback['context']['id']), None)
             inc_tcdb = not any([artist for artist in dbh.db_get_user_followed_artists() 
                                 if playlist_name is not None and artist['name'] == playlist_name[2:]])
-        
         LogPlayback(logger=self.logger).log_track(playback, inc_tcdb)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
