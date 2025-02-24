@@ -24,12 +24,10 @@ class MockedSettingsClass():
     LOGGING_INTERVAL_S: int     = 15
     
     # Macro IDs
-    SHUFFLE_MACRO_ID: str             = "Tr999"
     GEN_ARTIST_MACRO_ID: str          = "Tr998"
     DISTRIBUTE_TRACKS_MACRO_ID: str   = "Tr997"
     ORGANIZE_PLAYLIST_MACRO_ID: str   = "Tr996"
-    MACRO_LIST: tuple                 = [SHUFFLE_MACRO_ID, 
-                                         GEN_ARTIST_MACRO_ID, 
+    MACRO_LIST: tuple                 = [GEN_ARTIST_MACRO_ID, 
                                          DISTRIBUTE_TRACKS_MACRO_ID, 
                                          ORGANIZE_PLAYLIST_MACRO_ID]
     

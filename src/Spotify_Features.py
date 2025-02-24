@@ -91,7 +91,8 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_artist_playlist_from_playlist(self, playlist_id: str) -> None:
         artist_id = self.mfeatures.get_first_artist_from_playlist(playlist_id)
-        self.generate_artist_playlist_from_id(artist_id)
+        if artist_id is not None:
+            self.generate_artist_playlist_from_id(artist_id)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a new playlist with all released tracks from the last month from all of the user's artists.

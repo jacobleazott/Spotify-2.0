@@ -50,8 +50,15 @@ class MiscFeatures(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-read-private"])
     def get_first_artist_from_playlist(self, playlist_id: str) -> str:
-        playlist_tracks = self.spotify.get_playlist_tracks(playlist_id, artist_info=['id', 'name'])
-        return [track for track in playlist_tracks if track['id'] not in Settings.MACRO_LIST][0]['artists'][0]['id']
+        tracks = [track for track in self.spotify.get_playlist_tracks(playlist_id) 
+                  if track['id'] not in Settings.MACRO_LIST]
+        
+        print(Settings.MACRO_LIST)
+        
+        if len(tracks) == 0 or 'artists' not in tracks[0] or len(tracks[0]['artists']) == 0:
+            return None
+        else:
+            return tracks[0]['artists'][0]['id']
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists.
