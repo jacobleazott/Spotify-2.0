@@ -275,7 +275,19 @@ class TestMiscFeatures(unittest.TestCase):
     
     def test_reorganize_playlist(self):
         # reorganize_playlist
+        # Mock get_playlist_tracks
+        # Make sure we skip local tracks
+        # Verify we add the tracks to the playlist in the correct order
+        # Figure out a way to somehow trigger the exception
+            # Mock sort to remove some data or something silly
+            
+        # To test our sorted method we will need to 
+        #   Test disc_number differences
+        #   Test track_number differences
+        #   Test album release_date differences
+        #      Need to test different Precisions, ie YYYY, YYYY-MM, YYYY-MM-DD
         pass
+   
     
     def test_update_daily_latest_playlist(self):
         # update_daily_latest_playlist
