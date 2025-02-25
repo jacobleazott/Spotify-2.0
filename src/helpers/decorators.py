@@ -25,6 +25,7 @@ OUTPUT: Logger Object
 def get_file_logger(filename: str, log_level: Union[int, str]=logging.INFO, mode: str='w', 
                     console: bool=False) -> logging.Logger:
     logger = logging.getLogger(filename)
+    logger.propagate = False
     if not logger.handlers:
         logger.setLevel(log_level)
         file_handler = logging.FileHandler(filename, mode=mode)

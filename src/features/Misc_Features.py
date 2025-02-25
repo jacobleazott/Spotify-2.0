@@ -74,6 +74,10 @@ class MiscFeatures(LogAllMethods):
                  , "playlist-modify-private"])
     def generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
                 start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
+        
+        if len(artist_id_list) == 0:
+            return None
+        
         playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
         self.logger.info(f"Created New Playlist: {playlist_id}")
         tracks = []
@@ -125,6 +129,7 @@ class MiscFeatures(LogAllMethods):
         
         tracks_to_distribute = self.spotify.get_playlist_tracks(playlist_id, track_info=['id', 'name'], 
                                                                 artist_info=['id', 'name'])
+        tracks_to_distribute = [track for track in tracks_to_distribute if track['id'] not in Settings.MACRO_LIST]
         
         self.logger.info(f"Found {len(tracks_to_distribute)} Tracks")
         self.logger.debug(f"Tracks: {tracks_to_distribute}")
@@ -132,14 +137,14 @@ class MiscFeatures(LogAllMethods):
         # Add all tracks we need to distribute to their respective artist track holder
         for track in tracks_to_distribute:
             self.logger.info(f"Track - {track['name']}, {track['id']}")
-            verified = False
+            artist_found = False
             for playlist_artist in artist_playlists:
                 for track_artist in track['artists']:
-                    if track_artist['name'] == playlist_artist['name'][2:]:
+                    if track_artist['name'] == playlist_artist['name'][2:] and track_artist['id'] is not None:
                         playlist_artist['tracks'].append(track['id'])
-                        verified = True
+                        artist_found = True
                         self.logger.info(f"\t\tArtist: {track_artist['name']}, {track_artist['id']}")
-            if not verified:
+            if not artist_found:
                 self.logger.error("NO CONTRIBUTING ARTIST FOUND")
                         
         # Distribute all the track holders to their respective artist
@@ -148,6 +153,7 @@ class MiscFeatures(LogAllMethods):
             if len(playlist['tracks']) > 0:
                 self.logger.info(f"Adding {len(playlist['tracks'])} to Playlist - {playlist['name']}, \
                          Tracks: {playlist['tracks']}")
+                print(playlist["id"], playlist['tracks'])
                 self.spotify.add_unique_tracks_to_playlist(playlist["id"], playlist['tracks'])
                 tracks_to_add_to_big_playlists += playlist['tracks']
                 
