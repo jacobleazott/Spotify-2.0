@@ -1,12 +1,12 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS - SHUFFLE STYLES              CREATED: 2025-02-24          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - MISC FEATURES               CREATED: 2025-02-24          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# Unit tests for all functionality out of 'Shuffle_Styles.py'.
+# Unit tests for all functionality out of 'Misc_Features.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import unittest
@@ -16,7 +16,7 @@ from tests.helpers.mocked_Settings import Test_Settings
 from src.features.Misc_Features    import MiscFeatures
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
+DESCRIPTION: Unit test collection for all Misc Features functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 @mock.patch('src.features.Misc_Features.Settings', Test_Settings)
 class TestMiscFeatures(unittest.TestCase):
