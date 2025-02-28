@@ -19,13 +19,18 @@ from tests.helpers.mocked_Settings import Test_Settings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-@mock.patch('src.features.Shuffle_Styles.Settings', Test_Settings)
+# @mock.patch('src.features.Shuffle_Styles.Settings', Test_Settings)
 class TestShuffler(unittest.TestCase):
-    
-    @mock.patch('src.features.Shuffle_Styles.DatabaseHelpers')
-    @mock.patch('src.features.Shuffle_Styles.Settings', Test_Settings)
-    def setUp(self, MockDatabaseHelpers):
-        self.MockDatabaseHelpers = MockDatabaseHelpers
+        
+    def setUp(self):
+        patcher = mock.patch.multiple(
+            'src.features.Shuffle_Styles'
+            , DatabaseHelpers=mock.DEFAULT
+            , Settings=Test_Settings
+        )
+        self.mocks = patcher.start()
+        self.addCleanup(patcher.stop)
+
         self.mock_spotify = mock.MagicMock()
         self.shuffler = Shuffler(self.mock_spotify)
 
@@ -33,7 +38,7 @@ class TestShuffler(unittest.TestCase):
         self.assertEqual(self.shuffler.spotify, self.mock_spotify)
         self.assertIsNone(self.shuffler.tcdb_conn)
         self.assertEqual(self.shuffler.tcdb_path, Test_Settings.TRACK_COUNTS_DB)
-        self.MockDatabaseHelpers.assert_called_once_with(logger=self.shuffler.logger)
+        self.mocks['DatabaseHelpers'].assert_called_once_with(logger=self.shuffler.logger)
         self.assertEqual(self.shuffler.logger, logging.getLogger())
     
     def test_logger_custom(self):
