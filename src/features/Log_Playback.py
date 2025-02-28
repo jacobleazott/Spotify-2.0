@@ -19,10 +19,10 @@
 import logging
 import pickle
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does
@@ -47,7 +47,7 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
     INPUT: track_id - Id of track we are updating.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def increment_play_count_db(self) -> None:
         if not self.tcdb_conn:
@@ -74,7 +74,7 @@ class LogPlayback(LogAllMethods):
     DESCRIPTION: Reads our pickle file to determine if we have listened to the track for at least 30s and updates as
                  necessary.
     INPUT: track_id - What id we are currently listening to.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def update_last_track_count(self) -> None:
         try:
@@ -95,7 +95,7 @@ class LogPlayback(LogAllMethods):
     DESCRIPTION: Logs the current playing track into our listening.db.
     INPUT: playback - Dictionary of current playback, see 'get_playback_state()' in GSH.
            inc_track_count - Whether we should increment our track_count database.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def log_track(self, playback: dict, inc_track_count: bool) -> None:
         if playback is None \

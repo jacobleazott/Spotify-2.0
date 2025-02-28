@@ -12,7 +12,7 @@ import sqlite3
 import unittest
 from unittest import mock
 
-from src.features.Shuffle_Styles import Shuffler, ShuffleType
+from src.features.Shuffle_Styles   import Shuffler, ShuffleType
 from tests.helpers.mocked_Settings import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

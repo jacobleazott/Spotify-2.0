@@ -17,8 +17,8 @@ import threading
 import time
 from flask import Flask, request, jsonify
 
-from src.helpers.Settings import Settings
 from src.helpers.decorators import *
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Creates and manages a flask server as well as our spotipy instance. Handles token refreshing and allows 

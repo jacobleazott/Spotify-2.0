@@ -8,6 +8,7 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # A collection of unit test helpers to create and manage our fake Spotify library we create to test with.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+from typing import Optional
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
@@ -49,7 +50,8 @@ INPUT: track_id - Id of our 'fake' track.
        is_local - Bool on whether our track is local or not.
 OUTPUT: Track dict
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def create_track(track_id: str, name: str, album: str, artists: list[dict], is_local: bool=False) -> dict:
+def create_track(track_id: str, name: str, album: str, artists: list[dict], is_local: bool=False
+                 , is_playable: Optional[bool]=True) -> dict:
     return {
         'id': track_id,
         'name': name,
@@ -57,7 +59,7 @@ def create_track(track_id: str, name: str, album: str, artists: list[dict], is_l
         'artists': artists,
         'is_local': is_local,
         'duration_ms': 1,
-        'is_playable': True
+        'is_playable': is_playable
     }
 
 
@@ -83,7 +85,7 @@ def create_playlist(playlist_id: str, name: str, description: str, tracks: list[
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
 INPUT: args - List of variables we wish to validate.
        types - List of python types the 'args' should be.
-OUTPUT: NA
+OUTPUT: N/A
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def create_env(spotify_mocked):
     # Create Artists
@@ -117,11 +119,12 @@ def create_env(spotify_mocked):
     # Create Tracks
     local_artist = create_artist(None, 'Fake Local Artist 1')
     local_album = create_album(None, 'Fake Local Album 1', [], None)
-    local_track = create_track(None, 'Fake Local Track 1', local_album, [local_artist], is_local=True)
+    local_track = create_track(None, 'Fake Local Track 1', local_album, [local_artist]
+                               , is_local=True, is_playable=None)
     
-    tr001 = create_track('Tr001', 'Fake Track 1', al002, [artist_only_theirs])
-    tr002 = create_track('Tr002', 'Fake Track 2', al002, [artist_only_theirs])
-    tr003 = create_track('Tr003', 'Fake Track 3', al003, [artist_only_theirs])
+    tr001 = create_track('Tr001', 'Fake Track 1', al002, [artist_only_theirs], is_playable=False)
+    tr002 = create_track('Tr002', 'Fake Track 2', al002, [artist_only_theirs], is_playable=False)
+    tr003 = create_track('Tr003', 'Fake Track 3', al003, [artist_only_theirs], is_playable=False)
     tr004 = create_track('Tr004', 'Fake Track 4', al004, [artist_only_theirs])
     
     tr005 = create_track('Tr005', 'Fake Track 5', al005, [artist_followed])

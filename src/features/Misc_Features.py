@@ -30,15 +30,15 @@ from datetime import datetime
 from collections import defaultdict
 
 import src.General_Spotify_Helpers as gsh
-from src.helpers.decorators import *
+
 from src.helpers.Database_Helpers import DatabaseHelpers
-from src.helpers.Settings import Settings
+from src.helpers.decorators       import *
+from src.helpers.Settings         import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MiscFeatures(LogAllMethods):
-        
     def __init__(self, spotify, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
@@ -48,6 +48,7 @@ class MiscFeatures(LogAllMethods):
     INPUT: playlist_id - Id of playlist we will grab artist_id from.
     OUTPUT: Str of the first artist of the first non macro track.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    @gsh.scopes(["playlist-read-private"])
     def get_first_artist_from_playlist(self, playlist_id: str) -> str:
         playlist_tracks = self.spotify.get_playlist_tracks(playlist_id, artist_info=['id', 'name'])
         return [track for track in playlist_tracks if track['id'] not in Settings.MACRO_LIST][0]['artists'][0]['id']
@@ -62,12 +63,14 @@ class MiscFeatures(LogAllMethods):
            logger - Logger object used.
     OUTPUT: Str of playlist_id created.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    @gsh.scopes(["playlist-modify-public"
+                 , "playlist-modify-private"])
     def generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
                 start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
         playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
         self.logger.info(f"Created New Playlist: {playlist_id}")
-        
         tracks = []
+        
         for artist_id in artist_id_list:
             self.logger.info(f"finding tracks for {artist_id}")
             tmp_tracks = self.spotify.gather_tracks_by_artist(artist_id, 
@@ -85,8 +88,11 @@ class MiscFeatures(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Distributes tracks from given playlist into their respective 'good', 'year', and 'artist' playlists.
     INPUT: playlist_id - Id of playlist we will grab tracks from to distribute to our collections.
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    @gsh.scopes(["playlist-modify-public"
+                 , "playlist-modify-private"
+                 , "playlist-read-private"])
     def distribute_tracks_to_collections_from_playlist(self, playlist_id: str) -> None:
         user_playlists = self.spotify.get_user_playlists(info=['id', 'name'])
         good_playlist = None
@@ -152,8 +158,11 @@ class MiscFeatures(LogAllMethods):
                  at the bottom so we never mess with deleting tracks. The tracks are ordered by release date and then
                  ordered by album/ disc number/ track number.
     INPUT: playlist_id - Id of playlist we are going to "reorganize".
-    OUTPUT: NA
+    OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    @gsh.scopes(["playlist-modify-public"
+                 , "playlist-modify-private" 
+                 , "playlist-read-private"])
     def reorganize_playlist(self, playlist_id):
         tracks = self.spotify.get_playlist_tracks(playlist_id, 
                                                 track_info=['id', 'name', 'disc_number', 'track_number', 'is_local'],
@@ -187,7 +196,7 @@ class MiscFeatures(LogAllMethods):
             
         self.logger.info(f"Organized {len(track_ids_ordered)} Tracks, {tracks}")
         if len(track_ids_ordered) != len(tracks):
-            raise exception("TRACK LIST MISMATCH IN DISTRIBUTION")
+            raise Exception("TRACK LIST MISMATCH IN DISTRIBUTION")
             
         # Remove any MACROS present in list
         for macro in Settings.MACRO_LIST:
@@ -201,9 +210,14 @@ class MiscFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs the latest 'PLAYLIST_LENGTH' tracks from 'SOURCE_PLAYLIST' and adds them to our 'DEST_PLAYLIST'
                  playlist after emptying it.
-    INPUT: NA
-    OUTPUT: NA
+    INPUT: N/A
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["playlist-read-private"
+                 , "playlist-read-collaborative"
+                 , "playlist-modify-public"
+                 , "playlist-modify-private"
+                 , Settings.DELETE_SCOPE])
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
         offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \

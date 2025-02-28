@@ -20,18 +20,18 @@
 #               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
 #               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import os
 import logging
 import random
 import sqlite3
 
 from datetime import datetime
-from enum import unique, Enum
-from glob import glob
+from enum     import unique, Enum
+
+import src.General_Spotify_Helpers as gsh
 
 from src.helpers.Database_Helpers import DatabaseHelpers
-from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.decorators       import *
+from src.helpers.Settings         import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Enum to define our different shuffle styles for playlists.
@@ -45,11 +45,9 @@ class ShuffleType(Enum):
 DESCRIPTION: Feature class that implements various shuffle methodologies. Currently works only on full playlists.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class Shuffler(LogAllMethods):
-    FEATURE_SCOPES = ["user-modify-playback-state"]
 
     def __init__(self, spotify, tcdb_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
-        self.spotify.scopes = self.FEATURE_SCOPES
         self.logger = logger if logger is not None else logging.getLogger()
         self.dbh = DatabaseHelpers(logger=self.logger)
         self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
@@ -115,8 +113,9 @@ class Shuffler(LogAllMethods):
                  it then adds those now 'shuffled' tracks to the user's queue.
     INPUT: playlist_id - Id of the playlist we will be grabbing the tracks from.
            shuffle_type - Specific shuffle type we will be applying to the tracks from 'playlist_id'.
-    OUTPUT: NA
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-modify-playback-state"])
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         self.logger.info(f"Shuffle Type: {shuffle_type}, Playlist: {playlist_id}")
         track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 

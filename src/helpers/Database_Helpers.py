@@ -25,7 +25,7 @@ import sqlite3
 from glob import glob
 
 from src.helpers.decorators import *
-from src.helpers.Settings import Settings
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of methods similar to GSH that grab from our latest local backup rather than spotify itself.
@@ -81,7 +81,7 @@ class DatabaseHelpers(LogAllMethods):
    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all of the playlists in our db.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of playlist dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""" 
     def db_get_user_playlists(self) -> list[dict]:
@@ -93,7 +93,7 @@ class DatabaseHelpers(LogAllMethods):
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all of our followed artists from our db.
-    INPUT: NA
+    INPUT: N/A
     OUTPUT: List of artist dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""" 
     def db_get_user_followed_artists(self) -> list[dict]:
