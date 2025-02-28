@@ -23,9 +23,10 @@ DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
 class TestShuffler(unittest.TestCase):
     
     @mock.patch('src.features.Shuffle_Styles.Settings', Test_Settings)
-    @mock.patch('src.features.Shuffle_Styles.DatabaseHelpers')
-    def setUp(self, MockDatabaseHelpers):
-        self.MockDatabaseHelpers = MockDatabaseHelpers
+    def setUp(self):
+        patch_db = mock.patch('src.features.Shuffle_Styles.DatabaseHelpers')
+        self.MockDatabaseHelpers = patch_db.start()
+        self.addCleanup(patch_db.stop)
         self.mock_spotify = mock.MagicMock()
         self.shuffler = Shuffler(self.mock_spotify)
 
