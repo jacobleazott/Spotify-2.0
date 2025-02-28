@@ -438,10 +438,14 @@ class TestGSH(unittest.TestCase):
         spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
-        # Adding Duplicate Tracks
+        # Adding Duplicate Tracks Already In Playlist
         spotify.add_unique_tracks_to_playlist("Pl001", ["Tr001", "Tr002", "Tr004"])
         tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
         self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004"])
+        # Adding Duplicate Tracks Not Already In Playlist
+        spotify.add_unique_tracks_to_playlist("Pl001", ["Tr005", "Tr005", "Tr006"])
+        tracks = [track['id'] for track in spotify.get_playlist_tracks("Pl001")]
+        self.assertEqual(tracks, ["Tr001", "Tr002", "Tr004", "Tr005", "Tr006"])
 
     def test_get_playlist_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()

@@ -119,9 +119,7 @@ class TestMiscFeatures(unittest.TestCase):
         self.assertEqual(playlist_id, 'test_playlist_id')
         
         # Test No Artists
-        self.mock_spotify.create_playlist.reset_mock()
-        self.mock_spotify.gather_tracks_by_artist.reset_mock()
-        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        self.mock_spotify.reset_mock()
         self.mock_spotify.create_playlist.assert_not_called()
         self.mock_spotify.gather_tracks_by_artist.assert_not_called()
         self.mock_spotify.add_tracks_to_playlist.assert_not_called()
@@ -172,6 +170,10 @@ class TestMiscFeatures(unittest.TestCase):
             , 'playlist_id_6': [{'id': Test_Settings.DISTRIBUTE_TRACKS_MACRO_ID, 'name': 'Macro Track'
                                  , 'artists': [{'id': 'artist_1', 'name': 'Artist One'}]}
                                 , {'id': 'track_3', 'name': 'Track Three', 'artists': [{'id': 'artist_3', 'name': 'Artist Three'}]}]
+            # Test Track With Multiple Artists
+            , 'playlist_id_7': [{'id': 'track_10', 'name': 'Macro Track', 'artists': [{'id': 'artist_1', 'name': 'Artist One'}
+                                                                                      , {'id': 'artist_2', 'name': 'Artist Two'}
+                                                                                      , {'id': 'artist_3', 'name': 'Artist Three'}]}]
         }.get(playlist_id, [])
         
         # Test Playlist With No Tracks
@@ -250,6 +252,17 @@ class TestMiscFeatures(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(self.mock_spotify.add_unique_tracks_to_playlist.call_count, 3)
         self.mock_spotify.add_unique_tracks_to_playlist.reset_mock()
+        
+        # # Test Track With Multiple Artists
+        self.mFeatures.distribute_tracks_to_collections_from_playlist('playlist_id_7')
+        self.mock_spotify.add_unique_tracks_to_playlist.assert_has_calls([
+            mock.call(Test_Settings.MASTER_MIX_ID, ['track_10', 'track_10'])
+            , mock.call('years_playlist_id', ['track_10', 'track_10'])
+            , mock.call('artist_playlist_id_1', ['track_10'])
+            , mock.call('artist_playlist_id_3', ['track_10'])
+        ], any_order=True)
+        self.assertEqual(self.mock_spotify.add_unique_tracks_to_playlist.call_count, 4)
+        self.mock_spotify.add_unique_tracks_to_playlist.reset_mock()
 
         # Missing Years
         self.mock_spotify.get_user_playlists.return_value = [
@@ -274,28 +287,179 @@ class TestMiscFeatures(unittest.TestCase):
             self.mFeatures.distribute_tracks_to_collections_from_playlist('playlist_id_0')
     
     def test_reorganize_playlist(self):
-        # reorganize_playlist
-        # Mock get_playlist_tracks
-        # Make sure we skip local tracks
-        # Verify we add the tracks to the playlist in the correct order
-        # Figure out a way to somehow trigger the exception
-            # Mock sort to remove some data or something silly
-            
-        # To test our sorted method we will need to 
-        #   Test disc_number differences
-        #   Test track_number differences
-        #   Test album release_date differences
-        #      Need to test different Precisions, ie YYYY, YYYY-MM, YYYY-MM-DD
-        pass
-   
+        self.mock_spotify.get_playlist_tracks.side_effect = lambda playlist_id, track_info=None, album_info=None: {
+            # No Tracks
+            'playlist_id_0': []
+            # Test Single Track
+            , 'playlist_id_1': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
+            # Test Multiple Tracks With Same Album
+            , 'playlist_id_2': [{'id': 'track_2', 'name': 'Track Two', 'disc_number': 2, 'track_number': 4, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
+                                , {'id': 'track_3', 'name': 'Track Three', 'disc_number': 1, 'track_number': 8, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
+                                , {'id': 'track_4', 'name': 'Track Four', 'disc_number': 1, 'track_number': 3, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
+                                , {'id': 'track_5', 'name': 'Track Five', 'disc_number': 4, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_2', 'album_release_date': '2025-01-01', 'artists': []}
+                                , {'id': 'track_6', 'name': 'Track Six', 'disc_number': 1, 'track_number': 9, 'is_local': False
+                                 , 'album_id': 'album_2', 'album_release_date': '2023-01-01', 'artists': []}
+                                , {'id': 'track_7', 'name': 'Track Seven', 'disc_number': 100, 'track_number': 100, 'is_local': False
+                                 , 'album_id': 'album_3', 'album_release_date': '2024-01-01', 'artists': []}]
+            # Macro Tracks
+            , 'playlist_id_3': [{'id': Test_Settings.DISTRIBUTE_TRACKS_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
+                                , {'id': Test_Settings.GEN_ARTIST_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
+            # Local Tracks
+            , 'playlist_id_4': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': True
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
+                                , {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': True
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
+            # DIfferent Release Date Precision
+            , 'playlist_id_5': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
+                                , {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_2', 'album_release_date': '2020', 'artists': []}
+                                , {'id': 'track_3', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_3', 'album_release_date': '2020-01', 'artists': []}
+                                , {'id': 'track_4', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_4', 'album_release_date': '2020-01-02', 'artists': []}
+                                , {'id': 'track_5', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_5', 'album_release_date': '2021', 'artists': []}
+                                , {'id': 'track_6', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
+                                 , 'album_id': 'album_6', 'album_release_date': '2020-02', 'artists': []}]
+        }.get(playlist_id, [])
+        
+        # Test No Tracks
+        self.mFeatures.reorganize_playlist('playlist_id_0')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_0', [])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Single Track
+        self.mFeatures.reorganize_playlist('playlist_id_1')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_1', ['track_1'])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Multiple Tracks With Same Album
+        self.mFeatures.reorganize_playlist('playlist_id_2')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_2'
+             , ['track_6', 'track_5', 'track_7', 'track_4', 'track_3', 'track_2'])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Macro Tracks
+        self.mFeatures.reorganize_playlist('playlist_id_3')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_3', [])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Local Tracks
+        self.mFeatures.reorganize_playlist('playlist_id_4')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_4', [])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Different Release Date Precision
+        self.mFeatures.reorganize_playlist('playlist_id_5')
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with('playlist_id_5'
+             , ['track_2', 'track_3', 'track_1', 'track_4', 'track_6', 'track_5'])
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
+        
+        # Test Exception
+        with self.assertRaises(Exception):
+            with mock.patch('builtins.sorted', return_value=[{'id': 'track_1', 'album_release_date': '2020'}]) as mock_sorted:
+                self.mFeatures.reorganize_playlist('playlist_id_2')
+        self.mock_spotify.add_tracks_to_playlist.assert_not_called()
+        self.mock_spotify.add_tracks_to_playlist.reset_mock()
     
     def test_update_daily_latest_playlist(self):
-        # update_daily_latest_playlist
-        pass
-    
-    def test_generate_featured_artists_list(self):
-        # generate_featured_artists_list
-        pass
+        Test_Settings.LATEST_PLAYLIST_LENGTH = 2
+        self.mock_spotify.get_playlist_data.return_value = [5]
+        self.mock_spotify.remove_all_playlist_tracks.return_value = True
+        
+        # Test Normal
+        self.mock_spotify.get_playlist_tracks.return_value = [{'id': 'track_1'}, {'id': 'track_2'}]
+        self.mFeatures.update_daily_latest_playlist()
+        self.mock_spotify.get_playlist_data.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST
+                                                                    , info=[['tracks', 'total']])
+        self.mock_spotify.get_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST, offset=3)
+        self.mock_spotify.remove_all_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
+                                                                             , max_playlist_length=3)
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
+                                                                         , ['track_1', 'track_2'])
+        self.mock_spotify.reset_mock()
+        
+        # Test Empty Playlist
+        self.mock_spotify.get_playlist_data.return_value = [0]
+        self.mock_spotify.get_playlist_tracks.return_value = []
+        self.mFeatures.update_daily_latest_playlist()
+        self.mock_spotify.get_playlist_data.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST
+                                                                    , info=[['tracks', 'total']])
+        self.mock_spotify.get_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST, offset=0)
+        self.mock_spotify.remove_all_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
+                                                                             , max_playlist_length=3)
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST, [])
+        self.mock_spotify.reset_mock()
+        
+        # Test Not Enough Tracks
+        self.mock_spotify.get_playlist_tracks.return_value = [1]
+        self.mock_spotify.get_playlist_tracks.return_value = [{'id': 'track_1'}]
+        self.mFeatures.update_daily_latest_playlist()
+        self.mock_spotify.get_playlist_data.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST
+                                                                    , info=[['tracks', 'total']])
+        self.mock_spotify.get_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST, offset=0)
+        self.mock_spotify.remove_all_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
+                                                                             , max_playlist_length=3)
+        self.mock_spotify.add_tracks_to_playlist.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST, ['track_1'])
+        self.mock_spotify.reset_mock()
+        
+        # Test Removal Error
+        self.mock_spotify.remove_all_playlist_tracks.return_value = False
+        self.mFeatures.update_daily_latest_playlist()
+        self.mock_spotify.get_playlist_data.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST
+                                                                    , info=[['tracks', 'total']])
+        self.mock_spotify.get_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_SOURCE_PLAYLIST, offset=0)
+        self.mock_spotify.remove_all_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
+                                                                             , max_playlist_length=3)
+        self.mock_spotify.add_tracks_to_playlist.assert_not_called()
+        
+    @mock.patch('src.features.Misc_Features.DatabaseHelpers')
+    def test_generate_featured_artists_list(self, MockDBH):
+        mock_dbh = MockDBH.return_value
+        Test_Settings.PLAYLIST_IDS_NOT_IN_ARTISTS = ['playlist_id_1', 'playlist_id_2']
+        mock_dbh.db_get_user_followed_artists.return_value = [{'id': 'artist_1'}, {'id': 'artist_2'}]
+        
+        mock_dbh.db_get_tracks_from_playlist.side_effect = lambda playlist_id: {
+            Test_Settings.MASTER_MIX_ID: [{'id': 'track_1', 'name': 'Track One', 'is_local': False}
+                                          , {'id': 'track_2', 'name': 'Track Two', 'is_local': False}
+                                          , {'id': 'track_3', 'name': 'Track Three', 'is_local': False}
+                                          , {'id': 'track_4', 'name': 'Track Four', 'is_local': False}
+                                          , {'id': 'track_5', 'name': 'Track Five', 'is_local': False}
+                                          , {'id': 'track_6', 'name': 'Track Six', 'is_local': False}
+                                          , {'id': 'track_7', 'name': 'Track Seven', 'is_local': True}]
+            , 'playlist_id_1': [{'id': 'track_3'}]
+        }.get(playlist_id, [])
+        
+        mock_dbh.db_get_track_artists.side_effect = lambda track_id: {
+            'track_1': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_2', 'name': 'Artist Two'}]
+            , 'track_2': [{'id': 'artist_1', 'name': 'Artist One'}]
+            , 'track_3': [{'id': 'artist_3', 'name': 'Artist Three'}]
+            , 'track_4': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_3', 'name': 'Artist Three'}]
+            , 'track_5': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_4', 'name': 'Artist Four'}]
+            , 'track_6': [{'id': 'artist_2', 'name': 'Artist Two'}, {'id': 'artist_3', 'name': 'Artist Three'}]
+            , 'track_7': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_3', 'name': 'Artist Three'}]
+        }.get(track_id, [])
+
+        self.assertEqual(self.mFeatures.generate_featured_artists_list()
+                         , [('artist_3', ['Artist Three', 2, {('artist_1', 'Artist One'), ('artist_2', 'Artist Two')}
+                                         , ['Track Four', 'Track Six']])
+                            , ('artist_4', ['Artist Four', 1, {('artist_1', 'Artist One')}, ['Track Five']])])
+
+        mock_dbh.db_get_user_followed_artists.assert_called_once()
+        mock_dbh.db_get_tracks_from_playlist.assert_has_calls([
+            mock.call('playlist_id_1')
+            , mock.call('playlist_id_2')
+            , mock.call(Test_Settings.MASTER_MIX_ID)
+        ])
+        self.assertEqual(mock_dbh.db_get_tracks_from_playlist.call_count, 3)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
