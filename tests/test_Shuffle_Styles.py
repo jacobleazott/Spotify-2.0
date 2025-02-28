@@ -30,7 +30,7 @@ class TestShuffler(unittest.TestCase):
         )
         self.mocks = patcher.start()
         self.addCleanup(patcher.stop)
-
+        
         self.mock_spotify = mock.MagicMock()
         self.shuffler = Shuffler(self.mock_spotify)
 
