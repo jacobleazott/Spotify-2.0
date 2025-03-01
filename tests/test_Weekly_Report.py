@@ -60,15 +60,17 @@ class TestWeeklyReport(unittest.TestCase):
         mock_plt.subplots.return_value = (mock.MagicMock(), mock.MagicMock())
         
         self.weekly_report._gen_playback_graph()
-        mock_connect.assert_called_once_with(Settings.LISTENING_DB) # Test that database connection is made
-        mock_conn.execute.assert_called()                           # Test that data is retrieved from the database
-        mock_plt.subplots.assert_called_once()                      # Test that the plot is generated
+        # Test DB Conn Connection
+        mock_connect.assert_called_once_with(Settings.LISTENING_DB)
+        mock_conn.execute.assert_called()
+        mock_conn.close.assert_called_once()
+        # Test Plot Creation
+        mock_plt.subplots.assert_called_once()
         mock_plt.bar.assert_called_once()
         mock_plt.ylabel.assert_called_once()
         mock_plt.title.assert_called_once()
         mock_plt.title.plot()
         mock_plt.savefig.assert_called_once_with(self.weekly_report.LISTENING_DATA_PLOT_FILEPATH)
-        mock_connect.return_value.close.assert_called_once()       # Test that the database connection is closed
     
     def test_gen_average_for_past_month(self):
         listening_conn = mock.Mock()
