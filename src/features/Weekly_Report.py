@@ -35,7 +35,7 @@ from src.helpers.Settings   import Settings
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class WeeklyReport(LogAllMethods):
-    db_conn = None
+    LISTENING_DATA_PLOT_FILEPATH = 'logs/listening_data_plot.png'
     
     def __init__(self, sanity_tester, logger=None):
         self.sanity_tester = sanity_tester
@@ -48,7 +48,7 @@ class WeeklyReport(LogAllMethods):
            body - Str html body of the email.
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def send_email(self, subject, body):
+    def _send_email(self, subject, body):
         msgRoot = MIMEMultipart('related')
         msgRoot['Subject'] = subject
         msgRoot['From'] = Settings.SENDER_EMAIL
@@ -57,17 +57,18 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msgAlternative)
         msgText = MIMEText(body, 'html')
         msgAlternative.attach(msgText)
-        
-        # Add images
-        fp = open("logs/listening_data_plot.png", "rb")
-        msgImage = MIMEImage(fp.read())
-        fp.close()
-        
-        msgImage.add_header('Content-ID', '<listening_data_plot>')
-        msgRoot.attach(msgImage)
+
+        with open(self.LISTENING_DATA_PLOT_FILEPATH, 'rb') as image_file:
+            image_data = image_file.read()
+
+        msg_image = MIMEImage(image_data, name=os.path.basename(self.LISTENING_DATA_PLOT_FILEPATH))
+        msg_image.add_header('Content-ID', f'<{os.path.basename(self.LISTENING_DATA_PLOT_FILEPATH)}>')
+        msgRoot.attach(msg_image)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+            print("Calling logiN")
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
+            print("login")
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
             
             
@@ -76,13 +77,14 @@ class WeeklyReport(LogAllMethods):
     INPUT: N/A
     OUTPUT: Saves off a listening_data_plot.png file for use later.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def gen_playback_graph(self):
+    def _gen_playback_graph(self):
         conn = sqlite3.connect(Settings.LISTENING_DB)
         values = []
 
         for diff_day in range(0, 7):
             # Since we run on Monday AM, we want prev Sun to this past Sat
             date = datetime.today() - timedelta(days=8-diff_day)
+            print("connection execute")
             db_res = conn.execute(f"""SELECT * FROM '{date.year}'
                                   WHERE time >= ?
                                   AND time < ?;"""
@@ -104,11 +106,11 @@ class WeeklyReport(LogAllMethods):
         f"{(datetime.today() - timedelta(days=2)).strftime('%b %d %Y')}")
         
         # Add previous month of listening data
-        average = self.gen_average_for_past_month(conn, 28)
+        average = self._gen_average_for_past_month(conn, 28)
         plt.plot(average, color='black')
 
         conn.close()
-        plt.savefig('logs/listening_data_plot.png') 
+        plt.savefig(self.LISTENING_DATA_PLOT_FILEPATH) 
         
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -118,7 +120,7 @@ class WeeklyReport(LogAllMethods):
            days_back - Number of days to go back for average.
     OUTPUT: list of average hours listened to by 0 Monday - 6 Sunday.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def gen_average_for_past_month(self, listening_conn, days_back):
+    def _gen_average_for_past_month(self, listening_conn, days_back):
         start = datetime.today() - timedelta(days=days_back)
         days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
         for delta in range((datetime.today() - start).days+1):
@@ -128,19 +130,11 @@ class WeeklyReport(LogAllMethods):
                                 AND time < ?;""",
                                 (f"{result_date} 00:00:00", f"{result_date} 23:59:59")).fetchall()
             
-            if len(tmp_vals) > 100: # Basically just > 25 mins total
+            if len(tmp_vals) >= 100: # Basically just > 25 mins total
                 index = (result_date.weekday() + 1) % 7
                 days[index] = [len(tmp_vals)*15 + days[index][0], days[index][1] + 1]
         
-        res_avg = []
-        for day in days:
-            res_avg.append((day[0]/3600)/day[1])
-        
-        # Probably don't need this since we hardcode the len of array but just to be safe
-        if len(res_avg) != 7:
-            res_avg = [0, 0, 0, 0, 0, 0, 0]
-        
-        return res_avg
+        return [(day[0]/3600)/day[1] if day[1] != 0 else 0 for day in days]
 
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -149,7 +143,7 @@ class WeeklyReport(LogAllMethods):
            default - Str we should return if nothing was in the values.
     OUTPUT: Html formatted str of 'values'
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def gen_html_header_list(self, values, default):
+    def _gen_html_header_list(self, values, default):
         html_str = ""
 
         for val in values:
@@ -169,7 +163,7 @@ class WeeklyReport(LogAllMethods):
            default - Str we should return if nothing was in the values.
     OUTPUT: Html formatted str of 'values'
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def gen_html_unordered_list(self, values, default):
+    def _gen_html_unordered_list(self, values, default):
         html_str = "\n<ul>\n"
         
         for val in values:
@@ -182,20 +176,20 @@ class WeeklyReport(LogAllMethods):
         return html_str
 
     def gen_weekly_report(self):
-        st_diffs = self.gen_html_header_list(self.sanity_tester.sanity_diffs_in_major_playlist_sets(), 
+        st_diffs = self._gen_html_header_list(self.sanity_tester.sanity_diffs_in_major_playlist_sets(), 
                                             "No Differences Detected For Master, Years, and '__' Good Job!")
-        st_prog = self.gen_html_unordered_list(self.sanity_tester.sanity_in_progress_artists(), 
+        st_prog = self._gen_html_unordered_list(self.sanity_tester.sanity_in_progress_artists(), 
                                             "No In Progress Artists Detected, Get Back To Work.")
-        st_dupe = self.gen_html_header_list(self.sanity_tester.sanity_duplicates(), 
+        st_dupe = self._gen_html_header_list(self.sanity_tester.sanity_duplicates(), 
                                             "No Duplicates Detected Good Job!")
-        st_integ = self.gen_html_unordered_list(self.sanity_tester.sanity_artist_playlist_integrity(), 
+        st_integ = self._gen_html_unordered_list(self.sanity_tester.sanity_artist_playlist_integrity(), 
                                             "No Issues Detected In Artist Integrity Good Job!")
-        st_contr = self.gen_html_unordered_list(self.sanity_tester.sanity_contributing_artists(), 
+        st_contr = self._gen_html_unordered_list(self.sanity_tester.sanity_contributing_artists(), 
                                             "No Missing Tracks From Contributing Artists Good Job!")
-        st_play = self.gen_html_unordered_list(self.sanity_tester.sanity_playable_tracks(), 
+        st_play = self._gen_html_unordered_list(self.sanity_tester.sanity_playable_tracks(), 
                                             "All Tracks Are Playable, Great!")
         
-        self.gen_playback_graph()
+        self._gen_playback_graph()
         
         body = f"""
         <html>
@@ -219,7 +213,7 @@ class WeeklyReport(LogAllMethods):
         """
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
         
-        self.send_email(subject, body)
+        self._send_email(subject, body)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
