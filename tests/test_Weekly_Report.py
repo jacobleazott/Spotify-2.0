@@ -72,12 +72,15 @@ class TestWeeklyReport(unittest.TestCase):
         mock_plt.title.plot()
         mock_plt.savefig.assert_called_once_with(self.weekly_report.LISTENING_DATA_PLOT_FILEPATH)
     
-    def test_gen_average_for_past_month(self):
+    @mock.patch('src.features.Weekly_Report.datetime')
+    def test_gen_average_for_past_month(self, mock_datetime):
         listening_conn = mock.Mock()
+        # Set To A Saturday 
+        mock_datetime.today.return_value = datetime(2025, 1, 5)
         
         # Test One Week
         listening_conn.execute.return_value = mock.Mock(fetchall=mock.Mock(return_value=[1] * 200))
-        days_back = 6
+        days_back = 7
         expected_output = [200 * 15 / 3600] * 7
         self.assertEqual(self.weekly_report._gen_average_for_past_month(listening_conn, days_back), expected_output)
         
@@ -91,17 +94,17 @@ class TestWeeklyReport(unittest.TestCase):
             [1] * 100, [1] * 100, [1] * 100, [1] * 100, [1] * 100, [1] * 100, [1] * 100, 
             [1] * 200, [1] * 300, [1] * 400, [1] * 500, [1] * 600, [1] * 700, [1] * 800
         ]
-        days_back = 13
-        expected_output = [400 * 15 / 3600 / 2, 500 * 15 / 3600 / 2, 600 * 15 / 3600 / 2, 700 * 15 / 3600 / 2
-                           , 800 * 15 / 3600 / 2, 900 * 15 / 3600 / 2, 300 * 15 / 3600 / 2]
+        days_back = 14
+        expected_output = [300 * 15 / 3600 / 2, 400 * 15 / 3600 / 2, 500 * 15 / 3600 / 2, 600 * 15 / 3600 / 2
+                           , 700 * 15 / 3600 / 2, 800 * 15 / 3600 / 2, 900 * 15 / 3600 / 2]
         self.assertEqual(self.weekly_report._gen_average_for_past_month(listening_conn, days_back), expected_output)
-        
+
         # Test Incomplete Averaging
         listening_conn.execute.return_value.fetchall.side_effect = [
             [1] * 99, [1] * 50, [1] * 100, [1] * 100, [1] * 100, [1] * 100, [1] * 1
         ]
-        days_back = 6
-        expected_output = [0, 100 * 15 / 3600, 100 * 15 / 3600, 100 * 15 / 3600, 100 * 15 / 3600, 0, 0]
+        days_back = 7
+        expected_output = [0, 0, 100 * 15 / 3600, 100 * 15 / 3600, 100 * 15 / 3600, 100 * 15 / 3600, 0]
         self.assertEqual(self.weekly_report._gen_average_for_past_month(listening_conn, days_back), expected_output)
         
         # Test Missing Data

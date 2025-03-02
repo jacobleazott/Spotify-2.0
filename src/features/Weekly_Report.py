@@ -66,9 +66,7 @@ class WeeklyReport(LogAllMethods):
         msgRoot.attach(msg_image)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            print("Calling logiN")
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
-            print("login")
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
             
             
@@ -84,7 +82,6 @@ class WeeklyReport(LogAllMethods):
         for diff_day in range(0, 7):
             # Since we run on Monday AM, we want prev Sun to this past Sat
             date = datetime.today() - timedelta(days=8-diff_day)
-            print("connection execute")
             db_res = conn.execute(f"""SELECT * FROM '{date.year}'
                                   WHERE time >= ?
                                   AND time < ?;"""
@@ -123,7 +120,7 @@ class WeeklyReport(LogAllMethods):
     def _gen_average_for_past_month(self, listening_conn, days_back):
         start = datetime.today() - timedelta(days=days_back)
         days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
-        for delta in range((datetime.today() - start).days+1):
+        for delta in range((datetime.today() - start).days):
             result_date = (start + timedelta(days=delta)).date()
             tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}'
                                 WHERE time >= ?
