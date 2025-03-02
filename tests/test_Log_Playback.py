@@ -8,6 +8,7 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Log_Playback.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import logging
 import unittest
 
 from datetime import datetime, timedelta
@@ -16,12 +17,57 @@ from unittest import mock
 import tests.helpers.api_response_test_messages as artm
 
 from src.features.Log_Playback     import LogPlayback
+from src.helpers.Settings          import Settings
 from tests.helpers.mocked_Settings import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Log Playback functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestLogPlayback(unittest.TestCase):
+    
+    def test_init(self):
+        log_playback = LogPlayback()
+        self.assertIsNone(log_playback.ldb_conn)
+        self.assertIsNone(log_playback.tcdb_conn)
+        self.assertEqual(log_playback.ldb_path, Settings.LISTENING_DB)
+        self.assertEqual(log_playback.tcdb_path, Settings.TRACK_COUNTS_DB)
+        log_playback.close()
+        
+        log_playback = LogPlayback(ldb_path="/test/path/1", tcdb_path="/test/path/2")
+        self.assertEqual(log_playback.ldb_path, "/test/path/1")
+        self.assertEqual(log_playback.tcdb_path, "/test/path/2")
+        self.assertIsNone(log_playback.ldb_conn)
+        self.assertIsNone(log_playback.tcdb_conn)
+        log_playback.close()
+    
+    def test_logger_default(self):
+        log_playback = LogPlayback()
+        self.assertEqual(log_playback.logger, logging.getLogger())
+
+    def test_logger_custom(self):
+        custom_logger = logging.getLogger('custom_logger')
+        log_playback = LogPlayback(logger=custom_logger)
+        self.assertEqual(log_playback.logger, custom_logger)
+    
+    def test_exit(self):
+        log_playback = LogPlayback()
+        mock_ldb_conn = mock.MagicMock()
+        mock_tcdb_conn = mock.MagicMock()
+        log_playback.ldb_conn = mock_ldb_conn
+        log_playback.tcdb_conn = mock_tcdb_conn
+        log_playback.close()
+        mock_ldb_conn.close.assert_called_once()
+        mock_tcdb_conn.close.assert_called_once()
+        self.assertIsNone(log_playback.ldb_conn)
+        self.assertIsNone(log_playback.tcdb_conn)
+    
+    def test_close_when_no_connection(self):
+        log_playback = LogPlayback()
+        log_playback.ldb_conn = None
+        log_playback.tcdb_conn = None
+        log_playback.close()
+        self.assertIsNone(log_playback.ldb_conn)
+        self.assertIsNone(log_playback.tcdb_conn)
     
     def test_increment_play_count_db(self):
         log_playback = LogPlayback(tcdb_path=":memory:")

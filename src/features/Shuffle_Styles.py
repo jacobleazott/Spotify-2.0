@@ -20,6 +20,7 @@
 #               listens). It then 'randomizes' each 'group' of tracks ie. tracks with 1 listen in 1 group, 2 listens
 #               in another and so on. This way no track with say 3 listens ends up in the queue before one with 2.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import atexit
 import logging
 import random
 import sqlite3
@@ -52,10 +53,12 @@ class Shuffler(LogAllMethods):
         self.dbh = DatabaseHelpers(logger=self.logger)
         self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
         self.tcdb_conn = None
+        atexit.register(self.close)
         
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         if self.tcdb_conn:
             self.tcdb_conn.close()
+            self.tcdb_conn = None
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
@@ -66,7 +69,11 @@ class Shuffler(LogAllMethods):
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
         if not self.tcdb_conn:
             self.tcdb_conn = sqlite3.connect(self.tcdb_path)
-            
+        
+        self.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
+                                     track_id TEXT PRIMARY KEY,
+                                     play_count INTEGER NOT NULL);''')
+        
         track_count_data = []
         with self.tcdb_conn:
             # Grab all the track_counts for our track_ids, we default to 0 listens if we don't find it

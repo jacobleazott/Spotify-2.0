@@ -1,7 +1,7 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS - SPOTIFY FEATURES            CREATED: 2024-02-16          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - SPOTIFY FEATURES            CREATED: 2025-02-16          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
@@ -64,6 +64,13 @@ class TestSpotifyFeatures(unittest.TestCase):
         self.mock_misc_features.generate_artist_release.assert_called_once_with(['Ar002']
                                                                                 , 'Fake Artist 2 GO THROUGH'
                                                                                 , mock.ANY)
+        
+        self.mock_misc_features.get_first_artist_from_playlist.reset_mock()
+        self.mock_misc_features.generate_artist_release.reset_mock()
+        self.mock_misc_features.get_first_artist_from_playlist.return_value = None
+        self.spotify_features.generate_artist_playlist_from_playlist('Pl002')
+        self.mock_misc_features.get_first_artist_from_playlist.assert_called_once_with('Pl002')
+        self.mock_misc_features.generate_artist_release.assert_not_called()
     
     def test_generate_monthly_release(self):
         thelp.create_env(self.spotify_features.spotify)

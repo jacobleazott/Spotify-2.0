@@ -50,8 +50,13 @@ class MiscFeatures(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-read-private"])
     def get_first_artist_from_playlist(self, playlist_id: str) -> str:
-        playlist_tracks = self.spotify.get_playlist_tracks(playlist_id, artist_info=['id', 'name'])
-        return [track for track in playlist_tracks if track['id'] not in Settings.MACRO_LIST][0]['artists'][0]['id']
+        tracks = [track for track in self.spotify.get_playlist_tracks(playlist_id) 
+                  if track['id'] not in Settings.MACRO_LIST]
+        
+        if len(tracks) == 0 or 'artists' not in tracks[0] or len(tracks[0]['artists']) == 0:
+            return None
+        else:
+            return tracks[0]['artists'][0]['id']
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generates a new playlist of released tracks within the given date range for the given artists.
@@ -67,6 +72,10 @@ class MiscFeatures(LogAllMethods):
                  , "playlist-modify-private"])
     def generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
                 start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
+        
+        if len(artist_id_list) == 0:
+            return None
+        
         playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
         self.logger.info(f"Created New Playlist: {playlist_id}")
         tracks = []
@@ -118,6 +127,7 @@ class MiscFeatures(LogAllMethods):
         
         tracks_to_distribute = self.spotify.get_playlist_tracks(playlist_id, track_info=['id', 'name'], 
                                                                 artist_info=['id', 'name'])
+        tracks_to_distribute = [track for track in tracks_to_distribute if track['id'] not in Settings.MACRO_LIST]
         
         self.logger.info(f"Found {len(tracks_to_distribute)} Tracks")
         self.logger.debug(f"Tracks: {tracks_to_distribute}")
@@ -125,14 +135,14 @@ class MiscFeatures(LogAllMethods):
         # Add all tracks we need to distribute to their respective artist track holder
         for track in tracks_to_distribute:
             self.logger.info(f"Track - {track['name']}, {track['id']}")
-            verified = False
+            artist_found = False
             for playlist_artist in artist_playlists:
                 for track_artist in track['artists']:
-                    if track_artist['name'] == playlist_artist['name'][2:]:
+                    if track_artist['name'] == playlist_artist['name'][2:] and track_artist['id'] is not None:
                         playlist_artist['tracks'].append(track['id'])
-                        verified = True
+                        artist_found = True
                         self.logger.info(f"\t\tArtist: {track_artist['name']}, {track_artist['id']}")
-            if not verified:
+            if not artist_found:
                 self.logger.error("NO CONTRIBUTING ARTIST FOUND")
                         
         # Distribute all the track holders to their respective artist
@@ -168,14 +178,14 @@ class MiscFeatures(LogAllMethods):
                                                 track_info=['id', 'name', 'disc_number', 'track_number', 'is_local'],
                                                 album_info=['release_date', 'id'])
         
+        tracks = [track for track in tracks if track['id'] not in Settings.MACRO_LIST and not track['is_local']]
         self.logger.info(f"Found {len(tracks)} Tracks To Distribute. Tracks Unorganized: {tracks}")
 
         album_sorted_dict = {}
         for track in tracks:
             del track['artists']
-            if track['is_local']:
-                continue
-            elif track['album_id'] not in album_sorted_dict:
+
+            if track['album_id'] not in album_sorted_dict:
                 album_sorted_dict[track['album_id']] = []
             album_sorted_dict[track['album_id']].append(track)
             
@@ -186,24 +196,13 @@ class MiscFeatures(LogAllMethods):
             album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], 
                                             [track['id'] for track in tmp_tracks]))
 
-        # Order collection by release date
+        # Order collection by release date and collapse into one list
         album_track_sorted_list.sort()
+        track_ids_ordered = [track_id for _, track_ids in album_track_sorted_list for track_id in track_ids]
         
-        # Collapse it all into just a list of id's
-        track_ids_ordered = []
-        for album in album_track_sorted_list:
-            track_ids_ordered += album[1]
-            
         self.logger.info(f"Organized {len(track_ids_ordered)} Tracks, {tracks}")
         if len(track_ids_ordered) != len(tracks):
             raise Exception("TRACK LIST MISMATCH IN DISTRIBUTION")
-            
-        # Remove any MACROS present in list
-        for macro in Settings.MACRO_LIST:
-            try:
-                track_ids_ordered.remove(macro)
-            except ValueError:
-                pass
         
         self.spotify.add_tracks_to_playlist(playlist_id, track_ids_ordered)
         
@@ -220,8 +219,8 @@ class MiscFeatures(LogAllMethods):
                  , Settings.DELETE_SCOPE])
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
-        offset = self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
-                    - Settings.LATEST_PLAYLIST_LENGTH
+        offset = max(self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
+                    - Settings.LATEST_PLAYLIST_LENGTH, 0)
         tracks = [track['id'] for track in self.spotify.get_playlist_tracks(Settings.LATEST_SOURCE_PLAYLIST, 
                                                                              offset=offset)]
         
@@ -242,18 +241,18 @@ class MiscFeatures(LogAllMethods):
         tracks_to_ignore = set()
         dbh = DatabaseHelpers(logger=self.logger)
         artist_ids = {artist['id'] for artist in dbh.db_get_user_followed_artists()}
-        playlist_tracks = dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID)
-
+        
         for ignored_artist in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS:
             tracks_to_ignore.update(track['id'] for track in dbh.db_get_tracks_from_playlist(ignored_artist))
+        
+        playlist_tracks = [track for track in dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID) 
+                            if track['id'] not in tracks_to_ignore and not track['is_local']]
 
         # (artist_name, num_tracks, unique_artists, track_names)
         artist_data = defaultdict(lambda: ["", 0, set(), []])  
 
         for track in playlist_tracks:
             tmp_following_artists, tmp_new_artists = [], []
-            if track['id'] in tracks_to_ignore or track['is_local']:
-                continue
 
             for artist in dbh.db_get_track_artists(track['id']):
                 if artist['id'] in artist_ids:
