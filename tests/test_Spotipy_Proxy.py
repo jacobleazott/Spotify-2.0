@@ -1,12 +1,12 @@
 # ╔════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦════╗
 # ║  ╔═╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═╗  ║
 # ╠══╣                                                                                                             ╠══╣
-# ║  ║    UNIT TESTS - SPOTIPY PROXY            CREATED: 2025-02-16          https://github.com/jacobleazott    ║  ║
+# ║  ║    UNIT TESTS - SPOTIPY PROXY            CREATED: 2025-03-02          https://github.com/jacobleazott    ║  ║
 # ║══║                                                                                                             ║══║
 # ║  ╚═╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═══════╦══════╦══════╦══════╦══════╦══════╦══════╦══════╦═╝  ║
 # ╚════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩═══════╩══════╩══════╩══════╩══════╩══════╩══════╩══════╩════╝
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
-# Unit tests for all functionality out of 'Spotify_Features.py'.
+# Unit tests for all functionality out of 'Spotipy_Proxy.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import unittest
@@ -17,10 +17,10 @@ from src.proxy.Spotipy_Proxy        import SpotipyProxy
 from tests.helpers.mocked_Settings  import Test_Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all Spotify Features functionality.
+DESCRIPTION: Unit test collection for all Spotipy Proxy functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 @mock.patch('src.proxy.Spotipy_Proxy.Settings', Test_Settings)
-class TestSpotifyFeatures(unittest.TestCase):
+class TestSpotipyProxy(unittest.TestCase):
     
     def test_init(self):
         test_defaults_spotipy_proxy = SpotipyProxy()
@@ -61,7 +61,7 @@ class TestSpotifyFeatures(unittest.TestCase):
             spotipy_proxy.test1()
         self.assertEqual(mock_requests_post.call_count, 3)
         mock_requests_post.reset_mock()
-        
+
         # Test 500 Response Then 200
         mock_response_1 = mock.Mock(status_code=500)
         mock_response_1.json.return_value = {"result": "test2"}
