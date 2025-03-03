@@ -47,7 +47,7 @@ class SpotifyServer():
         
         self.stop_event = threading.Event()
         threading.Thread(target=self.token_refresh_thread, daemon=True).start()
-        self.app.run(host="0.0.0.0", port=5000)
+        self.app.run(host="127.0.0.1", port=Settings.PROXY_SERVER_PORT)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Sets up the 'routing' for our proxy server so any 'method' call goes to our spotipy instance and 

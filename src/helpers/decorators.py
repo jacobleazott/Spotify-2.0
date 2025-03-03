@@ -77,10 +77,10 @@ def log_func(_func=None):
                 result = func(*args, **kwargs)
                 return result
             except requests.exceptions.ConnectionError as e:
-                logger.error("Failed to establish connection to proxy server: %s", e)
+                logger.error(f"Failed to establish connection to proxy server: {e}")
                 raise requests.exceptions.ConnectionError("Connection to proxy server failed")
             except requests.exceptions.RequestException as e:
-                logger.error("Request to Spotify API failed: %s", e)
+                logger.error(f"Request to Spotify API failed: {e}")
                 raise requests.exceptions.RequestException("Request to Spotify API failed")
             except Exception as e:
                 logger.error(f"Exception raised in {func.__name__}. exception: {str(e)}", exc_info=True)
