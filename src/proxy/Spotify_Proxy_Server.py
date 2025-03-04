@@ -104,10 +104,10 @@ class SpotifyServer():
                     sleep_time = 2 ** attempt + random.uniform(0, 0.5)
                     self.logger.warning(f"Retrying in {sleep_time:.2f} seconds...")
                     time.sleep(sleep_time)
-                    
+        
         self.logger.critical("Token refresh failed after maximum retries.")
         return False
-
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Thread method that refreshes the token when it is about to expire. 
     INPUT: N/A
@@ -116,7 +116,7 @@ class SpotifyServer():
     def _token_refresh_thread(self):
         while not self.stop_event.is_set():
             token_info = self.auth_manager.get_cached_token()
-
+            
             if not token_info or 'expires_at' not in token_info:
                 self.logger.error("No valid cached token found.")
                 self._initialize_spotipy()
@@ -124,13 +124,13 @@ class SpotifyServer():
                 continue
             
             expires_in = token_info['expires_at'] - time.time()
-
+            
             if expires_in <= 660:
                 self.logger.warning(f"Token expires in {expires_in / 60:.1f} minutes! Refreshing.")
-                success = self.refresh_token()
+                success = self._refresh_token()
                 if not success:
                     self._initialize_spotipy()
-
+            
             sleep_time = max(self.auth_manager.get_cached_token()['expires_at'] - time.time() - 600, 60)
             self.logger.info(f"Next refresh in {sleep_time / 60:.1f} minutes.")
             self.stop_event.wait(sleep_time)
@@ -144,19 +144,19 @@ class SpotifyServer():
         payload = request.get_json(force=True)
         args = payload.get('args', [])
         kwargs = payload.get('kwargs', {})
-
+        
         try:
             method = getattr(self.sp, method_name)
             return jsonify({"result": method(*args, **kwargs)})
-
+        
         except AttributeError as error:
             self.logger.error(f"Invalid Spotipy method '{method_name}': {error}")
             return jsonify({"error": f"Invalid method '{method_name}': {error}"}), 400
-
+        
         except TypeError as error:
             self.logger.error(f"Argument error or non-callable method '{method_name}': {error}")
             return jsonify({"error": f"Incorrect arguments or non-callable method '{method_name}': {error}"}), 400
-
+        
         except Exception as error:
             self.logger.error(f"Unexpected error calling {method_name}: {error}")
             return jsonify({"error": str(error)}), 500
