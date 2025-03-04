@@ -32,5 +32,5 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          coverage run -m pytest tests "$@"
+          coverage run -m pytest --no-header tests "$@"
           coverage report --sort=Cover --skip-empty
