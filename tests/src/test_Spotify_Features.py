@@ -8,7 +8,6 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Spotify_Features.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
 import unittest
 from unittest import mock
 from datetime import datetime, timedelta

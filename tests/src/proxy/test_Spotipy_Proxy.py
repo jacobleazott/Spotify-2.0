@@ -12,7 +12,6 @@ import logging
 import unittest
 from unittest import mock
 
-from src.helpers.Settings           import Settings
 from src.proxy.Spotipy_Proxy        import SpotipyProxy
 from tests.helpers.mocked_Settings  import Test_Settings
 

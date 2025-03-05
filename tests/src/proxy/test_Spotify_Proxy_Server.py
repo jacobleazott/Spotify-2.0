@@ -10,10 +10,10 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import os
 import time
-import logging
 import unittest
+
 from unittest import mock
-from flask import Flask, request, jsonify
+from flask import Flask
 
 from src.helpers.Settings           import Settings
 from src.proxy.Spotify_Proxy_Server import SpotifyServer

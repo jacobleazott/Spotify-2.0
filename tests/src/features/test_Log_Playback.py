@@ -11,7 +11,7 @@
 import logging
 import unittest
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest import mock
 
 import tests.helpers.api_response_test_messages as artm
