@@ -191,6 +191,14 @@ class TestSpotifyFeatures(unittest.TestCase):
     def test_skip_track(self, MockChangePlayback):
         self.spotify_features.skip_track()
         MockChangePlayback.assert_called_once_with(skip="next")
+        
+    @mock.patch('src.General_Spotify_Helpers.GeneralSpotifyHelpers.change_playback')
+    def test_set_repeat_state(self, MockChangePlayback):
+        self.spotify_features.set_repeat_state('off')
+        MockChangePlayback.assert_called_once_with(repeat="off")
+        MockChangePlayback.reset_mock()
+        self.spotify_features.set_repeat_state('context')
+        MockChangePlayback.assert_called_once_with(repeat="context")
     
     @mock.patch('src.Spotify_Features.WeeklyReport')
     @mock.patch('src.Spotify_Features.SanityTest')

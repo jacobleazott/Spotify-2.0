@@ -36,7 +36,6 @@ class TestShuffler(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.shuffler.spotify, self.mock_spotify)
-        self.assertIsNone(self.shuffler.tcdb_conn)
         self.assertEqual(self.shuffler.tcdb_path, Test_Settings.TRACK_COUNTS_DB)
         self.mocks['DatabaseHelpers'].assert_called_once_with(logger=self.shuffler.logger)
         self.assertEqual(self.shuffler.logger, logging.getLogger())
@@ -45,24 +44,15 @@ class TestShuffler(unittest.TestCase):
         custom_logger = logging.getLogger('custom_logger')
         shuffler = Shuffler(self.mock_spotify, logger=custom_logger)
         self.assertEqual(shuffler.logger, custom_logger)
-    
-    def test_close(self):
-        self.shuffler.tcdb_conn = sqlite3.connect(":memory:")
-        self.shuffler.close()
-        self.assertIsNone(self.shuffler.tcdb_conn)
-        
-        self.shuffler = Shuffler(self.mock_spotify)
-        self.assertIsNone(self.shuffler.tcdb_conn)
-        self.shuffler.close()
-        self.assertIsNone(self.shuffler.tcdb_conn)
 
     @mock.patch("random.shuffle")
     def test_weighted_shuffle(self, mock_shuffle):
-        self.shuffler.tcdb_conn = sqlite3.connect(":memory:")
-        self.shuffler.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
-                                     track_id TEXT PRIMARY KEY,
-                                     play_count INTEGER NOT NULL);''')
-
+        shared_memory_db = "file:shared_memory?mode=memory&cache=shared"
+        self.shuffler.tcdb_path = shared_memory_db
+        conn = sqlite3.connect(shared_memory_db)
+        conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
+                         track_id TEXT PRIMARY KEY,
+                         play_count INTEGER NOT NULL);''')
         tracks = [
             ('track_1', 5),
             ('track_2', 3),
@@ -72,7 +62,8 @@ class TestShuffler(unittest.TestCase):
             ('track_6', 10),
             ('track_7', 1),
         ]
-        self.shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.commit()
         
         # Test "Normal" Scenario.
         res = self.shuffler._weighted_shuffle(["track_1", "track_2", "track_3"])
@@ -92,18 +83,20 @@ class TestShuffler(unittest.TestCase):
         self.assertEqual(mock_shuffle.call_count, 4) # Only 4 Groupings Of Different Play Counts.
         
         # Test Over Queeu Length.
-        self.shuffler.tcdb_conn.execute("DELETE FROM tracks")
+        conn.execute("DELETE FROM tracks")
         tracks = [(f"track_{i}", f"{i}") for i in range(Test_Settings.MAX_QUEUE_LENGTH + 50)]
-        self.shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.commit()
         mock_shuffle.reset_mock()
         res = self.shuffler._weighted_shuffle([track[0] for track in tracks])
         self.assertEqual(res, [track[0] for track in tracks][:Test_Settings.MAX_QUEUE_LENGTH])
         self.assertEqual(mock_shuffle.call_count, Test_Settings.MAX_QUEUE_LENGTH+1) # 81 Groupings Of Different Play Counts From Loop.
         
         # Test Exact Queeu Length.
-        self.shuffler.tcdb_conn.execute("DELETE FROM tracks")
+        conn.execute("DELETE FROM tracks")
         tracks = [(f"track_{i}", f"{i}") for i in range(Test_Settings.MAX_QUEUE_LENGTH)]
-        self.shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.commit()
         mock_shuffle.reset_mock()
         res = self.shuffler._weighted_shuffle([track[0] for track in tracks])
         self.assertEqual(res, [track[0] for track in tracks][:Test_Settings.MAX_QUEUE_LENGTH])
@@ -111,22 +104,21 @@ class TestShuffler(unittest.TestCase):
         
         # Test Over Queue Length With Large Groupings.
         Test_Settings.MAX_QUEUE_LENGTH = 30
-        self.shuffler.tcdb_conn.execute("DELETE FROM tracks")
+        conn.execute("DELETE FROM tracks")
         tracks = [(f"track_1_{i}", 10) for i in range(20)]
         tracks += [(f"track_2_{i}", 20) for i in range(20)]
-        self.shuffler.tcdb_conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.executemany('INSERT INTO tracks (track_id, play_count) VALUES (?, ?)', tracks)
+        conn.commit()
         mock_shuffle.reset_mock()
         res = self.shuffler._weighted_shuffle([track[0] for track in tracks])
         self.assertEqual(len(res), 40) # We Grab All Tracks With Same Play Count Over Queue Length.
         self.assertEqual(mock_shuffle.call_count, 2) # Only 2 Different Play Count Values
         
     def test_weighted_shuffle_no_connection(self):
-        self.shuffler.tcdb_conn = None
         with mock.patch('sqlite3.connect', return_value=sqlite3.connect(":memory:")) as mock_connect:
             tracks = self.shuffler._weighted_shuffle(["track_1", "track_2", "track_3"])
             self.assertCountEqual(tracks, ["track_1", "track_2", "track_3"])
             mock_connect.assert_called_once_with(Test_Settings.TRACK_COUNTS_DB)
-            
     
     @mock.patch('random.shuffle')
     @mock.patch.object(Shuffler, '_weighted_shuffle')
@@ -176,7 +168,7 @@ class TestShuffler(unittest.TestCase):
 
         # Test Unknown ShuffleType.
         with self.assertRaises(Exception): self.shuffler.shuffle('some_playlist_id', 'UNKNOWN_TYPE')
-        
+    
     def test_shuffle_no_tracks(self):
         self.shuffler.dbh.db_get_tracks_from_playlist.return_value = []
         self.shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)

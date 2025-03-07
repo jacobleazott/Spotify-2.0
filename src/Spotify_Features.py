@@ -200,8 +200,18 @@ class SpotifyFeatures(LogAllMethods):
     INPUT: N/A
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-modify-playback-state"])
     def skip_track(self) -> None:
         self.spotify.change_playback(skip="next")
+        
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Sets the 'repeat' state of the user's playback.
+    INPUT: N/A
+    OUTPUT: N/A
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    @gsh.scopes(["user-modify-playback-state"])
+    def set_repeat_state(self, state: str) -> None:
+        self.spotify.change_playback(repeat=state)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates a weekly report of various metrics and checks on the user's collection.
