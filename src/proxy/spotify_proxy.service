@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=jaleazo
 WorkingDirectory=/home/jaleazo/prod/Spotify-2.0
-ExecStart=sh /home/jaleazo/prod/Spotify-2.0/bash_scripts/run_Proxy_Server.sh
+ExecStart=/bin/bash /home/jaleazo/prod/Spotify-2.0/bash_scripts/run_Proxy_Server.sh
 Restart=always
 RestartSec=5
 

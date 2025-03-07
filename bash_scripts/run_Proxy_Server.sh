@@ -3,7 +3,10 @@
 # PROJ_PATH should be defined in the cron.jobs file
 if [ -n "$PROJ_PATH" ]; then
     cd "$PROJ_PATH"
+else
+    cd /home/jaleazo/prod/Spotify-2.0/
 fi
+
 export PYTHONPATH=$(pwd)/src:$PYTHONPATH
 source .venv/bin/activate
 source tokens/spotify_token.sh
