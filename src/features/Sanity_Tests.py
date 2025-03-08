@@ -191,13 +191,14 @@ class SanityTest(LogAllMethods):
         # Find duplicates in every year, '__', and master playlist
         for playlist in self.individual_artist_playlists + self.years_playlists + self.master_playlist:
             tmp_dupe_list = self._find_duplicates(playlist['tracks'])
-            if len(tmp_dupe_list) > 0: res_list.append((playlist['name'], tmp_dupe_list))
+            if len(tmp_dupe_list) > 0:
+                res_list.append({'Playlist': playlist['name'], 'Tracks':tmp_dupe_list})
             
         # Find duplicates in entire year collection
         tmp_years_dupe_list = self._find_duplicates([track for playlist in self.years_playlists 
                                                      for track in playlist['tracks']])
-        
-        if len(tmp_years_dupe_list) > 0: res_list.append(("YEARS COLLECTION", tmp_years_dupe_list))
+        if len(tmp_years_dupe_list) > 0:
+            res_list.append({'Playlist': "YEARS COLLECTION", 'Tracks':tmp_years_dupe_list})
             
         return res_list
       

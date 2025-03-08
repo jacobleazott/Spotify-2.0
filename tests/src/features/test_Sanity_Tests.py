@@ -167,8 +167,23 @@ class TestSanityTests(unittest.TestCase):
     def test_sanity_in_progress_artists(self):
         pass
     
-    def test_sanity_duplicates(self):
-        pass
+    @mock.patch('src.features.Sanity_Tests.SanityTest._find_duplicates')
+    def test_sanity_duplicates(self, mock_find_duplicates):
+        self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': ["test1"]}]
+        self.sanityTester.years_playlists = [{'name': '2024', 'tracks': ["test2"]}
+                                             , {'name': '2025', 'tracks': ["test3"]}]
+        self.sanityTester.master_playlist = [{'name': 'Master', 'tracks': ["test4"]}]
+        
+        # Verify Find Duplicates is called for collections
+        self.sanityTester.sanity_duplicates()
+        mock_find_duplicates.assert_has_call(["test1"])
+        mock_find_duplicates.assert_has_call(["test2"])
+        mock_find_duplicates.assert_has_call(["test3"])
+        mock_find_duplicates.assert_has_call(["test4"])
+        mock_find_duplicates.assert_has_call(["test2", "test3"])
+        self.assertEqual(mock_find_duplicates.call_count, 5)
+        
+    
     
     def test_sanity_contributing_artists(self):
         self.sanityTester.user_followed_artists = [{'name': 'Artist 1'}, {'name': 'Artist 2'}, {'name': 'Artist 3'}]
