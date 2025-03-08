@@ -36,17 +36,6 @@ class LogPlayback(LogAllMethods):
         self.logger = logger if logger is not None else logging.getLogger()
         self.ldb_path = ldb_path or Settings.LISTENING_DB
         self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
-        self.ldb_conn = None
-        self.tcdb_conn = None
-        atexit.register(self.close)
-        
-    def close(self):
-        if self.ldb_conn:
-            self.ldb_conn.close()
-            self.ldb_conn = None
-        if self.tcdb_conn:
-            self.tcdb_conn.close()
-            self.tcdb_conn = None
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
@@ -54,25 +43,21 @@ class LogPlayback(LogAllMethods):
     OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def increment_play_count_db(self) -> None:
-        if not self.tcdb_conn:
-            self.tcdb_conn = sqlite3.connect(self.tcdb_path)
-
-        with self.tcdb_conn:
-            self.tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
+        with sqlite3.connect(self.tcdb_path) as tcdb_conn:
+            tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
                                      track_id TEXT PRIMARY KEY,
                                      play_count INTEGER NOT NULL);''')
 
             # Checks ot see if the track is already in the database or not
-            if not bool(self.tcdb_conn.execute(
+            if not bool(tcdb_conn.execute(
                     f"SELECT COUNT(*) from 'tracks' WHERE 'tracks'.track_id = '{self.track_id}'").fetchone()[0]):
-                self.tcdb_conn.execute("""INSERT OR IGNORE INTO 'tracks'
-                                            ('track_id', 'play_count') 
-                                            VALUES (?, ?);""", (self.track_id, 1))
+                tcdb_conn.execute("""INSERT OR IGNORE INTO 'tracks'
+                                        ('track_id', 'play_count') 
+                                        VALUES (?, ?);""", (self.track_id, 1))
             else:
-                self.tcdb_conn.execute("""UPDATE 'tracks'
-                                            SET play_count = play_count + 1 
-                                            WHERE track_id = ?""", (self.track_id,)) 
-
+                tcdb_conn.execute("""UPDATE 'tracks'
+                                        SET play_count = play_count + 1 
+                                        WHERE track_id = ?""", (self.track_id,)) 
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Reads our pickle file to determine if we have listened to the track for at least 30s and updates as
@@ -94,7 +79,7 @@ class LogPlayback(LogAllMethods):
             with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
                 pickle.dump((self.track_id, False), fi)
             self.increment_play_count_db()
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
     INPUT: playback - Dictionary of current playback, see 'get_playback_state()' in GSH.
@@ -106,21 +91,18 @@ class LogPlayback(LogAllMethods):
             or playback['is_playing'] == False \
             or playback['track']['id'] in Settings.MACRO_LIST:
             return
-
+        
         self.track_id = playback['track']['id']
         self.track_id = self.track_id if self.track_id is not None else f"local_track_{playback['track']['name']}"
 
-        if not self.ldb_conn:
-            self.ldb_conn = sqlite3.connect(self.ldb_path)
-           
-        with self.ldb_conn:
-            self.ldb_conn.execute(f"""CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
-                        track_id TEXT NOT NULL,
-                        time timestamp NOT NULL);""")
-            
-            self.ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') VALUES (?, ?);""", 
+        with sqlite3.connect(self.ldb_path) as ldb_conn:
+            ldb_conn.execute(f"""CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
+                                    track_id TEXT NOT NULL,
+                                    time timestamp NOT NULL);""")
+                        
+            ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') VALUES (?, ?);""", 
                                   (self.track_id, datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")))
-
+        
         if inc_track_count:
             self.update_last_track_count()
 

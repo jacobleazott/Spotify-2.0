@@ -36,18 +36,18 @@ class SpotifyServer():
 
         self.logger.info("Starting Server.")
         self.app = Flask(__name__)
-        self.setup_routes()
+        self._setup_routes()
         
         self.app.logger.handlers = self.logger.handlers
         self.app.logger.setLevel(self.logger.level)
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)  # This stops it from printing every request
 
-        self.initialize_spotipy()
+        self._initialize_spotipy()
         
         self.stop_event = threading.Event()
-        threading.Thread(target=self.token_refresh_thread, daemon=True).start()
-        self.app.run(host="0.0.0.0", port=5000)
+        threading.Thread(target=self._token_refresh_thread, daemon=True).start()
+        self.app.run(host="127.0.0.1", port=Settings.PROXY_SERVER_PORT)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Sets up the 'routing' for our proxy server so any 'method' call goes to our spotipy instance and 
@@ -55,13 +55,13 @@ class SpotifyServer():
     INPUT: N/A
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def setup_routes(self):
-        self.app.add_url_rule('/spotipy/<method_name>', 'spotipy_method', self.spotipy_method, methods=['POST'])
+    def _setup_routes(self):
+        self.app.add_url_rule('/spotipy/<method_name>', 'spotipy_method', self._spotipy_method, methods=['POST'])
         
         @self.app.after_request
         def log_request(response):
             if response.status_code != 200:
-                self.app.logger.info(f"{request.method} {request.path} {response.status_code}")
+                self.logger.info(f"{request.method} {request.path} {response.status_code}")
             return response
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -69,7 +69,7 @@ class SpotifyServer():
     INPUT: N/A
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def initialize_spotipy(self):
+    def _initialize_spotipy(self):
         self.logger.info("Initializing Spotipy Client...")
         try:
             self.auth_manager = spotipy.oauth2.SpotifyOAuth(
@@ -88,7 +88,7 @@ class SpotifyServer():
     INPUT: N/A
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""     
-    def refresh_token(self):
+    def _refresh_token(self):
         retry_attempts = 5
         for attempt in range(retry_attempts):
             try:
@@ -104,33 +104,33 @@ class SpotifyServer():
                     sleep_time = 2 ** attempt + random.uniform(0, 0.5)
                     self.logger.warning(f"Retrying in {sleep_time:.2f} seconds...")
                     time.sleep(sleep_time)
-                else:
-                    self.logger.critical("Token refresh failed after maximum retries.")
-                    return False
-
+        
+        self.logger.critical("Token refresh failed after maximum retries.")
+        return False
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Thread method that refreshes the token when it is about to expire. 
     INPUT: N/A
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def token_refresh_thread(self):
+    def _token_refresh_thread(self):
         while not self.stop_event.is_set():
             token_info = self.auth_manager.get_cached_token()
-
+            
             if not token_info or 'expires_at' not in token_info:
                 self.logger.error("No valid cached token found.")
-                self.initialize_spotipy()
+                self._initialize_spotipy()
                 time.sleep(60)
                 continue
             
             expires_in = token_info['expires_at'] - time.time()
-
+            
             if expires_in <= 660:
                 self.logger.warning(f"Token expires in {expires_in / 60:.1f} minutes! Refreshing.")
-                success = self.refresh_token()
+                success = self._refresh_token()
                 if not success:
-                    self.initialize_spotipy()
-
+                    self._initialize_spotipy()
+            
             sleep_time = max(self.auth_manager.get_cached_token()['expires_at'] - time.time() - 600, 60)
             self.logger.info(f"Next refresh in {sleep_time / 60:.1f} minutes.")
             self.stop_event.wait(sleep_time)
@@ -140,23 +140,23 @@ class SpotifyServer():
     INPUT: method_name - The name of the method we want to call.
     OUTPUT: JSON result of our method call or an error message.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def spotipy_method(self, method_name):
+    def _spotipy_method(self, method_name):
         payload = request.get_json(force=True)
         args = payload.get('args', [])
         kwargs = payload.get('kwargs', {})
-
+        
         try:
             method = getattr(self.sp, method_name)
             return jsonify({"result": method(*args, **kwargs)})
-
+        
         except AttributeError as error:
             self.logger.error(f"Invalid Spotipy method '{method_name}': {error}")
             return jsonify({"error": f"Invalid method '{method_name}': {error}"}), 400
-
+        
         except TypeError as error:
             self.logger.error(f"Argument error or non-callable method '{method_name}': {error}")
             return jsonify({"error": f"Incorrect arguments or non-callable method '{method_name}': {error}"}), 400
-
+        
         except Exception as error:
             self.logger.error(f"Unexpected error calling {method_name}: {error}")
             return jsonify({"error": str(error)}), 500

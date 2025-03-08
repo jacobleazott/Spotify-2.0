@@ -8,7 +8,7 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Mocked 'settings' class to be used in unit tests.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
+from dataclasses import dataclass
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Simple mocked class to give us write access to all of our settings in our unit tests.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -69,6 +69,9 @@ class MockedSettingsClass():
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15
+    
+    # Proxy Settings
+    PROXY_SERVER_PORT: int = 9999
     
 
 Test_Settings = MockedSettingsClass()

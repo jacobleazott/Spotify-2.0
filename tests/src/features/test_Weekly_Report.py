@@ -8,17 +8,13 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Weekly_Report.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import os
 import logging
-import sqlite3
+import os
 import unittest
+
 from unittest import mock
-from datetime import datetime, timedelta
+from datetime import datetime
 
-
-from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
-from src.Spotify_Features           import SpotifyFeatures
-from src.features.Shuffle_Styles    import ShuffleType
 from src.helpers.Settings           import Settings
 from src.features.Weekly_Report     import WeeklyReport
 

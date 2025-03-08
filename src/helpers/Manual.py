@@ -22,7 +22,6 @@ T = TypeVar('T') # Define a generic type variable for type annotation.
 
 from src.Spotify_Features import SpotifyFeatures
 
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Fancy way to manually invoke any method from any class or member class.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

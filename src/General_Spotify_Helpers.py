@@ -138,7 +138,7 @@ class GeneralSpotifyHelpers:
     def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
         self._scopes = []
-        self.sp = SpotipyProxy()
+        self.sp = SpotipyProxy(logger=self.logger)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.

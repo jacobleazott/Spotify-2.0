@@ -112,7 +112,7 @@ def log_and_macro(spotify_features) -> None:
     # Only Trigger Macros If We Are Playing A Playlist
     if playback['context'] is not None and playback['context']['type'] == "playlist":
         if playback['repeat_state'] != "off":
-            spotify_features.spotify.change_playback(repeat='off')
+            spotify_features.set_repeat_state('off')
             shuffle_type = ShuffleType.WEIGHTED if playback['shuffle_state'] else ShuffleType.RANDOM
             startup_feature_thread(SpotifyFeatures.shuffle_playlist
                                    , playback['context']['id']

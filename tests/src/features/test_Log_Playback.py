@@ -9,9 +9,10 @@
 # Unit tests for all functionality out of 'Log_Playback.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import sqlite3
 import unittest
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest import mock
 
 import tests.helpers.api_response_test_messages as artm
@@ -27,18 +28,12 @@ class TestLogPlayback(unittest.TestCase):
     
     def test_init(self):
         log_playback = LogPlayback()
-        self.assertIsNone(log_playback.ldb_conn)
-        self.assertIsNone(log_playback.tcdb_conn)
         self.assertEqual(log_playback.ldb_path, Settings.LISTENING_DB)
         self.assertEqual(log_playback.tcdb_path, Settings.TRACK_COUNTS_DB)
-        log_playback.close()
         
         log_playback = LogPlayback(ldb_path="/test/path/1", tcdb_path="/test/path/2")
         self.assertEqual(log_playback.ldb_path, "/test/path/1")
         self.assertEqual(log_playback.tcdb_path, "/test/path/2")
-        self.assertIsNone(log_playback.ldb_conn)
-        self.assertIsNone(log_playback.tcdb_conn)
-        log_playback.close()
     
     def test_logger_default(self):
         log_playback = LogPlayback()
@@ -49,49 +44,31 @@ class TestLogPlayback(unittest.TestCase):
         log_playback = LogPlayback(logger=custom_logger)
         self.assertEqual(log_playback.logger, custom_logger)
     
-    def test_exit(self):
-        log_playback = LogPlayback()
-        mock_ldb_conn = mock.MagicMock()
-        mock_tcdb_conn = mock.MagicMock()
-        log_playback.ldb_conn = mock_ldb_conn
-        log_playback.tcdb_conn = mock_tcdb_conn
-        log_playback.close()
-        mock_ldb_conn.close.assert_called_once()
-        mock_tcdb_conn.close.assert_called_once()
-        self.assertIsNone(log_playback.ldb_conn)
-        self.assertIsNone(log_playback.tcdb_conn)
-    
-    def test_close_when_no_connection(self):
-        log_playback = LogPlayback()
-        log_playback.ldb_conn = None
-        log_playback.tcdb_conn = None
-        log_playback.close()
-        self.assertIsNone(log_playback.ldb_conn)
-        self.assertIsNone(log_playback.tcdb_conn)
-    
     def test_increment_play_count_db(self):
-        log_playback = LogPlayback(tcdb_path=":memory:")
+        shared_memory_db = "file:shared_memory?mode=memory&cache=shared"
+        log_playback = LogPlayback(tcdb_path=shared_memory_db)
+        conn = sqlite3.connect(shared_memory_db)
         # Test New Track.
         log_playback.track_id = "Tr001"
         log_playback.increment_play_count_db()
-        self.assertEqual(log_playback.tcdb_conn.execute(f"SELECT * FROM tracks").fetchall()
+        self.assertEqual(conn.execute(f"SELECT * FROM tracks").fetchall()
                          , [('Tr001', 1)])
         # Test Updating Track.
         for _ in range(10):
             log_playback.increment_play_count_db()
-        self.assertEqual(log_playback.tcdb_conn.execute(f"SELECT * FROM tracks").fetchall()
+        self.assertEqual(conn.execute(f"SELECT * FROM tracks").fetchall()
                          , [('Tr001', 11)])
         # Test Lots of Calls.
         log_playback.track_id = "Tr002"
         for _ in range(99):
             log_playback.increment_play_count_db()
-        self.assertEqual(log_playback.tcdb_conn.execute(f"SELECT * FROM tracks").fetchall()
+        self.assertEqual(conn.execute(f"SELECT * FROM tracks").fetchall()
                          , [('Tr001', 11), ('Tr002', 99)])
         # Test Empty String Track ID.
         log_playback.track_id = ""
         for _ in range(2):
             log_playback.increment_play_count_db()
-        self.assertEqual(log_playback.tcdb_conn.execute(f"SELECT * FROM tracks").fetchall()
+        self.assertEqual(conn.execute(f"SELECT * FROM tracks").fetchall()
                          , [('Tr001', 11), ('Tr002', 99), ("", 2)])
 
     @mock.patch('builtins.open', new_callable=mock.mock_open)
@@ -142,7 +119,9 @@ class TestLogPlayback(unittest.TestCase):
     @mock.patch('src.features.Log_Playback.Settings', Test_Settings)
     @mock.patch('src.features.Log_Playback.datetime')
     def test_log_track(self, mock_datetime):
-        log_playback = LogPlayback(ldb_path=":memory:")
+        shared_memory_db = "file:shared_memory?mode=memory&cache=shared"
+        log_playback = LogPlayback(ldb_path=shared_memory_db)
+        conn = sqlite3.connect(shared_memory_db)
         log_playback.update_last_track_count = mock.MagicMock() # We don't care about triggering this here.
         playback = artm.get_playback_state_test_message.copy()
         
@@ -150,33 +129,32 @@ class TestLogPlayback(unittest.TestCase):
         playback['track']['id'] = "test_track_id"
         mock_datetime.now.return_value = datetime(2024, 10, 11, 12, 30, 0)
         log_playback.log_track(playback, False)
-        tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2024',), tables)
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2024';").fetchall()
+        res = conn.execute("SELECT * FROM '2024';").fetchall()
         self.assertEqual(res, [('test_track_id', '2024-10-11 12:30:00')])
         log_playback.update_last_track_count.assert_not_called()
 
         # Test Different Year.
         mock_datetime.now.return_value = datetime(2023, 1, 1, 0, 0, 0)
         log_playback.log_track(playback, True)
-        tables = log_playback.ldb_conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         self.assertIn(('2023',), tables)
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        res = conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
         log_playback.update_last_track_count.assert_called_once()
         log_playback.update_last_track_count.reset_mock()
 
         # Test None Playback.
         log_playback.log_track(None, True) # Should not insert anything
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        res = conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
         log_playback.update_last_track_count.assert_not_called()
         
         # Test Not Playing.
         playback['is_playing'] = False
         log_playback.log_track(playback, True) # Should not log anything
-        cursor = log_playback.ldb_conn.cursor()
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        res = conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
         log_playback.update_last_track_count.assert_not_called()
         playback['is_playing'] = True
@@ -185,17 +163,17 @@ class TestLogPlayback(unittest.TestCase):
         Test_Settings.MACRO_LIST.append("test_macro_id")
         playback['track']['id'] = "test_macro_id"
         log_playback.log_track(playback, True) # Should not log anything
-        cursor = log_playback.ldb_conn.cursor()
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        res = conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('test_track_id', '2023-01-01 00:00:00')])
         log_playback.update_last_track_count.assert_not_called()
         
         # Test None track_id.
         playback['track']['id'] = None
         playback['track']['name'] = "test track 1"
-        log_playback.ldb_conn.execute("DELETE FROM '2023'")
+        conn.execute("DELETE FROM '2023'")
+        conn.commit()
         log_playback.log_track(playback, True)
-        res = log_playback.ldb_conn.execute("SELECT * FROM '2023';").fetchall()
+        res = conn.execute("SELECT * FROM '2023';").fetchall()
         self.assertEqual(res, [('local_track_test track 1', '2023-01-01 00:00:00')])
         log_playback.update_last_track_count.assert_called_once()
         

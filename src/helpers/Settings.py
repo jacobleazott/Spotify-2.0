@@ -76,6 +76,9 @@ class SettingsClass:
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15
+    
+    # Proxy Settings
+    PROXY_SERVER_PORT: int = 5000
 
 
 Settings = SettingsClass()

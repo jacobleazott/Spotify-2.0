@@ -20,7 +20,7 @@ DESCRIPTION: Class that can be used to override 'spotipy' import. Not all functi
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class MockedSpotipyProxy():
 
-    def __init__(self):
+    def __init__(self, logger: logging.Logger=None):
         self.user_id = 'Us000'
         self.user_queue, self.prev_songs, self.user_artists, self.artists, \
             self.env_albums, self.tracks, self.playlists = [], [], [], [], [], [], []
