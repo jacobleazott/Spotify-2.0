@@ -167,21 +167,43 @@ class TestSanityTests(unittest.TestCase):
     def test_sanity_in_progress_artists(self):
         pass
     
-    @mock.patch('src.features.Sanity_Tests.SanityTest._find_duplicates')
-    def test_sanity_duplicates(self, mock_find_duplicates):
-        self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': ["test1"]}]
-        self.sanityTester.years_playlists = [{'name': '2024', 'tracks': ["test2"]}
-                                             , {'name': '2025', 'tracks': ["test3"]}]
-        self.sanityTester.master_playlist = [{'name': 'Master', 'tracks': ["test4"]}]
+    def test_sanity_duplicates(self):
+        self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': [
+            {'id': '0', 'name': "test1"}
+          , {'id': '0', 'name': "test1"}]}]
+        self.sanityTester.years_playlists = [{'name': '2024', 'tracks': [{'id': '0', 'name': "test1"}]}
+                                           , {'name': '2025', 'tracks': [{'id': '0', 'name': "test1"}]}]
+        self.sanityTester.master_playlist = [{'name': 'Master', 'tracks': [{'id': '0', 'name': "test1"}]}]
         
-        # Verify Find Duplicates is called for collections
-        self.sanityTester.sanity_duplicates()
-        mock_find_duplicates.assert_has_call(["test1"])
-        mock_find_duplicates.assert_has_call(["test2"])
-        mock_find_duplicates.assert_has_call(["test3"])
-        mock_find_duplicates.assert_has_call(["test4"])
-        mock_find_duplicates.assert_has_call(["test2", "test3"])
-        self.assertEqual(mock_find_duplicates.call_count, 5)
+        # Verify Find Duplicates Is Called For All Collections/ Playlists
+        with mock.patch.object(self.sanityTester, '_find_duplicates') as mock_find_duplicates:
+            self.sanityTester.sanity_duplicates()
+            actual_calls = [call for call in mock_find_duplicates.call_args_list if call != mock.call().__len__()]
+            expected_calls = [
+                mock.call(self.sanityTester.individual_artist_playlists[0]['tracks'])
+              , mock.call(self.sanityTester.years_playlists[0]['tracks'])
+              , mock.call(self.sanityTester.years_playlists[1]['tracks'])
+              , mock.call(self.sanityTester.master_playlist[0]['tracks'])
+              , mock.call(self.sanityTester.years_playlists[0]['tracks'] 
+                          + self.sanityTester.years_playlists[1]['tracks'])
+            ]
+            for expected in expected_calls:
+                assert expected in actual_calls
+            self.assertEqual(len(actual_calls), 5)
+            
+        # Test Duplicates Found In Years Collection And One Playlist
+        mock_track_artists = {
+            '0': [{'name': 'Artist 1'}, {'name': 'Artist 2'}]
+        }
+        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        
+        duplicate_list = self.sanityTester.sanity_duplicates()
+        print(duplicate_list)
+        self.assertEqual(duplicate_list, [
+            {'Playlist': 'Artist 1', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
+          , {'Playlist': 'YEARS COLLECTION', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
+        ])
+        
         
     
     
