@@ -134,36 +134,32 @@ class SanityTest(LogAllMethods):
     OUTPUT: List of collections with their respective tracks that are missing from the varying collections.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_diffs_in_major_playlist_sets(self):
+        def collect_tracks(playlists):
+            return [track for playlist in playlists for track in playlist['tracks']]
+
+        years_tracks = collect_tracks(self.years_playlists)
+        master_tracks = collect_tracks(self.master_playlist)
+        artist_tracks = collect_tracks(
+            playlist for playlist in self.individual_artist_playlists
+            if any(playlist['name'] == artist['name'] for artist in self.user_followed_artists)
+        )
         res_list = []
 
-        # Prep track collections
-        years_track_list = [track for playlist in self.years_playlists for track in playlist['tracks']]
-        master_track_list = [track for playlist in self.master_playlist for track in playlist['tracks']]
-        
-        individual_artists_track_list = []
-        # Skip any '__' playlist that we aren't following yet as we don't expect them to be in years or master
-        for playlist in self.individual_artist_playlists:
-            if not any(playlist['name'] == artist['name'] for artist in self.user_followed_artists): continue
-            individual_artists_track_list += playlist['tracks']
-        
-        # We skip the disregard tracks when comparing against the '__' playlists, we don't care about them
-        res_list.append(("TRACKS IN MASTER PLAYLISTS BUT NOT YEAR", 
-                         self._compare_track_lists(master_track_list, years_track_list)))
-        res_list.append(("TRACKS IN MASTER PLAYLISTS BUT NOT '__'", 
-                         self._compare_track_lists(master_track_list, individual_artists_track_list, 
-                                                   disregard_tracks=True)))
-        res_list.append(("TRACKS IN YEARS PLAYLISTS BUT NOT MASTER", 
-                         self._compare_track_lists(years_track_list, master_track_list)))
-        res_list.append(("TRACKS IN YEARS PLAYLISTS BUT NOT '__'", 
-                         self._compare_track_lists(years_track_list, individual_artists_track_list, 
-                                                   disregard_tracks=True)))
-        res_list.append(("TRACKS IN '__' PLAYLISTS BUT NOT MASTER", 
-                         self._compare_track_lists(individual_artists_track_list, master_track_list)))
-        res_list.append(("TRACKS IN '__' PLAYLISTS BUT NOT YEARS", 
-                         self._compare_track_lists(individual_artists_track_list, years_track_list)))
+        res_list.append({'Collection': 'In Master, Not Years', 'Tracks': 
+                         self._compare_track_lists(master_tracks, years_tracks)})
+        res_list.append({'Collection': 'In Master, Not Artists', 'Tracks': 
+                        self._compare_track_lists(master_tracks, artist_tracks, disregard_tracks=True)})
+        res_list.append({'Collection': 'In Years, Not Master', 'Tracks': 
+                         self._compare_track_lists(years_tracks, master_tracks)})
+        res_list.append({'Collection': 'In Years, Not Artists', 'Tracks': 
+                        self._compare_track_lists(years_tracks, artist_tracks, disregard_tracks=True)})
+        res_list.append({'Collection': 'In Artists, Not Master', 'Tracks': 
+                         self._compare_track_lists(artist_tracks, master_tracks)})
+        res_list.append({'Collection': 'In Artists, Not Years', 'Tracks': 
+                         self._compare_track_lists(artist_tracks, years_tracks)})
 
         # Just remove any groups that didn't have comparisons to show
-        res_list = [res for res in res_list if len(res[1]) > 0]
+        res_list = [res for res in res_list if len(res['Tracks']) > 0]
 
         return res_list
     
@@ -178,7 +174,7 @@ class SanityTest(LogAllMethods):
         for playlist in self.user_playlists:
             if playlist['name'].startswith("__") and not any(playlist['name'][2:] == artist['name']
                                                              for artist in self.user_followed_artists):
-                res_list.append(f"{playlist['name']}")
+                res_list.append({'Artist': playlist['name'][2:]})
         return res_list
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""

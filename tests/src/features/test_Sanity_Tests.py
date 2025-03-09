@@ -10,7 +10,7 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import unittest
-
+from pprint import pprint
 from unittest import mock
 
 from src.features.Sanity_Tests import SanityTest
@@ -162,10 +162,21 @@ class TestSanityTests(unittest.TestCase):
         self.assertEqual(diff_list, [{"Track": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
     
     def test_sanity_diffs_in_major_playlist_sets(self):
-        pass
+        self.sanityTester.user_followed_artists = [{'name': 'Artist 1'}]
+        self.sanityTester.years_playlists = [{'name': '2024', 'tracks': [{'id': '0', 'name': "test0"}]}
+                                           , {'name': '2025', 'tracks': [{'id': '1', 'name': "test1"}]}]
+        self.sanityTester.master_playlist = [{'name': 'Master', 'tracks': [{'id': '0', 'name': "test0"}]}]
+        self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': [{'id': '0', 'name': "test0"}]}]
+        
+        diffs = self.sanityTester.sanity_diffs_in_major_playlist_sets()
+        self.assertEqual(diffs, [{'Collection': 'In Years, Not Master', 'Tracks': [{'Track': 'test1', 'Artists': []}]}
+                               , {'Collection': 'In Years, Not Artists', 'Tracks': [{'Track': 'test1', 'Artists': []}]}])
     
     def test_sanity_in_progress_artists(self):
-        pass
+        self.sanityTester.user_followed_artists = [{'name': 'Artist1'}]
+        self.sanityTester.user_playlists = [{'name': '__Artist1'}, {'name': '__Artist2'}, {'name': 'Master'}]
+        in_progress_artists = self.sanityTester.sanity_in_progress_artists()
+        self.assertEqual(in_progress_artists, [{'Artist': 'Artist2'}])
     
     def test_sanity_duplicates(self):
         self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': [
@@ -198,14 +209,10 @@ class TestSanityTests(unittest.TestCase):
         self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         duplicate_list = self.sanityTester.sanity_duplicates()
-        print(duplicate_list)
         self.assertEqual(duplicate_list, [
             {'Playlist': 'Artist 1', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
           , {'Playlist': 'YEARS COLLECTION', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
         ])
-        
-        
-    
     
     def test_sanity_contributing_artists(self):
         self.sanityTester.user_followed_artists = [{'name': 'Artist 1'}, {'name': 'Artist 2'}, {'name': 'Artist 3'}]
