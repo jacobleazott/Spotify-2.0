@@ -110,7 +110,7 @@ class TestSanityTests(unittest.TestCase):
           , {'id': '2', 'name': 'Track 2'}
           , {'id': '2', 'name': 'Track 2'}
         ])
-        self.assertCountEqual(duplicates, [{'Track': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}])
+        self.assertCountEqual(duplicates, [{'Name': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}])
         
         # Test Multiple Duplicates
         duplicates = self.sanityTester._find_duplicates([
@@ -121,8 +121,8 @@ class TestSanityTests(unittest.TestCase):
           , {'id': '3', 'name': 'Track 3'}
           , {'id': '4', 'name': 'Track 2'}
         ])
-        self.assertCountEqual(duplicates, [{'Track': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}
-                                         , {'Track': 'Track 1', 'Artists': ['Artist 2', 'Artist 1']}])
+        self.assertCountEqual(duplicates, [{'Name': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}
+                                         , {'Name': 'Track 1', 'Artists': ['Artist 2', 'Artist 1']}])
     
     def test_compare_track_lists(self):
         mock_track_artists = {
@@ -139,7 +139,7 @@ class TestSanityTests(unittest.TestCase):
         
         # Test Empty Verify List
         diff_list = self.sanityTester._compare_track_lists([{'id': '1', 'name': 'Track 1'}], [])
-        self.assertEqual(diff_list, [{"Track": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
+        self.assertEqual(diff_list, [{"Name": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
         
         # Test Empty Key List
         diff_list = self.sanityTester._compare_track_lists([], [{'id': '1', 'name': 'Track 1'}])
@@ -149,17 +149,17 @@ class TestSanityTests(unittest.TestCase):
         diff_list = self.sanityTester._compare_track_lists(
             [{'id': '1', 'name': 'Track 1'}, {'id': Settings.MACRO_LIST[0], 'name': 'Track 2'}]
             , [], disregard_tracks=True)
-        self.assertEqual(diff_list, [{"Track": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
+        self.assertEqual(diff_list, [{"Name": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
         
         # Test Disregard Tracks But Don't Set 'disregard_tracks
         diff_list = self.sanityTester._compare_track_lists([{'id': Settings.MACRO_LIST[0], 'name': 'Track 2'}], [])
-        self.assertEqual(diff_list, [{"Track": "Track 2", "Artists": ['Artist 6']}])
+        self.assertEqual(diff_list, [{"Name": "Track 2", "Artists": ['Artist 6']}])
         
         # Test Track Exists In Both
         diff_list = self.sanityTester._compare_track_lists([{'id': '1', 'name': 'Track 1'}
                                                             , {'id': '2', 'name': 'Track 2'}]
                                                          , [{'id': '2', 'name': 'Track 2'}])
-        self.assertEqual(diff_list, [{"Track": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
+        self.assertEqual(diff_list, [{"Name": "Track 1", "Artists": ['Artist 1', 'Artist 2']}])
     
     def test_sanity_diffs_in_major_playlist_sets(self):
         self.sanityTester.user_followed_artists = [{'name': 'Artist 1'}]
@@ -169,8 +169,8 @@ class TestSanityTests(unittest.TestCase):
         self.sanityTester.individual_artist_playlists = [{'name': 'Artist 1', 'tracks': [{'id': '0', 'name': "test0"}]}]
         
         diffs = self.sanityTester.sanity_diffs_in_major_playlist_sets()
-        self.assertEqual(diffs, [{'Collection': 'In Years, Not Master', 'Tracks': [{'Track': 'test1', 'Artists': []}]}
-                               , {'Collection': 'In Years, Not Artists', 'Tracks': [{'Track': 'test1', 'Artists': []}]}])
+        self.assertEqual(diffs, [{'Collection': 'In Years, Not Master', 'Track': [{'Name': 'test1', 'Artists': []}]}
+                               , {'Collection': 'In Years, Not Artists', 'Track': [{'Name': 'test1', 'Artists': []}]}])
     
     def test_sanity_in_progress_artists(self):
         self.sanityTester.user_followed_artists = [{'name': 'Artist1'}]
@@ -210,8 +210,8 @@ class TestSanityTests(unittest.TestCase):
         
         duplicate_list = self.sanityTester.sanity_duplicates()
         self.assertEqual(duplicate_list, [
-            {'Playlist': 'Artist 1', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
-          , {'Playlist': 'YEARS COLLECTION', 'Tracks': [{'Track': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
+            {'Playlist': 'Artist 1', 'Track': [{'Name': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
+          , {'Playlist': 'YEARS COLLECTION', 'Track': [{'Name': 'test1', 'Artists': ['Artist 1', 'Artist 2']}]}
         ])
     
     def test_sanity_contributing_artists(self):
@@ -270,8 +270,8 @@ class TestSanityTests(unittest.TestCase):
         for playlist in sanity_artists:
             print(playlist)
         self.assertEqual(sanity_artists, [
-            {'Playlist': 'Artist 1', 'Tracks': [{'Track': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}]}
-          , {'Playlist': 'Artist 2', 'Tracks': [{'Track': 'Track 3', 'Artists': ['Artist 3']}]}
+            {'Playlist': 'Artist 1', 'Track': [{'Name': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}]}
+          , {'Playlist': 'Artist 2', 'Track': [{'Name': 'Track 3', 'Artists': ['Artist 3']}]}
           ])
     
     def test_sanity_playable_tracks(self):

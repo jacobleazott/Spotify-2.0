@@ -98,7 +98,7 @@ class SanityTest(LogAllMethods):
         for track in tracks:
             if track['id'] in checked_ids and track['id'] not in duplicate_ids:
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                duplicates.append({'Track': track['name'], 'Artists': artist_names})
+                duplicates.append({'Name': track['name'], 'Artists': artist_names})
                 duplicate_ids.add(track['id'])
             checked_ids.add(track['id'])
 
@@ -120,7 +120,7 @@ class SanityTest(LogAllMethods):
                 continue
             if track not in to_verify_track_list: 
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                res_list.append({'Track': track['name'], 'Artists': artist_names})
+                res_list.append({'Name': track['name'], 'Artists': artist_names})
         
         return res_list
                 
@@ -145,21 +145,21 @@ class SanityTest(LogAllMethods):
         )
         res_list = []
 
-        res_list.append({'Collection': 'In Master, Not Years', 'Tracks': 
+        res_list.append({'Collection': 'In Master, Not Years', 'Track': 
                          self._compare_track_lists(master_tracks, years_tracks)})
-        res_list.append({'Collection': 'In Master, Not Artists', 'Tracks': 
+        res_list.append({'Collection': 'In Master, Not Artists', 'Track': 
                         self._compare_track_lists(master_tracks, artist_tracks, disregard_tracks=True)})
-        res_list.append({'Collection': 'In Years, Not Master', 'Tracks': 
+        res_list.append({'Collection': 'In Years, Not Master', 'Track': 
                          self._compare_track_lists(years_tracks, master_tracks)})
-        res_list.append({'Collection': 'In Years, Not Artists', 'Tracks': 
+        res_list.append({'Collection': 'In Years, Not Artists', 'Track': 
                         self._compare_track_lists(years_tracks, artist_tracks, disregard_tracks=True)})
-        res_list.append({'Collection': 'In Artists, Not Master', 'Tracks': 
+        res_list.append({'Collection': 'In Artists, Not Master', 'Track': 
                          self._compare_track_lists(artist_tracks, master_tracks)})
-        res_list.append({'Collection': 'In Artists, Not Years', 'Tracks': 
+        res_list.append({'Collection': 'In Artists, Not Years', 'Track': 
                          self._compare_track_lists(artist_tracks, years_tracks)})
 
         # Just remove any groups that didn't have comparisons to show
-        res_list = [res for res in res_list if len(res['Tracks']) > 0]
+        res_list = [res for res in res_list if len(res['Track']) > 0]
 
         return res_list
     
@@ -188,13 +188,13 @@ class SanityTest(LogAllMethods):
         for playlist in self.individual_artist_playlists + self.years_playlists + self.master_playlist:
             tmp_dupe_list = self._find_duplicates(playlist['tracks'])
             if len(tmp_dupe_list) > 0:
-                res_list.append({'Playlist': playlist['name'], 'Tracks':tmp_dupe_list})
+                res_list.append({'Playlist': playlist['name'], 'Track':tmp_dupe_list})
             
         # Find duplicates in entire year collection
         tmp_years_dupe_list = self._find_duplicates([track for playlist in self.years_playlists 
                                                      for track in playlist['tracks']])
         if len(tmp_years_dupe_list) > 0:
-            res_list.append({'Playlist': "YEARS COLLECTION", 'Tracks':tmp_years_dupe_list})
+            res_list.append({'Playlist': "YEARS COLLECTION", 'Track':tmp_years_dupe_list})
             
         return res_list
       
@@ -248,10 +248,10 @@ class SanityTest(LogAllMethods):
             for track in playlist['tracks']:
                 artists = self.dbh.db_get_track_artists(track['id'])
                 if not any(playlist['name'] == artist['name'] for artist in artists):
-                    tracks.append({'Track': track['name'], 'Artists': [artist['name'] for artist in artists]})
+                    tracks.append({'Name': track['name'], 'Artists': [artist['name'] for artist in artists]})
 
             if tracks:
-                res_list.append({'Playlist': playlist['name'], 'Tracks': tracks})
+                res_list.append({'Playlist': playlist['name'], 'Track': tracks})
 
         return res_list
 
@@ -286,7 +286,7 @@ class SanityTest(LogAllMethods):
         pp.pprint(self.sanity_contributing_artists())
         print("Artist Playlist Integrity ==============")
         pp.pprint(self.sanity_artist_playlist_integrity())
-        print("Non-Playable Tracks ====================")
+        print("Non-Playable Track ====================")
         pp.pprint(self.sanity_playable_tracks())
         
 
