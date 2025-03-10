@@ -20,16 +20,122 @@ import matplotlib.pyplot as plt
 import os
 import smtplib
 import sqlite3
-import textwrap
 
 from datetime             import datetime, timedelta
 from email.mime.image     import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text      import MIMEText
-from PIL                  import Image
+from itertools            import product
 
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
+INPUT: 
+OUTPUT: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def flatten_row(row, parent_key=""):
+    flattened = {}
+
+    for key, value in row.items():
+        new_key = f"{parent_key} {key}".strip()
+
+        if isinstance(value, list):
+            # If list contains dictionaries, expand them
+            if all(isinstance(item, dict) for item in value):
+                expanded = [flatten_row(item, new_key) for item in value]
+                # Store expanded dictionaries for later processing
+                flattened[new_key] = expanded
+            else:
+                flattened[new_key] = ", ".join(map(str, value))
+        elif isinstance(value, dict):
+            flattened.update(flatten_row(value, new_key))
+        else:
+            flattened[new_key] = value
+
+    return flattened
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Expands nested lists of dictionaries while preserving relationships.
+INPUT: 
+OUTPUT: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def expand_rows(data):
+    flat_data = [flatten_row(item) for item in data]
+    expanded_rows = []
+
+    for row in flat_data:
+        # Identify and handle multi-level dictionary expansions
+        multi_columns = {k: v for k, v in row.items() if isinstance(v, list) and all(isinstance(i, dict) for i in v)}
+
+        if multi_columns:
+            for values in product(*multi_columns.values()):
+                new_row = row.copy()
+                for key, value in zip(multi_columns.keys(), values):
+                    new_row.update(value)  # Merge expanded dictionary
+                    del new_row[key]       # Avoid keeping the nested structure
+                expanded_rows.append(new_row)
+        else:
+            expanded_rows.append(row)
+
+    return expanded_rows
+
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Avoid repeating parent rows by leaving subsequent cells blank.
+INPUT: 
+OUTPUT: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def merge_duplicates(expanded_rows, preserve_keys):
+    previous_row = {}
+
+    for row in expanded_rows:
+        for key in preserve_keys:
+            if row.get(key) == previous_row.get(key):
+                row[key] = ""
+            else:
+                previous_row[key] = row[key]
+                
+    print(previous_row)
+
+    return expanded_rows
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: 
+INPUT: 
+OUTPUT: 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def generate_dynamic_table(data):
+    if not data:
+        return "<p>No data available.</p>"
+    
+    expanded_data = expand_rows(data)
+    preserve_keys = [key for key in expanded_data[0].keys() if "Playlist" in key or "Track" in key]
+    expanded_data = merge_duplicates(expanded_data, preserve_keys)
+    
+    headers = expanded_data[0].keys()
+    table_html = "<table> <thead> <tr>"
+    
+    for header in headers:
+        table_html += f'<th>{header}</th>'
+    table_html += "</tr> </thead> <tbody>"
+    
+    for idx, row in enumerate(expanded_data):
+        table_html += f'<tr style="background-color: {"#1E1E1E" if idx % 2 == 0 else "#252525"};">'
+        
+        for key in headers:
+            value = row.get(key, "")
+            table_html += f'<td>{value}</td>'
+        
+        table_html += "</tr>"
+    
+    table_html += "</tbody> </table>"
+    return table_html
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Class that handles creating a backup of the user's followed artists, playlists, and all their tracks.
@@ -62,7 +168,7 @@ class WeeklyReport(LogAllMethods):
             image_data = image_file.read()
 
         msg_image = MIMEImage(image_data, name=os.path.basename(self.LISTENING_DATA_PLOT_FILEPATH))
-        msg_image.add_header('Content-ID', f'<{os.path.basename(self.LISTENING_DATA_PLOT_FILEPATH)}>')
+        msg_image.add_header('Content-ID', f'<{self.LISTENING_DATA_PLOT_FILEPATH}>')
         msgRoot.attach(msg_image)
         
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
@@ -90,26 +196,26 @@ class WeeklyReport(LogAllMethods):
             values.append([date.strftime("%A\n%m/%d"), db_res])
 
         fig, ax = plt.subplots(figsize = (10, 5))
+        fig.patch.set_facecolor('#181818')  # Dark gray background
+        ax.set_facecolor('#181818')  # Dark gray background for the axis
 
         # Add x, y gridlines
-        ax.grid(axis='y', color ='grey',
-            linestyle ='-.', linewidth = 1,
-            alpha = 0.3)
+        ax.tick_params(axis='both', labelcolor='white', colors='white')
+        ax.grid(axis='y', color='white', linestyle='-.', linewidth=1, alpha=0.3)
         ax.set_axisbelow(True)
 
-        plt.bar([val[0] for val in values], [len(val[1])/240 for val in values], color='maroon', width=0.8)
-        plt.ylabel("Hours Spent Listening")
-        plt.title(f"Spotify Listening For {(datetime.today() - timedelta(days=8)).strftime('%b %d %Y')} -" + 
-        f"{(datetime.today() - timedelta(days=2)).strftime('%b %d %Y')}")
+        plt.bar([val[0] for val in values], [len(val[1])/240 for val in values], color='#1DB954', width=0.8)
+        plt.ylabel("Hours Spent Listening", color='white')
+        plt.title(f"Spotify Listening For {(datetime.today() - timedelta(days=8)).strftime('%b %d %Y')} -"
+                  f"{(datetime.today() - timedelta(days=2)).strftime('%b %d %Y')}", color='white')
         
         # Add previous month of listening data
         average = self._gen_average_for_past_month(conn, 28)
-        plt.plot(average, color='black')
+        plt.plot(average, color='#CCCCCC', linewidth=1.5)
 
         conn.close()
         plt.savefig(self.LISTENING_DATA_PLOT_FILEPATH) 
-        
-        
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates listening data average over the last 'days_back' by weekday. Disregards days with less than 
                  25 mins of listening to disregard token refresh errors.
@@ -133,83 +239,66 @@ class WeeklyReport(LogAllMethods):
         
         return [(day[0]/3600)/day[1] if day[1] != 0 else 0 for day in days]
 
-
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Helper function to format html sections when we want data in header/ unordered list formats.
-    INPUT: values - List of tuple values where the first elem is the title and second value is list that goes under.
-           default - Str we should return if nothing was in the values.
-    OUTPUT: Html formatted str of 'values'
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def _gen_html_header_list(self, values, default):
-        html_str = ""
-
-        for val in values:
-            html_str += f"\n<h4> {val[0]} - </h4>\n<ul>\n"
-            for elem in val[1]:
-                html_str += f"\t<li> {elem} </li>\n"
-            html_str += "</ul>"
-            
-        if html_str == "":
-            html_str = f"<p><b> {default} </b></p>"
-            
-        return html_str
-
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Helper function to format html sections when we just want data listed in unordered lists.
-    INPUT: values - List of values that will be in our unordered list.
-           default - Str we should return if nothing was in the values.
-    OUTPUT: Html formatted str of 'values'
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def _gen_html_unordered_list(self, values, default):
-        html_str = "\n<ul>\n"
-        
-        for val in values:
-            html_str += f"\t<li> {val} </li>\n"
-        html_str += "</ul>"
-        
-        if len(values) == 0:
-            html_str = f"<p><b> {default} </b></p>"
-
-        return html_str
-
     def gen_weekly_report(self):
-        st_diffs = self._gen_html_header_list(self.sanity_tester.sanity_diffs_in_major_playlist_sets(), 
-                                            "No Differences Detected For Master, Years, and '__' Good Job!")
-        st_prog = self._gen_html_unordered_list(self.sanity_tester.sanity_in_progress_artists(), 
-                                            "No In Progress Artists Detected, Get Back To Work.")
-        st_dupe = self._gen_html_header_list(self.sanity_tester.sanity_duplicates(), 
-                                            "No Duplicates Detected Good Job!")
-        st_integ = self._gen_html_unordered_list(self.sanity_tester.sanity_artist_playlist_integrity(), 
-                                            "No Issues Detected In Artist Integrity Good Job!")
-        st_contr = self._gen_html_unordered_list(self.sanity_tester.sanity_contributing_artists(), 
-                                            "No Missing Tracks From Contributing Artists Good Job!")
-        st_play = self._gen_html_unordered_list(self.sanity_tester.sanity_playable_tracks(), 
-                                            "All Tracks Are Playable, Great!")
-        
+        tables = [
+            ("Differences In Playlists", self.sanity_tester.sanity_diffs_in_major_playlist_sets())
+          , ("In Progress Artists", self.sanity_tester.sanity_in_progress_artists())
+          , ("Duplicates", self.sanity_tester.sanity_duplicates())
+          , ("Artist Integrity", self.sanity_tester.sanity_artist_playlist_integrity())
+          , ("Contributing Artists Missing", self.sanity_tester.sanity_contributing_artists())
+          , ("Non-Playable Tracks", self.sanity_tester.sanity_playable_tracks())
+        ]
+        html_tables = ""
+        for table in tables:
+            html_tables += f"<h1>{table[0]}</h1>"
+            html_tables += generate_dynamic_table(table[1])
+            
         self._gen_playback_graph()
         
         body = f"""
-        <html>
-            <h1> Weekly Spotify Report </h1>
-            <h1> Weekly Listening Data </h1>
-            <img src="cid:listening_data_plot">
-            <h1> Sanity Tests -</h1>
-            <h2> - Playlist Diffs - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_diffs, "\t\t")} \n\t </div>
-            <h2> - In Progress Artists - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_prog, "\t\t")} \n\t </div>
-            <h2> - Duplicates - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_dupe, "\t\t")} \n\t </div>
-            <h2> - Artist Integrity - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_integ, "\t\t")} \n\t </div>
-            <h2> - Contributing Artists Missing - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_contr, "\t\t")} \n\t </div>
-            <h2> - Non-Playable Tracks - </h2>
-            <div style="margin-left:35px;"> {textwrap.indent(st_play, "\t\t")} \n\t </div>
-        </html>
-        """
+                <html>
+                <head>
+                    <meta name="color-scheme" content="dark light">
+                    <meta name="supported-color-schemes" content="dark light">
+                    <style>
+                        body {{
+                            margin: 0;
+                            padding: 0;
+                        }}
+                        .email-container {{
+                            background-color: #181818;
+                            color: #CCCCCC;
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                        }}
+                        table {{
+                            border-collapse: collapse;
+                            width: 100%;
+                        }}
+                        thead tr {{
+                            background-color: #1DB954;
+                            color: #FFFFFF; 
+                        }}
+                        th, td {{
+                            padding: 10px;
+                            border: 1px solid #333333;
+                            text-align: left;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <h1> Weekly Listening Data </h1>
+                        <div style="text-align: center;">
+                            <img src="cid:{self.LISTENING_DATA_PLOT_FILEPATH}">
+                        </div>
+                        {html_tables}
+                    </div>
+                </body>
+                </html>
+            """
+
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
-        
         self._send_email(subject, body)
 
 
