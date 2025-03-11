@@ -30,6 +30,37 @@ from itertools            import product
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
 
+
+def create_progress_bar(current: int, goal: int, target: int, filename: str = "progress_bar.png"):
+    progress_ratio = current / goal
+    target_ratio = target / goal
+
+    fig, ax = plt.subplots(figsize=(6, 1))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    # Draw background bar
+    ax.add_patch(plt.Rectangle((0, 0.3), 1, 0.4, color='#E0E0E0', ec='none', linewidth=0, clip_on=False, 
+                               path_effects=None, joinstyle='round', capstyle='round'))
+
+    # Draw progress
+    ax.add_patch(plt.Rectangle((0, 0.3), progress_ratio, 0.4, color='#4CAF50', ec='none', linewidth=0, 
+                               clip_on=False, joinstyle='round', capstyle='round'))
+
+    # Draw target marker
+    ax.add_patch(plt.Rectangle((target_ratio, 0.2), 0.01, 0.6, color='#FF5722', ec='none', linewidth=0, 
+                               clip_on=False))
+
+    # Add text
+    ax.text(0.5, 0.75, f"{current}/{goal}", ha='center', va='center', fontsize=12, color='#000000')
+    ax.text(min(target_ratio + 0.05, 0.95), 0.05, f"Target: {target}", ha='left', va='bottom', fontsize=10, color='#FF5722')
+
+    ax.axis('off')
+    plt.tight_layout()
+    plt.savefig(filename, dpi=100, bbox_inches='tight', transparent=True)
+    plt.close()
+    
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
 INPUT: row: Dictionary to flatten.
@@ -140,6 +171,7 @@ DESCRIPTION: Class that handles creating a backup of the user's followed artists
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class WeeklyReport(LogAllMethods):
     LISTENING_DATA_PLOT_FILEPATH = 'logs/listening_data_plot.png'
+    PROGRESS_BAR_FILEPATH = 'logs/progress_bar.png'
     
     def __init__(self, sanity_tester, logger=None):
         self.sanity_tester = sanity_tester
@@ -169,9 +201,19 @@ class WeeklyReport(LogAllMethods):
         msg_image.add_header('Content-ID', f'<{self.LISTENING_DATA_PLOT_FILEPATH}>')
         msgRoot.attach(msg_image)
         
+        msg_image = MIMEImage(image_data, name=os.path.basename(self.PROGRESS_BAR_FILEPATH))
+        msg_image.add_header('Content-ID', f'<{self.PROGRESS_BAR_FILEPATH}>')
+        msgRoot.attach(msg_image)
+        
+        print("Sending Email...")
+        
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+            print("Logging In...", Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
+            print("Sending Email...", Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL)
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
+            
+        print("Sent Email")
             
             
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -252,6 +294,7 @@ class WeeklyReport(LogAllMethods):
             html_tables += generate_dynamic_table(table[1])
             
         self._gen_playback_graph()
+        create_progress_bar(200, 500, 300, filename=self.PROGRESS_BAR_FILEPATH)
         
         body = f"""
                 <html>
@@ -289,6 +332,9 @@ class WeeklyReport(LogAllMethods):
                         <h1> Weekly Listening Data </h1>
                         <div style="text-align: center;">
                             <img src="cid:{self.LISTENING_DATA_PLOT_FILEPATH}">
+                        <h1> New Music Progress </h1>
+                        <div style="text-align: center;">
+                            <img src="cid:{self.PROGRESS_BAR_FILEPATH}">
                         </div>
                         {html_tables}
                     </div>
