@@ -32,15 +32,16 @@ from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
-INPUT: 
-OUTPUT: 
+INPUT: row: Dictionary to flatten.
+       parent_key: Key to prepend to nested keys.
+OUTPUT: "Flattened" dictionary with nested keys expanded.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def flatten_row(row, parent_key=""):
     flattened = {}
-
+    
     for key, value in row.items():
         new_key = f"{parent_key} {key}".strip()
-
+        
         if isinstance(value, list):
             # If list contains dictionaries, expand them
             if all(isinstance(item, dict) for item in value):
@@ -53,23 +54,23 @@ def flatten_row(row, parent_key=""):
             flattened.update(flatten_row(value, new_key))
         else:
             flattened[new_key] = value
-
+    
     return flattened
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Expands nested lists of dictionaries while preserving relationships.
-INPUT: 
-OUTPUT: 
+INPUT: data: List of dictionaries to expand.
+OUTPUT: List of expanded and flattened dictionaries.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def expand_rows(data):
     flat_data = [flatten_row(item) for item in data]
     expanded_rows = []
-
+    
     for row in flat_data:
         # Identify and handle multi-level dictionary expansions
         multi_columns = {k: v for k, v in row.items() if isinstance(v, list) and all(isinstance(i, dict) for i in v)}
-
+        
         if multi_columns:
             for values in product(*multi_columns.values()):
                 new_row = row.copy()
@@ -79,9 +80,8 @@ def expand_rows(data):
                 expanded_rows.append(new_row)
         else:
             expanded_rows.append(row)
-
+    
     return expanded_rows
-
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -91,7 +91,7 @@ OUTPUT:
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def merge_duplicates(expanded_rows, preserve_keys):
     previous_row = {}
-
+    
     for row in expanded_rows:
         for key in preserve_keys:
             if row.get(key) == previous_row.get(key):
