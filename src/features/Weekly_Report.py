@@ -98,9 +98,7 @@ def merge_duplicates(expanded_rows, preserve_keys):
                 row[key] = ""
             else:
                 previous_row[key] = row[key]
-                
-    print(previous_row)
-
+    
     return expanded_rows
 
 
