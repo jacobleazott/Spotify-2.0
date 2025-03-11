@@ -19,6 +19,7 @@
 import matplotlib.pyplot as plt 
 import os
 import smtplib
+import socket
 import sqlite3
 
 from datetime             import datetime, timedelta
@@ -30,36 +31,68 @@ from itertools            import product
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
 
+import numpy as np
+
+
+from PIL import Image, ImageDraw, ImageFont
 
 def create_progress_bar(current: int, goal: int, target: int, filename: str = "progress_bar.png"):
+    width, height = 600, 100
     progress_ratio = current / goal
     target_ratio = target / goal
 
-    fig, ax = plt.subplots(figsize=(6, 1))
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    # Create image with transparency
+    image = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+    draw = ImageDraw.Draw(image)
 
-    # Draw background bar
-    ax.add_patch(plt.Rectangle((0, 0.3), 1, 0.4, color='#E0E0E0', ec='none', linewidth=0, clip_on=False, 
-                               path_effects=None, joinstyle='round', capstyle='round'))
+    # Colors
+    bg_color = (255, 255, 255, 0)  # Transparent background
+    bar_color = (76, 175, 80, 255)  # Green
+    border_color = (66, 66, 66, 255)  # Dark gray
+    target_color = (255, 87, 34, 255)  # Orange
+    text_color = (204, 204, 204, 255)  # Light gray
 
-    # Draw progress
-    ax.add_patch(plt.Rectangle((0, 0.3), progress_ratio, 0.4, color='#4CAF50', ec='none', linewidth=0, 
-                               clip_on=False, joinstyle='round', capstyle='round'))
+    # Dimensions
+    bar_height = 40
+    border_radius = bar_height // 2
+
+    # Draw bar background with rounded corners
+    draw.rounded_rectangle([(0, (height - bar_height) // 2), (width, (height + bar_height) // 2)]
+                         , radius=border_radius, outline=border_color, width=3, fill=bg_color)
+
+    # Draw progress bar with rounded corners
+    progress_width = int(width * progress_ratio)
+    draw.rounded_rectangle([(0, (height - bar_height) // 2), (progress_width, (height + bar_height) // 2)]
+                         , radius=border_radius, outline=border_color, width=0, fill=bar_color)
 
     # Draw target marker
-    ax.add_patch(plt.Rectangle((target_ratio, 0.2), 0.01, 0.6, color='#FF5722', ec='none', linewidth=0, 
-                               clip_on=False))
+    target_x = int(width * target_ratio)
+    line_thickness = 4
+    draw.rectangle([(target_x - line_thickness // 2, (bar_height // 2))
+                  , (target_x + line_thickness // 2, (height - bar_height // 2))]
+                   , fill=target_color)
 
-    # Add text
-    ax.text(0.5, 0.75, f"{current}/{goal}", ha='center', va='center', fontsize=12, color='#000000')
-    ax.text(min(target_ratio + 0.05, 0.95), 0.05, f"Target: {target}", ha='left', va='bottom', fontsize=10, color='#FF5722')
+    # Load font (use default if custom font not available)
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 30)
+    except IOError:
+        font = ImageFont.load_default(30)
 
-    ax.axis('off')
-    plt.tight_layout()
-    plt.savefig(filename, dpi=100, bbox_inches='tight', transparent=True)
-    plt.close()
+    text_y = (height - bar_height) // 2 + (bar_height - font.getbbox("Ay")[3]) // 2
+    # Draw current text (left)
+    draw.text((10, text_y), f"{current}", font=font, fill=text_color)
+
+    # Draw goal text (right)
+    goal_text_x = width - 10 - draw.textlength(f"{goal}", font=font)
+    draw.text((goal_text_x, text_y), f"{goal}", font=font, fill=text_color)
     
+    # Add target text
+    target_text = f"{target}"
+    draw.text((min(target_x + 15, width - 100), height - 30), target_text, font=font, fill=target_color)
+
+    # Save image
+    image.save(filename, "PNG")
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
@@ -201,19 +234,17 @@ class WeeklyReport(LogAllMethods):
         msg_image.add_header('Content-ID', f'<{self.LISTENING_DATA_PLOT_FILEPATH}>')
         msgRoot.attach(msg_image)
         
+        with open(self.PROGRESS_BAR_FILEPATH, 'rb') as image_file:
+            image_data = image_file.read()
+        
         msg_image = MIMEImage(image_data, name=os.path.basename(self.PROGRESS_BAR_FILEPATH))
         msg_image.add_header('Content-ID', f'<{self.PROGRESS_BAR_FILEPATH}>')
         msgRoot.attach(msg_image)
         
-        print("Sending Email...")
-        
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            print("Logging In...", Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
+        addr = socket.getaddrinfo('smtp.gmail.com', 465, socket.AF_INET)[0][-1]
+        with smtplib.SMTP_SSL(addr[0], addr[1]) as smtp_server:
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
-            print("Sending Email...", Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL)
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
-            
-        print("Sent Email")
             
             
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
@@ -255,6 +286,17 @@ class WeeklyReport(LogAllMethods):
 
         conn.close()
         plt.savefig(self.LISTENING_DATA_PLOT_FILEPATH) 
+        
+    def _gen_progress_bar(self):
+        GOAL = 500
+        # Find current year playlist, and count number of tracks, if it exists
+        playlists = [playlist['id'] for playlist in self.sanity_tester.dbh.db_get_user_playlists() 
+                            if playlist['name'] == f'{datetime.today().year}']
+        current = len(self.sanity_tester.dbh.db_get_tracks_from_playlist(playlists[0])) if len(playlists) > 0 else 0
+
+        # Calculate the percentage of the way to the middle of October
+        target = min(GOAL, int((datetime.today().timetuple().tm_yday / 288) * GOAL))
+        create_progress_bar(current, GOAL, target, filename=self.PROGRESS_BAR_FILEPATH)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates listening data average over the last 'days_back' by weekday. Disregards days with less than 
@@ -294,7 +336,7 @@ class WeeklyReport(LogAllMethods):
             html_tables += generate_dynamic_table(table[1])
             
         self._gen_playback_graph()
-        create_progress_bar(200, 500, 300, filename=self.PROGRESS_BAR_FILEPATH)
+        self._gen_progress_bar()
         
         body = f"""
                 <html>
@@ -329,11 +371,10 @@ class WeeklyReport(LogAllMethods):
                 </head>
                 <body>
                     <div class="email-container">
-                        <h1> Weekly Listening Data </h1>
                         <div style="text-align: center;">
+                            <h1> Weekly Listening Data </h1>
                             <img src="cid:{self.LISTENING_DATA_PLOT_FILEPATH}">
-                        <h1> New Music Progress </h1>
-                        <div style="text-align: center;">
+                            <h1> New Music Progress </h1>
                             <img src="cid:{self.PROGRESS_BAR_FILEPATH}">
                         </div>
                         {html_tables}
