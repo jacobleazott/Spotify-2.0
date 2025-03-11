@@ -21,13 +21,15 @@ DESCRIPTION: Unit test collection for all Shuffle Styles functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestSanityTests(unittest.TestCase):
     @mock.patch('src.features.Sanity_Tests.SanityTest._gather_playlist_data')
-    def setUp(self, mock_gather_playlist_data):
+    @mock.patch('src.features.Sanity_Tests.DatabaseHelpers')
+    def setUp(self, mock_gather_playlist_data, mock_dbh):
         self.sanityTester = SanityTest()
         self.mock_dbh = mock.MagicMock()
         self.sanityTester.dbh = self.mock_dbh
     
     @mock.patch('src.features.Sanity_Tests.SanityTest._gather_playlist_data')
-    def test_init(self, mock_gather_playlist_data):
+    @mock.patch('src.features.Sanity_Tests.DatabaseHelpers')
+    def test_init(self, mock_gather_playlist_data, mock_dbh):
         self.assertEqual(self.sanityTester.logger, logging.getLogger())
         self.assertCountEqual(self.sanityTester.track_list_to_disregard, list(Settings.MACRO_LIST))
         
