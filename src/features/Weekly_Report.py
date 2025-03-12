@@ -27,6 +27,7 @@ from email.mime.image     import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text      import MIMEText
 from itertools            import product
+from collections import defaultdict
 
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
@@ -36,47 +37,47 @@ import numpy as np
 
 from PIL import Image, ImageDraw, ImageFont
 
-def create_progress_bar(current: int, goal: int, target: int, filename: str = "progress_bar.png"):
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# GRAPH HELPERS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
+INPUT: current - int of current progress towards 'goal'.
+       goal - int of the end goal of the progress bar.
+       target - int of the expected current target of the progress bar.
+       filename - path/ name to save progress bar to.
+OUTPUT: N/A - Saves progress bar to 'filename'.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def create_progress_bar(current: int, goal: int, target: int, filename: str = "progress_bar.png") -> None:
     width, height = 600, 100
-    progress_ratio = current / goal
-    target_ratio = target / goal
-
-    # Create image with transparency
-    image = Image.new("RGBA", (width, height), (255, 255, 255, 0))
-    draw = ImageDraw.Draw(image)
-
-    # Colors
-    bg_color = (255, 255, 255, 0)  # Transparent background
-    bar_color = (76, 175, 80, 255)  # Green
-    border_color = (66, 66, 66, 255)  # Dark gray
-    target_color = (255, 87, 34, 255)  # Orange
-    text_color = (204, 204, 204, 255)  # Light gray
-
-    # Dimensions
     bar_height = 40
-    border_radius = bar_height // 2
+    
+    bg_color =      (255, 255, 255, 0  )  # Transparent background
+    bar_color =     (76 , 175, 80 , 255)  # Green
+    border_color =  (66 , 66 , 66 , 255)  # Dark gray
+    target_color =  (255, 87 , 34 , 255)  # Orange
+    text_color =    (204, 204, 204, 255)  # Light gray
+    
+    image = Image.new("RGBA", (width, height), bg_color)
+    draw = ImageDraw.Draw(image)
 
     # Draw bar background with rounded corners
     draw.rounded_rectangle([(0, (height - bar_height) // 2), (width, (height + bar_height) // 2)]
-                         , radius=border_radius, outline=border_color, width=3, fill=bg_color)
+                         , radius=bar_height // 2, outline=border_color, width=3, fill=bg_color)
 
     # Draw progress bar with rounded corners
-    progress_width = int(width * progress_ratio)
+    progress_width = int(width * (current / goal))
     draw.rounded_rectangle([(0, (height - bar_height) // 2), (progress_width, (height + bar_height) // 2)]
-                         , radius=border_radius, outline=border_color, width=0, fill=bar_color)
+                         , radius=bar_height // 2, fill=bar_color)
 
     # Draw target marker
-    target_x = int(width * target_ratio)
+    target_x = int(width * (target / goal))
     line_thickness = 4
     draw.rectangle([(target_x - line_thickness // 2, (bar_height // 2))
                   , (target_x + line_thickness // 2, (height - bar_height // 2))]
                    , fill=target_color)
 
-    # Load font (use default if custom font not available)
-    try:
-        font = ImageFont.truetype("DejaVuSans.ttf", 30)
-    except IOError:
-        font = ImageFont.load_default(30)
+    font = ImageFont.truetype("DejaVuSans.ttf", 30)
 
     text_y = (height - bar_height) // 2 + (bar_height - font.getbbox("Ay")[3]) // 2
     # Draw current text (left)
@@ -90,17 +91,18 @@ def create_progress_bar(current: int, goal: int, target: int, filename: str = "p
     target_text = f"{target}"
     draw.text((min(target_x + 15, width - 100), height - 30), target_text, font=font, fill=target_color)
 
-    # Save image
     image.save(filename, "PNG")
 
-
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# HTML HELPERS ════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Flatten nested dictionaries and lists while preserving structure.
-INPUT: row: Dictionary to flatten.
-       parent_key: Key to prepend to nested keys.
+INPUT: row - Dictionary to flatten.
+       parent_key - Key to prepend to nested keys.
 OUTPUT: "Flattened" dictionary with nested keys expanded.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def flatten_row(row, parent_key=""):
+def flatten_row(row: dict, parent_key: str="") -> dict:
     flattened = {}
     
     for key, value in row.items():
@@ -124,10 +126,10 @@ def flatten_row(row, parent_key=""):
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Expands nested lists of dictionaries while preserving relationships.
-INPUT: data: List of dictionaries to expand.
+INPUT: data - List of dictionaries to expand.
 OUTPUT: List of expanded and flattened dictionaries.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def expand_rows(data):
+def expand_rows(data: list) -> list:
     flat_data = [flatten_row(item) for item in data]
     expanded_rows = []
     
@@ -149,11 +151,12 @@ def expand_rows(data):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Avoid repeating parent rows by leaving subsequent cells blank.
-INPUT: 
-OUTPUT: 
+DESCRIPTION: Merges duplicate values in a list of dictionaries based on specified keys.
+INPUT: expanded_rows - List of dictionaries to merge duplicates in.
+       preserve_keys - List of keys to preserve when merging duplicates.
+OUTPUT: 'expanded_rows' with duplicates merged.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def merge_duplicates(expanded_rows, preserve_keys):
+def merge_duplicates(expanded_rows: list, preserve_keys: list) -> list:
     previous_row = {}
     
     for row in expanded_rows:
@@ -167,11 +170,11 @@ def merge_duplicates(expanded_rows, preserve_keys):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: 
-INPUT: 
-OUTPUT: 
+DESCRIPTION: Generates a dynamic HTML table based on the provided data given in a dictionary.
+INPUT: data - List of dictionaries containing table data.
+OUTPUT: HTML code for the generated table.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def generate_dynamic_table(data):
+def generate_dynamic_table(data: list) -> str:
     if not data:
         return "<p>No data available.</p>"
     
@@ -209,7 +212,144 @@ class WeeklyReport(LogAllMethods):
     def __init__(self, sanity_tester, logger=None):
         self.sanity_tester = sanity_tester
         self.logger = logger if logger is not None else logging.getLogger()
+        
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # GRAPH FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Generates listening data average over the last 'days_back' by weekday. Disregards days with less than 
+                 25 mins of listening to disregard token refresh errors.
+    INPUT: listening_conn - Db object for listening_data.
+           days_back - Number of days to go back for average.
+    OUTPUT: list of average hours listened to by 0 Monday - 6 Sunday.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def _gen_average_for_past_month(self, listening_conn, days_back):
+        start = datetime.today() - timedelta(days=days_back)
+        days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+        for delta in range((datetime.today() - start).days):
+            result_date = (start + timedelta(days=delta)).date()
+            tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}'
+                                WHERE time >= ?
+                                AND time < ?;""",
+                                (f"{result_date} 00:00:00", f"{result_date} 23:59:59")).fetchall()
+            
+            if len(tmp_vals) >= 100: # Basically just > 25 mins total
+                index = (result_date.weekday() + 1) % 7
+                days[index] = [len(tmp_vals)*15 + days[index][0], days[index][1] + 1]
+        
+        return [(day[0]/3600)/day[1] if day[1] != 0 else 0 for day in days]
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Creates a bar plot for the last week of listening shown in hours Sunday-Saturday.
+    INPUT: N/A
+    OUTPUT: Saves off a listening_data_plot.png file for use later.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def _gen_playback_graph(self):
+        conn = sqlite3.connect(Settings.LISTENING_DB)
+        values = []
+        
+        for diff_day in range(0, 7):
+            # Since we run on Monday AM, we want prev Sun to this past Sat
+            date = datetime.today() - timedelta(days=8-diff_day)
+            db_res = conn.execute(f"""SELECT * FROM '{date.year}'
+                                  WHERE time >= ?
+                                  AND time < ?;"""
+                                  , (f"{date.strftime(r"%Y-%m-%d")} 00:00:00", f"{date.strftime(r"%Y-%m-%d")} 23:59:59")
+                                  ).fetchall()
+            values.append([date.strftime("%A\n%m/%d"), db_res])
+        
+        fig, ax = plt.subplots(figsize = (10, 5))
+        fig.patch.set_facecolor('#181818')  # Dark gray background
+        ax.set_facecolor('#181818')  # Dark gray background for the axis
+        
+        # Add x, y gridlines
+        ax.tick_params(axis='both', labelcolor='white', colors='white')
+        ax.grid(axis='y', color='white', linestyle='-.', linewidth=1, alpha=0.3)
+        ax.set_axisbelow(True)
+        
+        plt.bar([val[0] for val in values], [len(val[1])/240 for val in values], color='#1DB954', width=0.8)
+        plt.ylabel("Hours Spent Listening", color='white')
+        plt.title(f"Spotify Listening For {(datetime.today() - timedelta(days=8)).strftime('%b %d %Y')} -"
+                  f"{(datetime.today() - timedelta(days=2)).strftime('%b %d %Y')}", color='white')
+        
+        # Add previous month of listening data
+        average = self._gen_average_for_past_month(conn, 28)
+        plt.plot(average, color='#CCCCCC', linewidth=1.5)
+        
+        conn.close()
+        plt.savefig(self.LISTENING_DATA_PLOT_FILEPATH) 
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Generates a progress bar for the progress on the current years playlist.
+    INPUT: N/A
+    OUTPUT: N/A
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def _gen_progress_bar(self):
+        GOAL = 500
+        # Find current year playlist, and count number of tracks, if it exists
+        playlists = [playlist['id'] for playlist in self.sanity_tester.dbh.db_get_user_playlists() 
+                            if playlist['name'] == f'{datetime.today().year}']
+        current = len(self.sanity_tester.dbh.db_get_tracks_from_playlist(playlists[0])) if len(playlists) > 0 else 0
 
+        # Calculate the percentage of the way to the middle of October
+        target = min(GOAL, int((datetime.today().timetuple().tm_yday / 288) * GOAL))
+        create_progress_bar(current, GOAL, target, filename=self.PROGRESS_BAR_FILEPATH)
+        
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: 
+    INPUT: N/A
+    OUTPUT: N/A
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    # TODO Fix so we can allow a query spanning multiple years
+    # TODO We probably need to track tracks not found in the database, this would be fixed by the smart interface... But we are
+    #       losing track data here if we don't have the tracks saved, or the playlists were once and then got deleted like GO THROUGH
+    def _gen_latest_artists(self, start_date, end_date, num_artists=5):
+
+        with sqlite3.connect(Settings.LISTENING_DB) as ldb_conn:
+            # Fetch relevant track_ids from ldb_conn within the date range
+            track_query = f"""
+                SELECT track_id, COUNT(*) as track_count
+                FROM '{datetime.now().year}'
+                WHERE time BETWEEN ? AND ?
+                GROUP BY track_id;
+            """
+            track_cursor = ldb_conn.execute(track_query, (start_date.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d %H:%M:%S")))
+            track_counts = track_cursor.fetchall()
+
+            if not track_counts:
+                return []
+
+            # Create a mapping of track_id to count
+            track_id_to_count = {track_id: count for track_id, count in track_counts}
+
+            # Get all matching track_ids
+            track_ids = list(track_id_to_count.keys())
+
+            # Get artist information and calculate listening time
+            artist_query = f"""
+                SELECT ta.id_artist, a.name, t.id
+                FROM tracks t
+                JOIN tracks_artists ta ON t.id = ta.id_track
+                JOIN artists a ON ta.id_artist = a.id
+                WHERE t.id IN ({','.join('?' for _ in track_ids)});
+            """
+            artist_data = self.sanity_tester.dbh.backup_db_conn.execute(artist_query, track_ids).fetchall()
+
+            # Aggregate listening time by artist
+            artist_listening_time = {}
+            for artist_id, artist_name, track_id in artist_data:
+                if artist_id not in artist_listening_time:
+                    artist_listening_time[artist_id] = [artist_name, 0]
+                artist_listening_time[artist_id][1] += track_id_to_count[track_id] * 15
+
+            # Sort artists by listening time
+            top_artists = sorted(artist_listening_time.values(), key=lambda x: x[1], reverse=True)[:num_artists]
+
+            return [{'Artist': artist[0], 'Listening Time (min)': artist[1]/60} for artist in top_artists]
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # EMAIL/ REPORT ═══════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Sends an email with subject, and body to 'RECIPIENT_EMAIL' from 'SENDER_EMAIL', requires app creds from
                  the referenced location.
@@ -241,89 +381,21 @@ class WeeklyReport(LogAllMethods):
         msg_image.add_header('Content-ID', f'<{self.PROGRESS_BAR_FILEPATH}>')
         msgRoot.attach(msg_image)
         
-        addr = socket.getaddrinfo('smtp.gmail.com', 465, socket.AF_INET)[0][-1]
-        with smtplib.SMTP_SSL(addr[0], addr[1]) as smtp_server:
+        # Define source address in ipv4 format to force SMTP server to use ipv4, issues with ipv6 for some reason.
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, source_address=('0.0.0.0', 0)) as smtp_server:
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
-            
-            
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Creates a bar plot for the last week of listening shown in hours Sunday-Saturday.
+    DESCRIPTION: Generates a 'weekly' emall report for the user. Giving the user a sumary of all the sanity tests, 
+                 listening data, and music progress, and more.
     INPUT: N/A
-    OUTPUT: Saves off a listening_data_plot.png file for use later.
+    OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def _gen_playback_graph(self):
-        conn = sqlite3.connect(Settings.LISTENING_DB)
-        values = []
-
-        for diff_day in range(0, 7):
-            # Since we run on Monday AM, we want prev Sun to this past Sat
-            date = datetime.today() - timedelta(days=8-diff_day)
-            db_res = conn.execute(f"""SELECT * FROM '{date.year}'
-                                  WHERE time >= ?
-                                  AND time < ?;"""
-                                  , (f"{date.strftime(r"%Y-%m-%d")} 00:00:00", f"{date.strftime(r"%Y-%m-%d")} 23:59:59")
-                                  ).fetchall()
-            values.append([date.strftime("%A\n%m/%d"), db_res])
-
-        fig, ax = plt.subplots(figsize = (10, 5))
-        fig.patch.set_facecolor('#181818')  # Dark gray background
-        ax.set_facecolor('#181818')  # Dark gray background for the axis
-
-        # Add x, y gridlines
-        ax.tick_params(axis='both', labelcolor='white', colors='white')
-        ax.grid(axis='y', color='white', linestyle='-.', linewidth=1, alpha=0.3)
-        ax.set_axisbelow(True)
-
-        plt.bar([val[0] for val in values], [len(val[1])/240 for val in values], color='#1DB954', width=0.8)
-        plt.ylabel("Hours Spent Listening", color='white')
-        plt.title(f"Spotify Listening For {(datetime.today() - timedelta(days=8)).strftime('%b %d %Y')} -"
-                  f"{(datetime.today() - timedelta(days=2)).strftime('%b %d %Y')}", color='white')
-        
-        # Add previous month of listening data
-        average = self._gen_average_for_past_month(conn, 28)
-        plt.plot(average, color='#CCCCCC', linewidth=1.5)
-
-        conn.close()
-        plt.savefig(self.LISTENING_DATA_PLOT_FILEPATH) 
-        
-    def _gen_progress_bar(self):
-        GOAL = 500
-        # Find current year playlist, and count number of tracks, if it exists
-        playlists = [playlist['id'] for playlist in self.sanity_tester.dbh.db_get_user_playlists() 
-                            if playlist['name'] == f'{datetime.today().year}']
-        current = len(self.sanity_tester.dbh.db_get_tracks_from_playlist(playlists[0])) if len(playlists) > 0 else 0
-
-        # Calculate the percentage of the way to the middle of October
-        target = min(GOAL, int((datetime.today().timetuple().tm_yday / 288) * GOAL))
-        create_progress_bar(current, GOAL, target, filename=self.PROGRESS_BAR_FILEPATH)
-    
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Generates listening data average over the last 'days_back' by weekday. Disregards days with less than 
-                 25 mins of listening to disregard token refresh errors.
-    INPUT: listening_conn - Db object for listening_data.
-           days_back - Number of days to go back for average.
-    OUTPUT: list of average hours listened to by 0 Monday - 6 Sunday.
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def _gen_average_for_past_month(self, listening_conn, days_back):
-        start = datetime.today() - timedelta(days=days_back)
-        days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
-        for delta in range((datetime.today() - start).days):
-            result_date = (start + timedelta(days=delta)).date()
-            tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}'
-                                WHERE time >= ?
-                                AND time < ?;""",
-                                (f"{result_date} 00:00:00", f"{result_date} 23:59:59")).fetchall()
-            
-            if len(tmp_vals) >= 100: # Basically just > 25 mins total
-                index = (result_date.weekday() + 1) % 7
-                days[index] = [len(tmp_vals)*15 + days[index][0], days[index][1] + 1]
-        
-        return [(day[0]/3600)/day[1] if day[1] != 0 else 0 for day in days]
-
     def gen_weekly_report(self):
         tables = [
-            ("Differences In Playlists", self.sanity_tester.sanity_diffs_in_major_playlist_sets())
+            ("This Weeks Top Artists", self._gen_latest_artists(datetime.now() - timedelta(days=7), datetime.now()))
+          , ("Differences In Playlists", self.sanity_tester.sanity_diffs_in_major_playlist_sets())
           , ("In Progress Artists", self.sanity_tester.sanity_in_progress_artists())
           , ("Duplicates", self.sanity_tester.sanity_duplicates())
           , ("Artist Integrity", self.sanity_tester.sanity_artist_playlist_integrity())
@@ -384,6 +456,7 @@ class WeeklyReport(LogAllMethods):
             """
 
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
+        
         self._send_email(subject, body)
 
 
