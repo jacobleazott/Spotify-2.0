@@ -11,12 +11,13 @@
 import logging
 import os
 import unittest
+import pytest
 
 from unittest import mock
 from datetime import datetime
 
 from src.helpers.Settings           import Settings
-from src.features.Weekly_Report     import WeeklyReport
+from src.features.Weekly_Report     import *
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Weekly Report functionality.
@@ -109,49 +110,128 @@ class TestWeeklyReport(unittest.TestCase):
         expected_output = [0, 0, 0, 0, 0, 0, 0]
         self.assertEqual(self.weekly_report._gen_average_for_past_month(listening_conn, days_back), expected_output)
 
-    
-    def test_gen_html_header_list(self):
-        default = "Default message"
-        # Test with multiple values and sub-elements
-        values = [["Header 1", ["Sub-element 1", "Sub-element 2"]], ["Header 2", ["Sub-element 3"]]]
-        expected_output = (
-            "\n<h4> Header 1 - </h4>\n<ul>\n\t<li> Sub-element 1 </li>\n\t<li> Sub-element 2 </li>\n</ul>\n"
-              "<h4> Header 2 - </h4>\n<ul>\n\t<li> Sub-element 3 </li>\n</ul>"
-        )
-        self.assertEqual(self.weekly_report._gen_html_header_list(values, default), expected_output)
-
-        # Test with empty values
-        values = []
-        expected_output = "<p><b> Default message </b></p>"
-        self.assertEqual(self.weekly_report._gen_html_header_list(values, default), expected_output)
-
-        # Test with empty sub-elements
-        values = [["Header 1", []]]
-        expected_output = "\n<h4> Header 1 - </h4>\n<ul>\n</ul>"
-        self.assertEqual(self.weekly_report._gen_html_header_list(values, default), expected_output)
-    
-    def test_gen_html_unordered_list(self):
-        # Test with non-empty values
-        values = ['value1', 'value2', 'value3']
-        expected_html = "\n<ul>\n\t<li> value1 </li>\n\t<li> value2 </li>\n\t<li> value3 </li>\n</ul>"
-        self.assertEqual(self.weekly_report._gen_html_unordered_list(values, 'default'), expected_html)
-
-        # Test with empty values
-        values = []
-        expected_html = "<p><b> default </b></p>"
-        self.assertEqual(self.weekly_report._gen_html_unordered_list(values, 'default'), expected_html)
-
     def test_gen_weekly_report(self):
-        with mock.patch.object(self.weekly_report, '_gen_html_header_list'), \
-             mock.patch.object(self.weekly_report, '_gen_html_unordered_list'), \
-             mock.patch.object(self.weekly_report, '_gen_playback_graph'), \
-             mock.patch.object(self.weekly_report, '_send_email'):
-
+        with mock.patch.object(self.weekly_report, '_gen_playback_graph')\
+             , mock.patch.object(self.weekly_report, '_send_email') \
+             , mock.patch('src.features.Weekly_Report.generate_dynamic_table'):
+            
             self.weekly_report.gen_weekly_report()
-            self.weekly_report._gen_html_header_list.assert_called()
-            self.weekly_report._gen_html_unordered_list.assert_called()
             self.weekly_report._gen_playback_graph.assert_called_once()
             self.weekly_report._send_email.assert_called_once()
+    
+    def test_flatten_row(self):
+        row = {'A': 1, 'B': 2}
+        expected = {'A': 1, 'B': 2}
+        self.assertEqual(flatten_row(row), expected)
+        
+        row = {'A': [{'B': 1}, {'C': 2}]}
+        expected = {'A': [{'A B': 1}, {'A C': 2}]}
+        self.assertEqual(flatten_row(row), expected)
+        
+        row = {'A': {'B': 1, 'C': {'D': [2, 3]}}}
+        expected = {'A B': 1, 'A C D': '2, 3'}
+        self.assertEqual(flatten_row(row), expected)
+        
+        row = {'A': [1, 2]}
+        expected = {'A': '1, 2'}
+        self.assertEqual(flatten_row(row), expected)
+    
+    def test_expand_rows(self):
+        # Test No Expansion
+        data = [
+            {'A': 1, 'B': 2}
+          , {'A': 4, 'B': 5}
+        ]
+        expected = [
+            {'A': 1, 'B': 2}
+          , {'A': 4, 'B': 5}
+        ]
+        self.assertEqual(expand_rows(data), expected)
+        
+        # Test Nested Exansion
+        data = [
+            {'A': 1, 'B': [{'C': 2}, {'C': 3}]}
+          , {'A': 4, 'B': [{'C': 5}, {'C': 6}]}
+        ]
+        expected = [
+            {'A': 1, 'B C': 2}
+          , {'A': 1, 'B C': 3}
+          , {'A': 4, 'B C': 5}
+          , {'A': 4, 'B C': 6}
+        ]
+        self.assertEqual(expand_rows(data), expected)
+    
+    def test_merge_duplicates(self):
+        data = [{'A': 1, 'B': 2}, {'A': 1, 'B': 3}, {'A': 2, 'B': 3}]
+        preserve_keys = ['A', 'B']
+        expected = [{'A': 1, 'B': 2}, {'A': '', 'B': 3}, {'A': 2, 'B': ''}]
+        self.assertEqual(merge_duplicates(data, preserve_keys), expected)
+        
+        data = [{'A': 1, 'B': 2}, {'A': 2, 'B': 3}, {'A': 3, 'B': 3}]
+        preserve_keys = ['A']
+        expected = [{'A': 1, 'B': 2}, {'A': 2, 'B': 3}, {'A': 3, 'B': 3}]
+        self.assertEqual(merge_duplicates(data, preserve_keys), expected)
+        
+        data = []
+        preserve_keys = ['A', 'B']
+        expected = []
+        self.assertEqual(merge_duplicates(data, preserve_keys), expected)
+    
+    def test_generate_dynamic_table(self):
+        # Test No Data
+        self.assertEqual(generate_dynamic_table([]), "<p>No data available.</p>")
+        
+        # Test Single Row
+        data = [{"Track": "Song A", "Artist": "Artist 1"}]
+        result = generate_dynamic_table(data)
+        
+        self.assertIn("<th>Track</th>", result)
+        self.assertIn("<th>Artist</th>", result)
+        self.assertIn("<td>Song A</td>", result)
+        self.assertIn("<td>Artist 1</td>", result)
+        
+        # Test Multiple Rows
+        data = [
+            {"Track": "Song A", "Artist": "Artist 1"}
+          , {"Track": "Song B", "Artist": "Artist 2"}
+        ]
+        result = generate_dynamic_table(data)
+        
+        self.assertIn("<td>Song A</td>", result)
+        self.assertIn("<td>Artist 1</td>", result)
+        self.assertIn("<td>Song B</td>", result)
+        self.assertIn("<td>Artist 2</td>", result)
+        self.assertIn('background-color: #1E1E1E;', result)
+        self.assertIn('background-color: #252525;', result)
+        
+        # Test Merging Duplicates
+        data = [
+            {"Playlist": "Playlist 1", "Track": "Song A", "Artist": "Artist 1"}
+          , {"Playlist": "Playlist 1", "Track": "Song A", "Artist": "Artist 1"}
+        ]
+        result = generate_dynamic_table(data)
+        
+        self.assertEqual(result.count("Playlist 1"), 1)
+        self.assertEqual(result.count("Song A"), 1)
+        
+        # Test Preserving Keys
+        data = [
+            {"Playlist": "My Playlist", "Track": "Song A", "Artist": "Artist 1"}
+          , {"Playlist": "My Playlist", "Track": "Song B", "Artist": "Artist 2"}
+        ]
+        result = generate_dynamic_table(data)
+        
+        self.assertEqual(result.count("My Playlist"), 1)
+        self.assertEqual(result.count("Song A"), 1)
+        self.assertEqual(result.count("Song B"), 1)
+        
+        # Test Missing Keys
+        with self.assertRaises(KeyError):
+            data = [
+                {"Track": "Song A"},
+                {"Artist": "Artist 2"}
+            ]
+            generate_dynamic_table(data)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
