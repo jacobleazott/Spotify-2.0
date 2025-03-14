@@ -69,7 +69,8 @@ class MiscFeatures(LogAllMethods):
     OUTPUT: Str of playlist_id created.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-modify-public"
-                 , "playlist-modify-private"])
+               , "playlist-modify-private"
+               , "playlist-read-private"])
     def generate_artist_release(self, artist_id_list: list[str], playlist_name: str, playlist_description: str,
                 start_date: Optional[datetime]=None, end_date: Optional[datetime]=None) -> str:
         
@@ -100,8 +101,8 @@ class MiscFeatures(LogAllMethods):
     OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-modify-public"
-                 , "playlist-modify-private"
-                 , "playlist-read-private"])
+               , "playlist-modify-private"
+               , "playlist-read-private"])
     def distribute_tracks_to_collections_from_playlist(self, playlist_id: str) -> None:
         user_playlists = self.spotify.get_user_playlists(info=['id', 'name'])
         good_playlist = None
@@ -171,8 +172,8 @@ class MiscFeatures(LogAllMethods):
     OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     @gsh.scopes(["playlist-modify-public"
-                 , "playlist-modify-private" 
-                 , "playlist-read-private"])
+               , "playlist-modify-private" 
+               , "playlist-read-private"])
     def reorganize_playlist(self, playlist_id):
         tracks = self.spotify.get_playlist_tracks(playlist_id, 
                                                 track_info=['id', 'name', 'disc_number', 'track_number', 'is_local'],
@@ -213,10 +214,10 @@ class MiscFeatures(LogAllMethods):
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["playlist-read-private"
-                 , "playlist-read-collaborative"
-                 , "playlist-modify-public"
-                 , "playlist-modify-private"
-                 , Settings.DELETE_SCOPE])
+               , "playlist-read-collaborative"
+               , "playlist-modify-public"
+               , "playlist-modify-private"
+               , Settings.DELETE_SCOPE])
     def update_daily_latest_playlist(self):
         # Grab # of tracks, subtracts PLAYLIST_LENGTH so we will always grab the right amount.
         offset = max(self.spotify.get_playlist_data(Settings.LATEST_SOURCE_PLAYLIST, info=[['tracks', 'total']])[0] \
