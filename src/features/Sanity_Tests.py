@@ -46,7 +46,6 @@ DESCRIPTION: Collection of sanity tests to verify integrity and completion of th
 class SanityTest(LogAllMethods):
     # List of tracks to disregard for our comparisons, this currently includes our "shuffle macro" as well as our 
     #   "Soundtracks" playlists tracks
-    track_list_to_disregard = list(Settings.MACRO_LIST)
     individual_artist_playlists = []
     years_playlists = []
     master_playlist = []
@@ -54,6 +53,7 @@ class SanityTest(LogAllMethods):
     user_followed_artists = []
 
     def __init__(self, logger: logging.Logger=None) -> None:
+        self.track_list_to_disregard = list(Settings.MACRO_LIST) 
         self.logger = logger if logger is not None else logging.getLogger()
         self.dbh = DatabaseHelpers(self.logger)
         
@@ -92,15 +92,16 @@ class SanityTest(LogAllMethods):
     OUTPUT: List of string formatted track duplicates.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _find_duplicates(self, tracks):
-        duplicates, checked_list = [], []
+        duplicates = []
+        checked_ids, duplicate_ids = set(), set()
 
         for track in tracks:
-            # If track isn't local, already checked, not a double duplicate, and not our macros
-            if not track['is_local'] and track['id'] in checked_list and track not in duplicates:
+            if track['id'] in checked_ids and track['id'] not in duplicate_ids:
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                duplicates.append(f"{track['name']} -- {artist_names}")
-            checked_list.append(track['id'])
-            
+                duplicates.append({'Name': track['name'], 'Artists': artist_names})
+                duplicate_ids.add(track['id'])
+            checked_ids.add(track['id'])
+
         return duplicates
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -119,7 +120,7 @@ class SanityTest(LogAllMethods):
                 continue
             if track not in to_verify_track_list: 
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                res_list.append(f"{track['name']} -- {artist_names}")
+                res_list.append({'Name': track['name'], 'Artists': artist_names})
         
         return res_list
                 
@@ -133,36 +134,32 @@ class SanityTest(LogAllMethods):
     OUTPUT: List of collections with their respective tracks that are missing from the varying collections.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_diffs_in_major_playlist_sets(self):
+        def collect_tracks(playlists):
+            return [track for playlist in playlists for track in playlist['tracks']]
+
+        years_tracks = collect_tracks(self.years_playlists)
+        master_tracks = collect_tracks(self.master_playlist)
+        artist_tracks = collect_tracks(
+            playlist for playlist in self.individual_artist_playlists
+            if any(playlist['name'] == artist['name'] for artist in self.user_followed_artists)
+        )
         res_list = []
 
-        # Prep track collections
-        years_track_list = [track for playlist in self.years_playlists for track in playlist['tracks']]
-        master_track_list = [track for playlist in self.master_playlist for track in playlist['tracks']]
-        
-        individual_artists_track_list = []
-        # Skip any '__' playlist that we aren't following yet as we don't expect them to be in years or master
-        for playlist in self.individual_artist_playlists:
-            if not any(playlist['name'] == artist['name'] for artist in self.user_followed_artists): continue
-            individual_artists_track_list += playlist['tracks']
-        
-        # We skip the disregard tracks when comparing against the '__' playlists, we don't care about them
-        res_list.append(("TRACKS IN MASTER PLAYLISTS BUT NOT YEAR", 
-                         self._compare_track_lists(master_track_list, years_track_list)))
-        res_list.append(("TRACKS IN MASTER PLAYLISTS BUT NOT '__'", 
-                         self._compare_track_lists(master_track_list, individual_artists_track_list, 
-                                                   disregard_tracks=True)))
-        res_list.append(("TRACKS IN YEARS PLAYLISTS BUT NOT MASTER", 
-                         self._compare_track_lists(years_track_list, master_track_list)))
-        res_list.append(("TRACKS IN YEARS PLAYLISTS BUT NOT '__'", 
-                         self._compare_track_lists(years_track_list, individual_artists_track_list, 
-                                                   disregard_tracks=True)))
-        res_list.append(("TRACKS IN '__' PLAYLISTS BUT NOT MASTER", 
-                         self._compare_track_lists(individual_artists_track_list, master_track_list)))
-        res_list.append(("TRACKS IN '__' PLAYLISTS BUT NOT YEARS", 
-                         self._compare_track_lists(individual_artists_track_list, years_track_list)))
+        res_list.append({'Collection': 'In Master, Not Years', 'Track': 
+                         self._compare_track_lists(master_tracks, years_tracks)})
+        res_list.append({'Collection': 'In Master, Not Artists', 'Track': 
+                        self._compare_track_lists(master_tracks, artist_tracks, disregard_tracks=True)})
+        res_list.append({'Collection': 'In Years, Not Master', 'Track': 
+                         self._compare_track_lists(years_tracks, master_tracks)})
+        res_list.append({'Collection': 'In Years, Not Artists', 'Track': 
+                        self._compare_track_lists(years_tracks, artist_tracks, disregard_tracks=True)})
+        res_list.append({'Collection': 'In Artists, Not Master', 'Track': 
+                         self._compare_track_lists(artist_tracks, master_tracks)})
+        res_list.append({'Collection': 'In Artists, Not Years', 'Track': 
+                         self._compare_track_lists(artist_tracks, years_tracks)})
 
         # Just remove any groups that didn't have comparisons to show
-        res_list = [res for res in res_list if len(res[1]) > 0]
+        res_list = [res for res in res_list if len(res['Track']) > 0]
 
         return res_list
     
@@ -177,7 +174,7 @@ class SanityTest(LogAllMethods):
         for playlist in self.user_playlists:
             if playlist['name'].startswith("__") and not any(playlist['name'][2:] == artist['name']
                                                              for artist in self.user_followed_artists):
-                res_list.append(f"{playlist['name']}")
+                res_list.append({'Artist': playlist['name'][2:]})
         return res_list
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -190,13 +187,14 @@ class SanityTest(LogAllMethods):
         # Find duplicates in every year, '__', and master playlist
         for playlist in self.individual_artist_playlists + self.years_playlists + self.master_playlist:
             tmp_dupe_list = self._find_duplicates(playlist['tracks'])
-            if len(tmp_dupe_list) > 0: res_list.append((playlist['name'], tmp_dupe_list))
+            if len(tmp_dupe_list) > 0:
+                res_list.append({'Playlist': playlist['name'], 'Track':tmp_dupe_list})
             
         # Find duplicates in entire year collection
         tmp_years_dupe_list = self._find_duplicates([track for playlist in self.years_playlists 
                                                      for track in playlist['tracks']])
-        
-        if len(tmp_years_dupe_list) > 0: res_list.append(("YEARS COLLECTION", tmp_years_dupe_list))
+        if len(tmp_years_dupe_list) > 0:
+            res_list.append({'Playlist': "YEARS COLLECTION", 'Track':tmp_years_dupe_list})
             
         return res_list
       
@@ -207,28 +205,32 @@ class SanityTest(LogAllMethods):
     OUTPUT: List of string formatted missing tracks from specified playlists.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""  
     def sanity_contributing_artists(self):
-        res_list, checked_list = [], []
+        res_list, checked_track_ids = [], set()
+
+        followed_artist_names = {artist['name'] for artist in self.user_followed_artists}
+        artist_playlists = {playlist['name']: {track['id'] for track in playlist['tracks']} 
+                            for playlist in self.individual_artist_playlists}
 
         for playlist in self.individual_artist_playlists:
             for track in playlist['tracks']:
-                # Find Number of artists I follow in the list of artists for this track
-                artist_list = [artist for artist in self.dbh.db_get_track_artists(track['id']) if 
-                               any(artist['name'] == f_artist['name'] for f_artist in self.user_followed_artists)]
-                
-                if playlist['name'] in artist_list: 
-                    artist_list.remove(playlist['name'])
-                
-                if len(artist_list) > 0:
-                    if track['id'] in checked_list: 
-                        continue
-                    checked_list.append(track['id'])
-                    # Go find all the artist playlists in the artist_list
-                    for check_playlist in self.individual_artist_playlists:
-                        if check_playlist['name'] in artist_list and \
-                                track['id'] not in [tmp_track['id'] for tmp_track in check_playlist['tracks']]:
-                            artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                            res_list.append(f"{track['name']} - {artist_names} = IS MISSING FROM = \
-                                            __{check_playlist['name']}")
+                if track['id'] in checked_track_ids:
+                    continue
+                checked_track_ids.add(track['id'])
+                # Get track artists and filter for followed ones (excluding the current playlist owner)
+                track_artists = self.dbh.db_get_track_artists(track['id'])
+                valid_artists = [artist['name'] for artist in track_artists if artist['name'] in followed_artist_names 
+                                 and artist['name'] != playlist['name']]
+
+                # Find missing playlists for valid artists
+                missing_artists = [artist for artist in valid_artists 
+                                   if track['id'] not in artist_playlists.get(artist, set())]
+
+                if missing_artists:
+                    res_list.append({
+                        'Track': track['name'],
+                        'Artists': [artist['name'] for artist in track_artists],
+                        'Missing': missing_artists
+                    })
 
         return res_list
             
@@ -240,19 +242,19 @@ class SanityTest(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def sanity_artist_playlist_integrity(self):
         res_list = []
-        
+
         for playlist in self.individual_artist_playlists:
+            tracks = []
             for track in playlist['tracks']:
-                valid_track = False
                 artists = self.dbh.db_get_track_artists(track['id'])
-                for artist in artists:
-                    if playlist['name'] == artist['name']:
-                        valid_track = True
-                        break
-                if not valid_track:
-                    res_list.append(f"__{playlist['name']} == {track['name']} - {artist_names}")
+                if not any(playlist['name'] == artist['name'] for artist in artists):
+                    tracks.append({'Name': track['name'], 'Artists': [artist['name'] for artist in artists]})
+
+            if tracks:
+                res_list.append({'Playlist': playlist['name'], 'Track': tracks})
 
         return res_list
+
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     DESCRIPTION: Goes through all of our tracks and lets us know if a track is no longer 'playable' by Spotify.
@@ -265,7 +267,7 @@ class SanityTest(LogAllMethods):
         for track in self.master_playlist[0]['tracks']:
             if not track['is_playable'] and not track['is_local']:
                 artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
-                res_list.append(f"{track['name']} - {str(', '.join(artist_names))}")
+                res_list.append({'Track': track['name'], 'Artists': artist_names})
                 
         return res_list
             
@@ -284,7 +286,7 @@ class SanityTest(LogAllMethods):
         pp.pprint(self.sanity_contributing_artists())
         print("Artist Playlist Integrity ==============")
         pp.pprint(self.sanity_artist_playlist_integrity())
-        print("Non-Playable Tracks ====================")
+        print("Non-Playable Track ====================")
         pp.pprint(self.sanity_playable_tracks())
         
 
