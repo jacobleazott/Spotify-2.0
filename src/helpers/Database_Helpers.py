@@ -35,7 +35,6 @@ DESCRIPTION: Collection of methods similar to GSH that grab from our latest loca
 class DatabaseHelpers(LogAllMethods):
     
     def __init__(self, logger: logging.Logger=None) -> None:
-        print("YOOOOOO")
         self.logger = logger if logger is not None else logging.getLogger()
         # Grab the latest database file from our backups
         self.backup_db_conn = sqlite3.connect(max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime))
