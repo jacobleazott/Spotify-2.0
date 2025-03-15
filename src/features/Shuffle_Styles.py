@@ -130,7 +130,7 @@ class Shuffler(LogAllMethods):
         
         if len(track_ids) > 0:
             self.spotify.write_to_queue([track_ids[0]])
-            self.spotify.change_playback(skip="next", shuffle=True)
+            self.spotify.change_playback(shuffle=True)
             self.spotify.write_to_queue(track_ids[1:Settings.MAX_QUEUE_LENGTH])
 
 
