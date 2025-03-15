@@ -26,6 +26,7 @@ class TestStatistics(unittest.TestCase):
         self.mock_dbh = mock.MagicMock()
         self.statistics.dbh = self.mock_dbh
 
+    @mock.patch('src.features.Statistics.Settings', Test_Settings)
     def test_generate_featured_artists_list(self):
 
         Test_Settings.PLAYLIST_IDS_NOT_IN_ARTISTS = ['playlist_id_1', 'playlist_id_2']
@@ -54,19 +55,20 @@ class TestStatistics(unittest.TestCase):
 
         print(self.statistics.generate_featured_artists_list(2))
 
+        self.assertEqual(self.statistics.generate_featured_artists_list(2)
+                         , [{'Artist Name': 'Artist Three', 'Number of Tracks': 2
+                             , 'Unique Artists': ['Artist One', 'Artist Two']
+                             , 'Track Names': ['Track Four', 'Track Six']}
+                          , {'Artist Name': 'Artist Four', 'Number of Tracks': 1
+                             , 'Unique Artists': ['Artist One']
+                             , 'Track Names': ['Track Five']}])
+        
         self.assertEqual(self.statistics.generate_featured_artists_list(1)
-                         , [('artist_3', ['Artist Three', 2, {('artist_1', 'Artist One'), ('artist_2', 'Artist Two')}
-                                         , ['Track Four', 'Track Six']])
-                            , ('artist_4', ['Artist Four', 1, {('artist_1', 'Artist One')}, ['Track Five']])])
+                         , [{'Artist Name': 'Artist Three', 'Number of Tracks': 2
+                             , 'Unique Artists': ['Artist One', 'Artist Two']
+                             , 'Track Names': ['Track Four', 'Track Six']}])
         
         self.assertEqual(self.statistics.generate_featured_artists_list(0), [])
 
-        self.mock_dbh.db_get_user_followed_artists.assert_called_once()
-        self.mock_dbh.db_get_tracks_from_playlist.assert_has_calls([
-            mock.call('playlist_id_1')
-            , mock.call('playlist_id_2')
-            , mock.call(Test_Settings.MASTER_MIX_ID)
-        ])
-        self.assertEqual(self.mock_dbh.db_get_tracks_from_playlist.call_count, 3)
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

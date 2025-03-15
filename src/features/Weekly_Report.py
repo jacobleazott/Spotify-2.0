@@ -421,12 +421,8 @@ class WeeklyReport(LogAllMethods):
                 </body>
                 </html>
             """
-
+        
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
-        
-        # with open("output.html", "w") as file:
-        #     file.write(body)
-        
         self._send_email(subject, body)
 
 

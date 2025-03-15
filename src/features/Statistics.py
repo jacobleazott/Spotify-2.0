@@ -37,6 +37,7 @@ class SpotifyStatistics(LogAllMethods):
             {<artist_id>: (<artist_name>, <num_tracks_appeared_on>, <followed_artists>, <tracks_appeared_on>),}
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_featured_artists_list(self, num_artists: int) -> list:
+        artist_data = {}
         tracks_to_ignore = set()
         artist_ids = {artist['id'] for artist in self.dbh.db_get_user_followed_artists()}
         
@@ -45,9 +46,7 @@ class SpotifyStatistics(LogAllMethods):
         
         playlist_tracks = [track for track in self.dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID) 
                             if track['id'] not in tracks_to_ignore and not track['is_local']]
-
-        artist_data = {}
-
+        
         for track in playlist_tracks:
             tmp_following_artists, tmp_new_artists = [], []
 
@@ -73,7 +72,7 @@ class SpotifyStatistics(LogAllMethods):
         
         # Convert sets to lists
         for artist_id, artist_data in sorted_list:
-            artist_data['Unique Artists'] = list(artist_data['Unique Artists'])
+            artist_data['Unique Artists'] = sorted(artist_data['Unique Artists'])
         
         return [artist[1] for artist in sorted_list[:num_artists]]
     
