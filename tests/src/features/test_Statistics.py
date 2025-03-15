@@ -69,6 +69,10 @@ class TestStatistics(unittest.TestCase):
                              , 'Track Names': ['Track Four', 'Track Six']}])
         
         self.assertEqual(self.statistics.generate_featured_artists_list(0), [])
+        
+    def test_generate_latest_artists(self):
+        # BRO-131
+        pass
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
