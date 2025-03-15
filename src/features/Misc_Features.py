@@ -20,10 +20,6 @@
 # 
 #   update_daily_latest_playlist - Creates a playlist of our 'latest' tracks we have added to our collections. Deletes
 #                                    tracks. 'LATEST_PLAYLIST_LENGTH' determines number of tracks.
-# 
-#   generate_featured_artists_list - Generates a list of all contributing artists from our collection that we do not 
-#                                      currently follow. Attached data is how many tracks they appear on and how many
-#                                      unique artists they collaborate with in our followed artists.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 from datetime import datetime
@@ -229,47 +225,6 @@ class MiscFeatures(LogAllMethods):
                                                                  max_playlist_length=Settings.LATEST_PLAYLIST_LENGTH+1)
         if remove_success:
             self.spotify.add_tracks_to_playlist(Settings.LATEST_DEST_PLAYLIST, tracks)
-            
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Generates a list of all artists that appear in our 'Master' collection that we do not follow.
-                 This list is ordered first by # of unique artists we follow that they appear with followed by total
-                 number of tracks they appear on.
-    INPUT: min_featured_tracks (optional) - Minimum number of tracks before adding as a featured artist.
-    OUTPUT: List of our featured artists that we do not follow sorted.
-            {<artist_id>: (<artist_name>, <num_tracks_appeared_on>, <followed_artists>, <tracks_appeared_on>),}
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def generate_featured_artists_list(self, min_featured_tracks: int = 1) -> list:
-        tracks_to_ignore = set()
-        dbh = DatabaseHelpers(logger=self.logger)
-        artist_ids = {artist['id'] for artist in dbh.db_get_user_followed_artists()}
-        
-        for ignored_artist in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS:
-            tracks_to_ignore.update(track['id'] for track in dbh.db_get_tracks_from_playlist(ignored_artist))
-        
-        playlist_tracks = [track for track in dbh.db_get_tracks_from_playlist(Settings.MASTER_MIX_ID) 
-                            if track['id'] not in tracks_to_ignore and not track['is_local']]
-
-        # (artist_name, num_tracks, unique_artists, track_names)
-        artist_data = defaultdict(lambda: ["", 0, set(), []])  
-
-        for track in playlist_tracks:
-            tmp_following_artists, tmp_new_artists = [], []
-
-            for artist in dbh.db_get_track_artists(track['id']):
-                if artist['id'] in artist_ids:
-                    tmp_following_artists.append((artist['id'], artist['name']))
-                else:
-                    tmp_new_artists.append((artist['id'], artist['name']))
-
-            for artist_id, artist_name in tmp_new_artists:
-                artist_entry = artist_data[artist_id]
-                artist_entry[0] = artist_name                   # Store artist name
-                artist_entry[1] += 1                            # Increment track count
-                artist_entry[2].update(tmp_following_artists)   # Update unique artists set
-                artist_entry[3].append(track['name'])           # Store track names
-
-        # Sort by unique artist count and then number of tracks the artist appears on.
-        return sorted(artist_data.items(), key=lambda artist: (len(artist[1][2]), artist[1][1]), reverse=True)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

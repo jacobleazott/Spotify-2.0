@@ -246,13 +246,6 @@ class TestSpotifyFeatures(unittest.TestCase):
         mock_getmtime.assert_any_call('/path/to/file1.txt')
         mock_getmtime.assert_any_call('/path/to/file2.txt')
         mock_getmtime.assert_any_call('/path/to/file3.txt')
-    
-    def test_print_most_featured_artists(self):
-        self.mock_misc_features.generate_featured_artists_list.return_value = [
-            ('Artist Id 1', ['Artist 1', 5, ['Artist 10'], ['Track 1']])
-          , ('Artist Id 2', ['Artist 2', 8, ['Artist 20'], ['Track 2']])]
-        self.spotify_features.print_most_featured_artists()
-        self.mock_misc_features.generate_featured_artists_list.assert_called_once()
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

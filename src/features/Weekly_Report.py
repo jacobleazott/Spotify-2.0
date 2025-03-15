@@ -19,23 +19,19 @@
 import matplotlib.pyplot as plt 
 import os
 import smtplib
-import socket
 import sqlite3
+import textwrap
 
 from datetime             import datetime, timedelta
 from email.mime.image     import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text      import MIMEText
 from itertools            import product
-from collections import defaultdict
+from PIL                  import Image, ImageDraw, ImageFont
 
-from src.helpers.decorators import *
-from src.helpers.Settings   import Settings
-
-import numpy as np
-
-
-from PIL import Image, ImageDraw, ImageFont
+from src.helpers.decorators  import *
+from src.helpers.Settings    import Settings
+from src.features.Statistics import SpotifyStatistics
 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 # GRAPH HELPERS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -60,29 +56,29 @@ def create_progress_bar(current: int, goal: int, target: int, filename: str = "p
     
     image = Image.new("RGBA", (width, height), bg_color)
     draw = ImageDraw.Draw(image)
-
+    
     # Draw bar background with rounded corners
     draw.rounded_rectangle([(0, (height - bar_height) // 2), (width, (height + bar_height) // 2)]
                          , radius=bar_height // 2, outline=border_color, width=3, fill=bg_color)
-
+    
     # Draw progress bar with rounded corners
     progress_width = int(width * (current / goal))
     draw.rounded_rectangle([(0, (height - bar_height) // 2), (progress_width, (height + bar_height) // 2)]
                          , radius=bar_height // 2, fill=bar_color)
-
+    
     # Draw target marker
     target_x = int(width * (target / goal))
     line_thickness = 4
     draw.rectangle([(target_x - line_thickness // 2, (bar_height // 2))
                   , (target_x + line_thickness // 2, (height - bar_height // 2))]
                    , fill=target_color)
-
+    
     font = ImageFont.truetype("DejaVuSans.ttf", 30)
-
+    
     text_y = (height - bar_height) // 2 + (bar_height - font.getbbox("Ay")[3]) // 2
     # Draw current text (left)
     draw.text((10, text_y), f"{current}", font=font, fill=text_color)
-
+    
     # Draw goal text (right)
     goal_text_x = width - 10 - draw.textlength(f"{goal}", font=font)
     draw.text((goal_text_x, text_y), f"{goal}", font=font, fill=text_color)
@@ -90,7 +86,7 @@ def create_progress_bar(current: int, goal: int, target: int, filename: str = "p
     # Add target text
     target_text = f"{target}"
     draw.text((min(target_x + 15, width - 100), height - 30), target_text, font=font, fill=target_color)
-
+    
     image.save(filename, "PNG")
 
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -176,10 +172,10 @@ OUTPUT: HTML code for the generated table.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def generate_dynamic_table(data: list) -> str:
     if not data:
-        return "<p>No data available.</p>"
+        return "<p>No data available.</p>\n"
     
     expanded_data = expand_rows(data)
-    preserve_keys = [key for key in expanded_data[0].keys() if "Playlist" in key or "Track" in key]
+    preserve_keys = [key for key in expanded_data[0].keys() if "Playlist" in key]
     expanded_data = merge_duplicates(expanded_data, preserve_keys)
     
     headers = expanded_data[0].keys()
@@ -190,7 +186,7 @@ def generate_dynamic_table(data: list) -> str:
     table_html += "</tr> </thead> <tbody>"
     
     for idx, row in enumerate(expanded_data):
-        table_html += f'<tr style="background-color: {"#1E1E1E" if idx % 2 == 0 else "#252525"};">'
+        table_html += f'\n\t<tr style="background-color: {"#1E1E1E" if idx % 2 == 0 else "#252525"};">'
         
         for key in headers:
             value = row.get(key, "")
@@ -198,7 +194,7 @@ def generate_dynamic_table(data: list) -> str:
         
         table_html += "</tr>"
     
-    table_html += "</tbody> </table>"
+    table_html += "</tbody> </table>\n"
     return table_html
 
 
@@ -212,6 +208,7 @@ class WeeklyReport(LogAllMethods):
     def __init__(self, sanity_tester, logger=None):
         self.sanity_tester = sanity_tester
         self.logger = logger if logger is not None else logging.getLogger()
+        self.statistics = SpotifyStatistics(logger=self.logger)
         
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # GRAPH FUNCTIONS ═════════════════════════════════════════════════════════════════════════════════════════════════
@@ -294,58 +291,6 @@ class WeeklyReport(LogAllMethods):
         # Calculate the percentage of the way to the middle of October
         target = min(GOAL, int((datetime.today().timetuple().tm_yday / 288) * GOAL))
         create_progress_bar(current, GOAL, target, filename=self.PROGRESS_BAR_FILEPATH)
-        
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: 
-    INPUT: N/A
-    OUTPUT: N/A
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # TODO Fix so we can allow a query spanning multiple years
-    # TODO We probably need to track tracks not found in the database, this would be fixed by the smart interface... But we are
-    #       losing track data here if we don't have the tracks saved, or the playlists were once and then got deleted like GO THROUGH
-    def _gen_latest_artists(self, start_date, end_date, num_artists=5):
-
-        with sqlite3.connect(Settings.LISTENING_DB) as ldb_conn:
-            # Fetch relevant track_ids from ldb_conn within the date range
-            track_query = f"""
-                SELECT track_id, COUNT(*) as track_count
-                FROM '{datetime.now().year}'
-                WHERE time BETWEEN ? AND ?
-                GROUP BY track_id;
-            """
-            track_cursor = ldb_conn.execute(track_query, (start_date.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d %H:%M:%S")))
-            track_counts = track_cursor.fetchall()
-
-            if not track_counts:
-                return []
-
-            # Create a mapping of track_id to count
-            track_id_to_count = {track_id: count for track_id, count in track_counts}
-
-            # Get all matching track_ids
-            track_ids = list(track_id_to_count.keys())
-
-            # Get artist information and calculate listening time
-            artist_query = f"""
-                SELECT ta.id_artist, a.name, t.id
-                FROM tracks t
-                JOIN tracks_artists ta ON t.id = ta.id_track
-                JOIN artists a ON ta.id_artist = a.id
-                WHERE t.id IN ({','.join('?' for _ in track_ids)});
-            """
-            artist_data = self.sanity_tester.dbh.backup_db_conn.execute(artist_query, track_ids).fetchall()
-
-            # Aggregate listening time by artist
-            artist_listening_time = {}
-            for artist_id, artist_name, track_id in artist_data:
-                if artist_id not in artist_listening_time:
-                    artist_listening_time[artist_id] = [artist_name, 0]
-                artist_listening_time[artist_id][1] += track_id_to_count[track_id] * 15
-
-            # Sort artists by listening time
-            top_artists = sorted(artist_listening_time.values(), key=lambda x: x[1], reverse=True)[:num_artists]
-
-            return [{'Artist': artist[0], 'Listening Time (min)': artist[1]/60} for artist in top_artists]
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # EMAIL/ REPORT ═══════════════════════════════════════════════════════════════════════════════════════════════════
@@ -385,6 +330,23 @@ class WeeklyReport(LogAllMethods):
         with smtplib.SMTP_SSL('smtp.gmail.com', 465, source_address=('0.0.0.0', 0)) as smtp_server:
             smtp_server.login(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             smtp_server.sendmail(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, msgRoot.as_string())
+            
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Helper to take a list of tuples and generate html tables from them. Using the first index as a title.
+    INPUT: table_data - Tuple of title and table data stored in a dictionary.
+           indent - Int number of tabs to indent.
+    OUTPUT: Indentend html table.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def _html_table_helper(self, table_data, indent=0):
+        html_tables = ""
+        for table in table_data:
+            html_tables += f"\n<h2>{table[0]}</h2>"
+            html_tables += generate_dynamic_table(table[1])
+            html_tables += """<hr style="border: none; height: 1px; 
+                                background: linear-gradient(to right, #CCCCCC, #888888); 
+                                margin: 15px 0;">"""
+        
+        return textwrap.indent(html_tables, "\t" * indent)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates a 'weekly' emall report for the user. Giving the user a sumary of all the sanity tests, 
@@ -393,20 +355,20 @@ class WeeklyReport(LogAllMethods):
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def gen_weekly_report(self):
-        tables = [
-            ("This Weeks Top Artists", self._gen_latest_artists(datetime.now() - timedelta(days=7), datetime.now()))
-          , ("Differences In Playlists", self.sanity_tester.sanity_diffs_in_major_playlist_sets())
+        statistic_tables = [
+            ("This Weeks Top Artists", self.statistics.generate_latest_artists(datetime.now() - timedelta(days=7)))
+          , ("Most Featured Non-Followed Artists", self.statistics.generate_featured_artists_list(10))
+        ]
+        
+        sanity_tables = [
+            ("Differences In Playlists", self.sanity_tester.sanity_diffs_in_major_playlist_sets())
           , ("In Progress Artists", self.sanity_tester.sanity_in_progress_artists())
           , ("Duplicates", self.sanity_tester.sanity_duplicates())
           , ("Artist Integrity", self.sanity_tester.sanity_artist_playlist_integrity())
           , ("Contributing Artists Missing", self.sanity_tester.sanity_contributing_artists())
           , ("Non-Playable Tracks", self.sanity_tester.sanity_playable_tracks())
         ]
-        html_tables = ""
-        for table in tables:
-            html_tables += f"<h1>{table[0]}</h1>"
-            html_tables += generate_dynamic_table(table[1])
-            
+        
         self._gen_playback_graph()
         self._gen_progress_bar()
         
@@ -443,19 +405,27 @@ class WeeklyReport(LogAllMethods):
                 </head>
                 <body>
                     <div class="email-container">
+                        <h1 style="color: #1DB954;"> Statistics </h1>
+                        <hr style="border: 2px dashed #1DB954;">
                         <div style="text-align: center;">
-                            <h1> Weekly Listening Data </h1>
+                            <h2> Weekly Listening Data </h2>
                             <img src="cid:{self.LISTENING_DATA_PLOT_FILEPATH}">
-                            <h1> New Music Progress </h1>
+                            <h2> New Music Progress </h2>
                             <img src="cid:{self.PROGRESS_BAR_FILEPATH}">
                         </div>
-                        {html_tables}
+                        {self._html_table_helper(statistic_tables, indent=6)}
+                        <h1 style="color: #1DB954;"> Sanity Checks </h1>
+                        <hr style="border: 2px dashed #1DB954;">
+                        {self._html_table_helper(sanity_tables, indent=6)}
                     </div>
                 </body>
                 </html>
             """
 
         subject = f"Weekly Spotify Report - {datetime.today().strftime('%b %d %Y')}"
+        
+        # with open("output.html", "w") as file:
+        #     file.write(body)
         
         self._send_email(subject, body)
 

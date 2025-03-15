@@ -129,14 +129,6 @@ class TestMiscFeatures(unittest.TestCase):
     def test_distribute_tracks_to_collections_from_playlist(self, MockDateTime):
         # Keep Date Consistent 
         MockDateTime.today.return_value.year = 9999
-        # Things to verify
-        # 1. Playlist is grabbed
-        # 2. Collections are grabbed
-            # 2a. If collections are missing exception is raised
-        # 3. Tracks are grabbed from the playlist
-        # 4. Tracks are verified for their contributing artists
-        # 5. Tracks are added to the artist collection
-        # 6. Tracks are added to the master and years collection
 
         self.mock_spotify.get_user_playlists.return_value = [
             {'id': 'artist_playlist_id_1', 'name': '__Artist One'}
@@ -420,46 +412,6 @@ class TestMiscFeatures(unittest.TestCase):
         self.mock_spotify.remove_all_playlist_tracks.assert_called_once_with(Test_Settings.LATEST_DEST_PLAYLIST
                                                                              , max_playlist_length=3)
         self.mock_spotify.add_tracks_to_playlist.assert_not_called()
-        
-    @mock.patch('src.features.Misc_Features.DatabaseHelpers')
-    def test_generate_featured_artists_list(self, MockDBH):
-        mock_dbh = MockDBH.return_value
-        Test_Settings.PLAYLIST_IDS_NOT_IN_ARTISTS = ['playlist_id_1', 'playlist_id_2']
-        mock_dbh.db_get_user_followed_artists.return_value = [{'id': 'artist_1'}, {'id': 'artist_2'}]
-        
-        mock_dbh.db_get_tracks_from_playlist.side_effect = lambda playlist_id: {
-            Test_Settings.MASTER_MIX_ID: [{'id': 'track_1', 'name': 'Track One', 'is_local': False}
-                                          , {'id': 'track_2', 'name': 'Track Two', 'is_local': False}
-                                          , {'id': 'track_3', 'name': 'Track Three', 'is_local': False}
-                                          , {'id': 'track_4', 'name': 'Track Four', 'is_local': False}
-                                          , {'id': 'track_5', 'name': 'Track Five', 'is_local': False}
-                                          , {'id': 'track_6', 'name': 'Track Six', 'is_local': False}
-                                          , {'id': 'track_7', 'name': 'Track Seven', 'is_local': True}]
-            , 'playlist_id_1': [{'id': 'track_3'}]
-        }.get(playlist_id, [])
-        
-        mock_dbh.db_get_track_artists.side_effect = lambda track_id: {
-            'track_1': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_2', 'name': 'Artist Two'}]
-            , 'track_2': [{'id': 'artist_1', 'name': 'Artist One'}]
-            , 'track_3': [{'id': 'artist_3', 'name': 'Artist Three'}]
-            , 'track_4': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_3', 'name': 'Artist Three'}]
-            , 'track_5': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_4', 'name': 'Artist Four'}]
-            , 'track_6': [{'id': 'artist_2', 'name': 'Artist Two'}, {'id': 'artist_3', 'name': 'Artist Three'}]
-            , 'track_7': [{'id': 'artist_1', 'name': 'Artist One'}, {'id': 'artist_3', 'name': 'Artist Three'}]
-        }.get(track_id, [])
-
-        self.assertEqual(self.mFeatures.generate_featured_artists_list()
-                         , [('artist_3', ['Artist Three', 2, {('artist_1', 'Artist One'), ('artist_2', 'Artist Two')}
-                                         , ['Track Four', 'Track Six']])
-                            , ('artist_4', ['Artist Four', 1, {('artist_1', 'Artist One')}, ['Track Five']])])
-
-        mock_dbh.db_get_user_followed_artists.assert_called_once()
-        mock_dbh.db_get_tracks_from_playlist.assert_has_calls([
-            mock.call('playlist_id_1')
-            , mock.call('playlist_id_2')
-            , mock.call(Test_Settings.MASTER_MIX_ID)
-        ])
-        self.assertEqual(mock_dbh.db_get_tracks_from_playlist.call_count, 3)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
