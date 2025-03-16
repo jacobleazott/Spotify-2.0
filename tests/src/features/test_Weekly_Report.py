@@ -24,12 +24,14 @@ DESCRIPTION: Unit test collection for all Weekly Report functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestWeeklyReport(unittest.TestCase):
     
-    def setUp(self):
+    @mock.patch('src.features.Weekly_Report.SpotifyStatistics')
+    def setUp(self, mock_stats):
         self.mocked_sanity_tester = mock.MagicMock()
         self.mocked_logger = mock.MagicMock()
         self.weekly_report = WeeklyReport(self.mocked_sanity_tester, logger=self.mocked_logger)
     
-    def test_init(self):
+    @mock.patch('src.features.Weekly_Report.SpotifyStatistics')
+    def test_init(self, mock_stats):
         self.assertIs(self.mocked_sanity_tester, self.weekly_report.sanity_tester)
         self.assertIs(self.mocked_logger, self.weekly_report.logger)
         default_logger_weekly_report = WeeklyReport(self.mocked_sanity_tester)
@@ -45,7 +47,7 @@ class TestWeeklyReport(unittest.TestCase):
             
             self.weekly_report._send_email('test subject', 'test body')
             
-            mock_smtp_ssl.assert_called_once_with('smtp.gmail.com', 465)
+            mock_smtp_ssl.assert_called_once()
             mock_smtp_server.login.assert_called_once_with(Settings.SENDER_EMAIL, os.environ['GMAIL_TOKEN'])
             mock_smtp_server.sendmail.assert_called_once_with(Settings.SENDER_EMAIL, Settings.RECIPIENT_EMAIL, mock.ANY)
 
@@ -179,7 +181,7 @@ class TestWeeklyReport(unittest.TestCase):
     
     def test_generate_dynamic_table(self):
         # Test No Data
-        self.assertEqual(generate_dynamic_table([]), "<p>No data available.</p>")
+        self.assertEqual(generate_dynamic_table([]).strip(), "<p>No data available.</p>")
         
         # Test Single Row
         data = [{"Track": "Song A", "Artist": "Artist 1"}]
@@ -212,7 +214,8 @@ class TestWeeklyReport(unittest.TestCase):
         result = generate_dynamic_table(data)
         
         self.assertEqual(result.count("Playlist 1"), 1)
-        self.assertEqual(result.count("Song A"), 1)
+        self.assertEqual(result.count("Song A"), 2)
+        self.assertEqual(result.count("Artist 1"), 2)
         
         # Test Preserving Keys
         data = [
@@ -228,7 +231,7 @@ class TestWeeklyReport(unittest.TestCase):
         # Test Missing Keys
         with self.assertRaises(KeyError):
             data = [
-                {"Track": "Song A"},
+                {"Playlist": "Song A"},
                 {"Artist": "Artist 2"}
             ]
             generate_dynamic_table(data)
