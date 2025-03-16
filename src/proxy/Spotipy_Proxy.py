@@ -14,13 +14,14 @@ import sys
 import time
 import requests
 
-from src.helpers.Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstracted proxy for spotipy. This way all methods from spotipy can be called like we actually own the 
                 instance, when in reality it is all passed through our proxy to our flask server that owns the object.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SpotipyProxy:
+class SpotipyProxy(LogAllMethods):
     
     def __init__(self, logger: logging.Logger=None, max_retries: int=3
                  , backoff_factor: float=1.0, overall_timeout: int=20) -> None:
