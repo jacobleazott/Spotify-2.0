@@ -83,7 +83,7 @@ class SpotifyStatistics(LogAllMethods):
            num_artists - Number of artists to return.
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # TODO BRO-117We probably need to track tracks not found in the database, this would be fixed by the smart 
+    # TODO BRO-117 We probably need to track tracks not found in the database, this would be fixed by the smart 
     #       interface... But we are losing track data here if we don't have the tracks saved, or the playlists 
     #       were once and then got deleted like GO THROUGH
     def generate_latest_artists(self, start_date, end_date=datetime.now(), num_artists=5):
