@@ -83,29 +83,34 @@ class SpotifyStatistics(LogAllMethods):
            num_artists - Number of artists to return.
     OUTPUT: N/A
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    # TODO: BRO-131 Fix so we can allow a query spanning multiple years
-    # TODO We probably need to track tracks not found in the database, this would be fixed by the smart interface... But we are
-    #       losing track data here if we don't have the tracks saved, or the playlists were once and then got deleted like GO THROUGH
+    # TODO BRO-117We probably need to track tracks not found in the database, this would be fixed by the smart 
+    #       interface... But we are losing track data here if we don't have the tracks saved, or the playlists 
+    #       were once and then got deleted like GO THROUGH
     def generate_latest_artists(self, start_date, end_date=datetime.now(), num_artists=5):
         with sqlite3.connect(Settings.LISTENING_DB) as ldb_conn:
+            track_id_to_count = {}
+            track_ids = []
+            for year in range(start_date.year, end_date.year + 1):
             # Fetch relevant track_ids from ldb_conn within the date range
-            track_query = f"""
-                SELECT track_id, COUNT(*) as track_count
-                FROM '{datetime.now().year}'
-                WHERE time BETWEEN ? AND ?
-                GROUP BY track_id;
-            """
-            track_cursor = ldb_conn.execute(track_query, (start_date.strftime("%Y-%m-%d %H:%M:%S"), end_date.strftime("%Y-%m-%d %H:%M:%S")))
-            track_counts = track_cursor.fetchall()
+                track_query = f"""
+                    SELECT track_id, COUNT(*) as track_count
+                    FROM '{year}'
+                    WHERE time BETWEEN ? AND ?
+                    GROUP BY track_id;
+                """
+                track_cursor = ldb_conn.execute(track_query, (start_date.strftime("%Y-%m-%d %H:%M:%S")
+                                                              , end_date.strftime("%Y-%m-%d %H:%M:%S")))
+                track_counts = track_cursor.fetchall()
 
-            if not track_counts:
-                return []
+                if not track_counts:
+                    return []
 
-            # Create a mapping of track_id to count
-            track_id_to_count = {track_id: count for track_id, count in track_counts}
+                # Create a mapping of track_id to count
+                for track_id, count in track_counts:
+                    track_id_to_count[track_id] = track_id_to_count.get(track_id, 0) + count
 
-            # Get all matching track_ids
-            track_ids = list(track_id_to_count.keys())
+                # Get all matching track_ids
+                track_ids += list(track_id_to_count.keys())
 
             # Get artist information and calculate listening time
             artist_query = f"""

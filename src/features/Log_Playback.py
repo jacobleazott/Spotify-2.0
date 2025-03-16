@@ -16,7 +16,6 @@
 #   of calls. However, right now we query ever 15s so we count a track as listened if we've listened to 16-30s of it.
 #   This gives us an ability to immediately skip songs and not worry about it counting against us in later features.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import atexit
 import logging
 import pickle
 import sqlite3
@@ -44,9 +43,9 @@ class LogPlayback(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def increment_play_count_db(self) -> None:
         with sqlite3.connect(self.tcdb_path) as tcdb_conn:
-            tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
+            tcdb_conn.execute("""CREATE TABLE IF NOT EXISTS 'tracks'(
                                      track_id TEXT PRIMARY KEY,
-                                     play_count INTEGER NOT NULL);''')
+                                     play_count INTEGER NOT NULL);""")
 
             # Checks ot see if the track is already in the database or not
             if not bool(tcdb_conn.execute(
