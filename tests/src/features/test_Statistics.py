@@ -19,7 +19,7 @@ from tests.helpers.mocked_Settings import Test_Settings
 from src.features.Statistics       import SpotifyStatistics
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Unit test collection for all Misc Features functionality.
+DESCRIPTION: Unit test collection for all Statistics functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 @mock.patch('src.features.Statistics.Settings', Test_Settings)
 class TestStatistics(unittest.TestCase):
