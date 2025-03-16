@@ -9,7 +9,7 @@
 # This script simply takes all of the users current followed artists and playlists and backs them up to an SQLite DB.
 #   It utilizes a simple many to many relationship table for playlists and tracks.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import atexit
+import contextlib
 import logging
 import sqlite3
 from datetime import datetime
@@ -77,13 +77,17 @@ class BackupSpotifyData(LogAllMethods):
     def __init__(self, spotify, db_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
-        self.db_conn = sqlite3.connect(db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db")
-        atexit.register(self.close)
+        self.db_path = db_path or f"{Settings.BACKUPS_LOCATION}{datetime.today().date()}.db"
         
-    def close(self):
-        if self.db_conn:
-            self.db_conn.close()
-            self.db_conn = None
+    @contextlib.contextmanager
+    def connect_db(self):
+        conn = sqlite3.connect(self.db_path)
+        try:
+            conn.execute("PRAGMA foreign_keys = ON;")
+            yield conn 
+            conn.commit()
+        finally:
+            conn.close()
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Inserts a variable amount of elements into a database table while verifying the types of your 'values'
@@ -97,7 +101,9 @@ class BackupSpotifyData(LogAllMethods):
         if not values:
             return  # No data to insert
 
-        expected_types = get_column_types(self.db_conn, table)
+        with self.connect_db() as db_conn:
+            expected_types = get_column_types(db_conn, table)
+        
         # Translates values into our format from either dict, list of tuples, or just list
         data = [tuple(d.values()) for d in values] if type(values[0]) is dict \
                 else [(v,) for v in values] if type(values[0]) is not tuple else values 
@@ -110,10 +116,10 @@ class BackupSpotifyData(LogAllMethods):
         placeholders = ", ".join("?" for _ in data[0])
         query = f"INSERT OR IGNORE INTO {table} VALUES ({placeholders})"
 
-        with self.db_conn:
+        with self.connect_db() as db_conn:
             for i in range(0, len(data), batch_size):
                 batch = data[i:i + batch_size]
-                self.db_conn.executemany(query, batch)
+                db_conn.executemany(query, batch)
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates the necessary tables for our SQLite db. These include the artist table, playback table, tracks
@@ -122,8 +128,8 @@ class BackupSpotifyData(LogAllMethods):
     Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _create_backup_data_db(self) -> None:
-        with self.db_conn:
-            self.db_conn.executescript("""
+        with self.connect_db() as db_conn:
+            db_conn.executescript("""
                 PRAGMA foreign_keys = ON;
                 
                 CREATE TABLE IF NOT EXISTS playlists (
@@ -249,8 +255,9 @@ class BackupSpotifyData(LogAllMethods):
         for playlist in user_playlists:
             self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
             self._insert_tracks_into_db_from_playlist(playlist['id'])
-            
-        self.logger.info(f"\t Inserted {self.db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
+        
+        with self.connect_db() as db_conn:
+            self.logger.info(f"\t Inserted {db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
