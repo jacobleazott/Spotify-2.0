@@ -24,12 +24,14 @@ DESCRIPTION: Unit test collection for all Weekly Report functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class TestWeeklyReport(unittest.TestCase):
     
-    def setUp(self):
+    @mock.patch('src.features.Sanity_Tests.DatabaseHelpers')
+    def setUp(self, mock_dbh):
         self.mocked_sanity_tester = mock.MagicMock()
         self.mocked_logger = mock.MagicMock()
         self.weekly_report = WeeklyReport(self.mocked_sanity_tester, logger=self.mocked_logger)
     
-    def test_init(self):
+    @mock.patch('src.features.Sanity_Tests.DatabaseHelpers')
+    def test_init(self, mock_dbh):
         self.assertIs(self.mocked_sanity_tester, self.weekly_report.sanity_tester)
         self.assertIs(self.mocked_logger, self.weekly_report.logger)
         default_logger_weekly_report = WeeklyReport(self.mocked_sanity_tester)
