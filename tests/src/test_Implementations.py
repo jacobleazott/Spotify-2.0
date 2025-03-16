@@ -8,20 +8,15 @@
 # ════════════════════════════════════════════════════ DESCRIPTION ════════════════════════════════════════════════════
 # Unit tests for all functionality out of 'Implementations.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-import logging
-import sqlite3
-import threading
-import time
 import unittest
 
-from datetime                          import datetime, timedelta
+from datetime import datetime, timedelta
 from unittest import mock
 
 import src.Implementations
 from src.Implementations           import *
 from src.Spotify_Features          import SpotifyFeatures
 from tests.helpers.mocked_Settings import Test_Settings
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Implementations functionality.
@@ -31,7 +26,6 @@ class TestStatistics(unittest.TestCase):
 
     def setUp(self):
         src.Implementations.threads = []
-        pass
     
     @mock.patch("src.Implementations.datetime")
     @mock.patch("src.Implementations.os")
