@@ -9,6 +9,7 @@
 # Unit tests for all functionality out of 'Spotipy_Proxy.py'.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import pytest
 import unittest
 from unittest import mock
 
@@ -56,7 +57,7 @@ class TestSpotipyProxy(unittest.TestCase):
         # Test 500 Response Max Retries
         mock_requests_post.return_value.status_code = 500
         mock_requests_post.return_value.json.return_value = {"result": "test"}
-        with self.assertRaises(Exception):
+        with pytest.raises(SystemExit) as exc_info:
             spotipy_proxy.test1()
         self.assertEqual(mock_requests_post.call_count, 3)
         mock_requests_post.reset_mock()
@@ -85,7 +86,7 @@ class TestSpotipyProxy(unittest.TestCase):
 
         # Test Timeout
         spotipy_proxy.overall_timeout = 0
-        with self.assertRaises(Exception):
+        with self.assertRaises(TimeoutError):
             spotipy_proxy.method1274()
         self.assertEqual(mock_requests_post.call_count, 0)
 

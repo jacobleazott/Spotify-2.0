@@ -24,7 +24,7 @@ from src.helpers.Settings   import Settings
 DESCRIPTION: Creates and manages a flask server as well as our spotipy instance. Handles token refreshing and allows 
                 us to have a consistant connection to the API.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SpotifyServer():
+class SpotifyServer(LogAllMethods):
     
     def __init__(self):
         self.logger = get_file_logger(f'logs/Proxy-Server.log', log_level=logging.INFO, mode='a')

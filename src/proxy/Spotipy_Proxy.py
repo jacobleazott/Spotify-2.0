@@ -10,16 +10,18 @@
 #   when in reality it is all passed through our proxy to our flask server that owns the object.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
+import sys
 import time
 import requests
 
-from src.helpers.Settings import Settings
+from src.helpers.decorators import *
+from src.helpers.Settings   import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstracted proxy for spotipy. This way all methods from spotipy can be called like we actually own the 
                 instance, when in reality it is all passed through our proxy to our flask server that owns the object.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SpotipyProxy:
+class SpotipyProxy(LogAllMethods):
     
     def __init__(self, logger: logging.Logger=None, max_retries: int=3
                  , backoff_factor: float=1.0, overall_timeout: int=20) -> None:
@@ -40,7 +42,7 @@ class SpotipyProxy:
                     # Check if the total time elapsed exceeds the overall timeout
                     elapsed_time = time.perf_counter() - start_time
                     if elapsed_time > self.overall_timeout:
-                        raise Exception(f"Operation timed out after {self.overall_timeout} seconds")
+                        raise TimeoutError(f"Operation timed out after {self.overall_timeout} seconds")
                     
                     # Make the request with a short timeout for each individual request
                     response = requests.post(url, json=payload, timeout=5)
@@ -57,7 +59,7 @@ class SpotipyProxy:
                     # Check if the total time exceeded the overall timeout before retrying
                     elapsed_time = time.perf_counter() - start_time
                     if elapsed_time > self.overall_timeout:
-                        raise Exception(f"Operation timed out after {self.overall_timeout} seconds")
+                        raise TimeoutError(f"Operation timed out after {self.overall_timeout} seconds")
                     
                     # Backoff and retry
                     delay = self.backoff_factor * (2 ** attempt)  # Exponential backoff
@@ -65,7 +67,7 @@ class SpotipyProxy:
                     time.sleep(delay)
                     
             self.logger.error(f"Request failed after {self.max_retries} attempts.")
-            raise Exception("Max retries exceeded.")
+            sys.exit(0)
 
         return method
 
