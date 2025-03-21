@@ -48,25 +48,25 @@ def find_main_iterator(response: Dict[str, Any]) -> Union[List[Dict[str, Any]], 
 
     return response  # Default to returning the original response if no valid path is found
 
-def extract_fields(data: Union[Dict[str, Any], List[Dict[str, Any]]], field_structure: Dict[str, Any]) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-    """Extracts specified fields from a list of items or a single item based on field_structure."""
+def extract_fields(data, field_structure):
     if isinstance(data, list):
         return [extract_fields(item, field_structure) for item in data]
     elif isinstance(data, dict):
         extracted = {}
         for key, sub_structure in field_structure.items():
-            if key in data:
-                value = data[key]
-                # Unwrap 'items' if it's a dictionary containing a list
-                if isinstance(value, dict) and "items" in value:
-                    value = value["items"]
-                # Recursively extract fields
-                if isinstance(sub_structure, dict):
-                    extracted[key] = extract_fields(value, sub_structure)
-                else:
-                    extracted[key] = value
+            value = data.get(key, None)  # Default to None if missing
+            
+            # Unwrap 'items' if it's a dictionary containing a list
+            if isinstance(value, dict) and "items" in value:
+                value = value["items"]
+
+            if isinstance(sub_structure, dict) and isinstance(value, (dict, list)):
+                extracted[key] = extract_fields(value, sub_structure)
+            else:
+                extracted[key] = value  # Store None if missing
         return extracted
     return data
+
 
 def parse_spotify_response(response: Dict[str, Any], field_structure: Dict[str, Any]) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     """Parses a Spotify API response, extracting relevant data and unwrapping 'items'."""
@@ -306,7 +306,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_followed_artists(limit=50)
-            ,  build_field_structure(path_to_items=["artists"], info=info)
+            ,  build_field_structure(info=info)
         )
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -624,7 +624,6 @@ class GeneralSpotifyHelpers:
         
         album_chunks = chunks(album_ids, 20)
         field_structure = {key: True for key in album_info}
-        field_structure['path_to_items'] = ['albums']
         field_structure["tracks"] = {key: True for key in track_info}
         field_structure["tracks"]["artists"] = {key: True for key in artist_info}
 

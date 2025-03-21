@@ -589,7 +589,7 @@ class TestGSH(unittest.TestCase):
         thelp.create_env(spotify)
         
         # Fake Field
-        # self.assertEqual(spotify.get_artist_albums('Ar002', info=['fake field']), [{'fake field': None}])
+        self.assertEqual(spotify.get_artist_albums('Ar002', info=['fake field']), [{'fake field': None}])
         # Fake Artist
         self.assertEqual(spotify.get_artist_albums('Fake Artist'), [])
         # Fake Album Type
