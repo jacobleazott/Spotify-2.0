@@ -22,6 +22,10 @@ T = TypeVar('T') # Define a generic type variable for type annotation.
 
 from src.Spotify_Features import SpotifyFeatures
 
+from src.helpers.Settings import Settings
+
+import src.General_Spotify_Helpers as gsh
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Fancy way to manually invoke any method from any class or member class.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -163,6 +167,7 @@ class MethodInvoker:
 def main():
     os.system("clear")
     features = SpotifyFeatures(log_file_name="Manual.log")
+    features.spotify._scopes = Settings.MAX_SCOPE_LIST
 
     invoker = MethodInvoker(features)
     invoker.invoke_method()

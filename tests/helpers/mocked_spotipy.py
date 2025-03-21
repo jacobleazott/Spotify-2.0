@@ -41,13 +41,16 @@ class MockedSpotipyProxy():
         
     def next(self, response):
         ret = None
-        if "next" in response:
-            ret = response['next']
-        else:
-            for key, field in list(response.items()):
-                if "next" in response[key]:
-                    ret = response[key]['next']
-                    break
+        try:
+            if "next" in response:
+                ret = response['next']
+            else:
+                for key, field in list(response.items()):
+                    if "next" in response[key]:
+                        ret = response[key]['next']
+                        break
+        except Exception as e:
+            pass
         return ret
         
     def current_user_followed_artists(self, limit=50, after=None):

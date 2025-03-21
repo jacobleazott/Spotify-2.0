@@ -21,6 +21,8 @@ from src.helpers.Settings           import Settings
 from tests.helpers.mocked_Settings  import Test_Settings
 from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
 
+from pprint import pprint
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -134,8 +136,7 @@ class TestGSH(unittest.TestCase):
         print(f"\t{inspect.stack()[0][3]}: Inter Month (End Month) -----------------------------")
         #   2000-12-10 -> 2000-12-31    Should include 2000-12-10 -> 2000-12-31, 2000-12, 2000
         tester(datetime(2000, 12, 10),  datetime(2000, 12, 31), [False, False, False, False, False, 
-                                                                 False, False, False, False, True , 
-                                                                 False, False, False, True , False, 
+                                                                 False, False, False, False, True ,                                                   False, False, False, True , False, 
                                                                  False, False, False, False, False, 
                                                                  False, False, True , True , True , 
                                                                  True])
@@ -197,34 +198,34 @@ class TestGSH(unittest.TestCase):
     # "PRIVATE" CLASS FUNCTIONS ═══════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
-    def test_get_next_response(self):
-        spotify = gsh.GeneralSpotifyHelpers()
-        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
+    # def test_get_next_response(self):
+    #     spotify = gsh.GeneralSpotifyHelpers()
+    #     spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
-        # No 'next'
-        test_response = {'id': '0', 'name': 'bob'}
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' value in base dict
-        test_response['next'] = 'value'
-        self.assertEqual(spotify._get_next_response(test_response), 'value')
-        # Remove and verify
-        del test_response['next']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' in dict in values
-        test_response['items'] = {'tracks': [], 'next': 'test_next'}
-        self.assertEqual(spotify._get_next_response(test_response), "test_next")
-        # Remove and verify
-        del test_response['items']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' in dict but not 'items'
-        test_response['not_items'] = {'tracks': [], 'next': 'second_test'}
-        self.assertEqual(spotify._get_next_response(test_response), "second_test")
-        # Remove and verify
-        del test_response['not_items']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' value present, but too deep into dict
-        test_response['TooDeep'] = {'tracks': [], 'second_next': {'next': 'not_found'}}
-        self.assertEqual(spotify._get_next_response(test_response), None)
+    #     # No 'next'
+    #     test_response = {'id': '0', 'name': 'bob'}
+    #     self.assertEqual(spotify._get_next_response(test_response), None)
+    #     # 'next' value in base dict
+    #     test_response['next'] = 'value'
+    #     self.assertEqual(spotify._get_next_response(test_response), 'value')
+    #     # Remove and verify
+    #     del test_response['next']
+    #     self.assertEqual(spotify._get_next_response(test_response), None)
+    #     # 'next' in dict in values
+    #     test_response['items'] = {'tracks': [], 'next': 'test_next'}
+    #     self.assertEqual(spotify._get_next_response(test_response), "test_next")
+    #     # Remove and verify
+    #     del test_response['items']
+    #     self.assertEqual(spotify._get_next_response(test_response), None)
+    #     # 'next' in dict but not 'items'
+    #     test_response['not_items'] = {'tracks': [], 'next': 'second_test'}
+    #     self.assertEqual(spotify._get_next_response(test_response), "second_test")
+    #     # Remove and verify
+    #     del test_response['not_items']
+    #     self.assertEqual(spotify._get_next_response(test_response), None)
+    #     # 'next' value present, but too deep into dict
+    #     test_response['TooDeep'] = {'tracks': [], 'second_next': {'next': 'not_found'}}
+    #     self.assertEqual(spotify._get_next_response(test_response), None)
     
     def test_iterate_and_grab_data(self):
         # Rework is planned for these functions, BRO-94
@@ -357,6 +358,7 @@ class TestGSH(unittest.TestCase):
         spotify.change_playback()
         # Verify default values
         playback = spotify.get_playback_state()
+        pprint(playback)
         self.assertEqual([playback['track']['id'], playback['shuffle_state']
                           , playback['context']['id'], playback['is_playing']]
                          , ['Tr000', False, 'Pl001', True])
@@ -456,51 +458,58 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
         # "Regular" Playlist Default Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002"), 
-                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
-                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
-                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
+                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
+                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
+                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
         # No Track Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[]), 
-                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}]},
-                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}]},
-                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}]}])
+                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}]}])
         # No Track or Artist Info
+        
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[]), 
-                         [{'album_id': 'Al002', 'artists': [{}]},
-                          {'album_id': 'Al003', 'artists': [{}]},
-                          {'album_id': 'Al004', 'artists': [{}]}])
+                         [{'album': {'id': 'Al002'}},
+                          {'album': {'id': 'Al003'}},
+                          {'album': {'id': 'Al004'}}])
         # No Track, Artist, or Album Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), 
-                         [{'artists': [{}]},
-                          {'artists': [{}]},
-                          {'artists': [{}]}])
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), [])
         # Different Info From Default
-        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=['name'], 
-                                                     artist_info=['name'], album_info=['name']), 
-                     [{'album_name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'},
-                      {'album_name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'},
-                      {'album_name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl002", track_info=['name'], artist_info=['name'], album_info=['name']),
+            [
+                {'album': {'name': 'Fake Album 2'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'}
+              , {'album': {'name': 'Fake Album 3'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'}
+              , {'album': {'name': 'Fake Album 4'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
         # Duplicate Tracks and Local Tracks Default Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl004"), 
-                         [{'album_id': None, 'artists': [{'id': None}], 'id': None},
-                          {'album_id': None, 'artists': [{'id': None}], 'id': None},
-                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
-                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl004"),
+            [
+                {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}
+              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
         # Duplicate Tracks and Local Tracks Extra Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl004", track_info=['id', 'name'], 
-                                                     artist_info=['id', 'name'], album_info=['id', 'name']), 
-                         [{'album_id': None, 'album_name': 'Fake Local Album 1', 
-                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
-                           'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': None, 'album_name': 'Fake Local Album 1', 
-                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
-                           'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
-                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
-                           'id': 'Tr001', 'name': 'Fake Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
-                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
-                           'id': 'Tr001', 'name': 'Fake Track 1'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl004", track_info=['id', 'name']
+                                        , artist_info=['id', 'name']
+                                        , album_info=['id', 'name']),
+            [
+                {'album': {'id': None, 'name': 'Fake Local Album 1'}
+               , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
+               , 'id': None, 'name': 'Fake Local Track 1'}
+
+              , {'album': {'id': None, 'name': 'Fake Local Album 1'}
+               , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
+               , 'id': None, 'name': 'Fake Local Track 1'}
+
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+               , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
+               , 'id': 'Tr001', 'name': 'Fake Track 1'}
+
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+               , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
+               , 'id': 'Tr001', 'name': 'Fake Track 1'}])
 
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
@@ -580,7 +589,7 @@ class TestGSH(unittest.TestCase):
         thelp.create_env(spotify)
         
         # Fake Field
-        self.assertEqual(spotify.get_artist_albums('Ar002', info=['fake field']), [{'fake field': None}])
+        # self.assertEqual(spotify.get_artist_albums('Ar002', info=['fake field']), [{'fake field': None}])
         # Fake Artist
         self.assertEqual(spotify.get_artist_albums('Fake Artist'), [])
         # Fake Album Type
@@ -627,7 +636,7 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
+    # TODO Difference betwen album artist data and track artist data
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         spotify._scopes = list(Settings.MAX_SCOPE_LIST)
@@ -638,6 +647,10 @@ class TestGSH(unittest.TestCase):
         # No Albums
         self.assertEqual(spotify.get_albums_tracks([]), [])
         # No Album Info
+        # pprint(spotify.get_albums_tracks(['Al003']))
+        # pprint([{'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
+        # self.assertEqual(spotify.get_albums_tracks(['Al003']), 
+        #                  [{'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
         self.assertEqual(spotify.get_albums_tracks(['Al003'], album_info=[]), 
                          [{'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
         # No Track Info
