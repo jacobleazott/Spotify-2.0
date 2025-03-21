@@ -541,6 +541,9 @@ class TestGSH(unittest.TestCase):
         spotify._scopes = list(Settings.MAX_SCOPE_LIST)
         
         empty_id = spotify.create_playlist("")
+        spotify.change_playlist_details(empty_id)
+        self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["", ""])
+        
         spotify.change_playlist_details(empty_id, name="Tester")
         self.assertEqual(spotify.get_playlist_data(empty_id, info=['name', 'description']), ["Tester", ""])
         

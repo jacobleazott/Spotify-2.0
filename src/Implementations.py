@@ -84,12 +84,14 @@ DESCRIPTION: Used to determine if the 'cur_time' meets the trigger defined by ou
 INPUT: cur_time - Current time we want to compare against, this is passed in since we usually run sequentially and 
                     don't want to trigger multiple times OR miss our trigger.
        day - Day of the month we want to trigger on (1-31).
-       weekday - Day of the week we want to trigger on (1-7).
+       weekday - Day of the week we want to trigger on (0-6).
        hour - Hour we want to trigger on (0-23).
        minute - Minute we want to trigger on (0-59).
 OUTPUT: Bool on whether the cur_time meets the trigger event defined by the time args passed in.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def check_date_time(cur_time: datetime, day: int=None, weekday: int=None, hour: int=None, minute: int=None) -> bool:
+    if hour is None or minute is None:
+        return False
     daily_trigger = day is None and weekday is None
     weekly_trigger = weekday is not None and cur_time.weekday() == weekday
     monthly_trigger = day is not None and cur_time.day == day
@@ -118,25 +120,25 @@ def log_and_macro(spotify_features) -> None:
                                    , playback['context']['id']
                                    , shuffle_type=shuffle_type
                                    , log_file_name="Shuffle-Playlist.log")
-            
-        match playback['track']['id']:
-            case Settings.GEN_ARTIST_MACRO_ID:
-                spotify_features.skip_track()
-                startup_feature_thread(SpotifyFeatures.generate_artist_playlist_from_playlist
-                                       , playback['context']['id']
-                                       , log_file_name="Generate-Artist-Playlist.log")
+        else:
+            match playback['track']['id']:
+                case Settings.GEN_ARTIST_MACRO_ID:
+                    spotify_features.skip_track()
+                    startup_feature_thread(SpotifyFeatures.generate_artist_playlist_from_playlist
+                                           , playback['context']['id']
+                                           , log_file_name="Generate-Artist-Playlist.log")
 
-            case Settings.DISTRIBUTE_TRACKS_MACRO_ID:
-                spotify_features.skip_track()
-                startup_feature_thread(SpotifyFeatures.distribute_tracks_to_collections
-                                       , playback['context']['id']
-                                       , log_file_name="Distribute-Tracks.log")
+                case Settings.DISTRIBUTE_TRACKS_MACRO_ID:
+                    spotify_features.skip_track()
+                    startup_feature_thread(SpotifyFeatures.distribute_tracks_to_collections
+                                           , playback['context']['id']
+                                           , log_file_name="Distribute-Tracks.log")
 
-            case Settings.ORGANIZE_PLAYLIST_MACRO_ID:
-                spotify_features.skip_track()
-                startup_feature_thread(SpotifyFeatures.organize_playlist_by_date
-                                       , playback['context']['id']
-                                       , log_file_name="Organize-Playlist.log")
+                case Settings.ORGANIZE_PLAYLIST_MACRO_ID:
+                    spotify_features.skip_track()
+                    startup_feature_thread(SpotifyFeatures.organize_playlist_by_date
+                                           , playback['context']['id']
+                                           , log_file_name="Organize-Playlist.log")
 
     spotify_features.log_playback_to_db(playback)
             
