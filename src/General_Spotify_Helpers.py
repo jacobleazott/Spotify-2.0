@@ -238,7 +238,8 @@ class GeneralSpotifyHelpers:
             
             if next_response_path and len(next_response_path) > 1:
                 response = response.get(next_response_path[-2], {})
-            response = self.sp.next(response)
+            
+            response = self.sp.next(response) if "next" in response else None
         
         return data
 

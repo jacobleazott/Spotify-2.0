@@ -21,8 +21,6 @@ from src.helpers.Settings           import Settings
 from tests.helpers.mocked_Settings  import Test_Settings
 from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
 
-from pprint import pprint
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all GSH functionality.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -82,8 +80,6 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(gsh.get_generic_field({}, []), [])
    
     def test_get_elements_in_date_range(self):
-        print("")
-        
         with self.assertRaises(Exception): gsh.get_elements_in_date_range([""], datetime(0, 0, 0), "i")
         with self.assertRaises(Exception): gsh.get_elements_in_date_range([""], 2, datetime(0, 0, 0))
         with self.assertRaises(Exception): gsh.get_elements_in_date_range(1, datetime(0, 0, 0), datetime(0, 0, 0))
@@ -127,7 +123,7 @@ class TestGSH(unittest.TestCase):
                                 {'release_date': '2000-12-30'},
                                 {'release_date': '2000-12-31'},
                                 {'release_date': 's'},
-                                {'release_date': ''}]
+                                {'release_date': ''}]  
         # Y-M-D, Y-M, Y, []
         # Y-M-D only counts if given day is in range
         # Y-M only counts if last day of the month is included
@@ -518,7 +514,6 @@ class TestGSH(unittest.TestCase):
         spotify.change_playback()
         # Verify default values
         playback = spotify.get_playback_state()
-        pprint(playback)
         self.assertEqual([playback['track']['id'], playback['shuffle_state']
                           , playback['context']['id'], playback['is_playing']]
                          , ['Tr000', False, 'Pl001', True])
@@ -799,7 +794,6 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # TODO Difference betwen album artist data and track artist data
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         spotify._scopes = list(Settings.MAX_SCOPE_LIST)
