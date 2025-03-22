@@ -18,61 +18,11 @@ import time
 
 from datetime  import datetime
 from functools import wraps
-from typing    import Optional, Generator
-from typing import Any, List, Dict, Union
+from typing    import Any, Dict, List, Optional, Union
 
 from src.helpers.decorators  import *
 from src.helpers.Settings    import Settings
 from src.proxy.Spotipy_Proxy import SpotipyProxy
-
-from pprint import pprint
-
-from typing import Any, Dict, List, Union
-
-def find_main_iterator(response: Dict[str, Any]) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
-    """Finds the main iterable list or single item in a Spotify API response."""
-    possible_paths = [
-        ["items"], ["playlists", "items"], ["albums", "items"], 
-        ["tracks", "items"], ["artists", "items"], ["item"], ["albums"]
-    ]
-    
-    for path in possible_paths:
-        data = response
-        for key in path:
-            if isinstance(data, dict) and key in data:
-                data = data[key]
-            else:
-                break
-        else:  # Successfully traversed the path
-            return data
-
-    return response  # Default to returning the original response if no valid path is found
-
-def extract_fields(data, field_structure):
-    if isinstance(data, list):
-        return [extract_fields(item, field_structure) for item in data]
-    elif isinstance(data, dict):
-        extracted = {}
-        for key, sub_structure in field_structure.items():
-            value = data.get(key, None)  # Default to None if missing
-            
-            # Unwrap 'items' if it's a dictionary containing a list
-            if isinstance(value, dict) and "items" in value:
-                value = value["items"]
-
-            if isinstance(sub_structure, dict) and isinstance(value, (dict, list)):
-                extracted[key] = extract_fields(value, sub_structure)
-            else:
-                extracted[key] = value  # Store None if missing
-        return extracted
-    return data
-
-
-def parse_spotify_response(response: Dict[str, Any], field_structure: Dict[str, Any]) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
-    """Parses a Spotify API response, extracting relevant data and unwrapping 'items'."""
-    main_data = find_main_iterator(response)
-    return extract_fields(main_data, field_structure)
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Validates that the given 'args' are of type 'types'.
@@ -153,10 +103,11 @@ def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_d
             valid_elements.append(element)
     return valid_elements
 
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Scopes decorator, this will set the scopes for the function and reset them after the function is done.
 INPUT: scopes_list - List of scopes to set for the function.
-OUTPUT: N/A.
+OUTPUT: Decorator/ wrapper which alters the scopes for the function.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def scopes(scopes_list):
     # This is the decorator that gets returned
@@ -174,27 +125,84 @@ def scopes(scopes_list):
         return wrapper
     return decorator  # Return the decorator
 
-# TODO: 
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Builds the field structure for the 'extract_fields' function.
+INPUT: info - List of fields to extract at the base level.
+       track_info - List of fields to extract at the 'track' level.
+       album_info - List of fields to extract at the 'track' -> 'album' level.
+       artist_info - List of fields to extract at the 'track' -> 'artists' level.
+OUTPUT: Dictionary of fields to extract.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def build_field_structure(
-        path_to_items: List[str] = [],
         info: List[str] = [],
         track_info: List[str] = [],
         album_info: List[str] = [],
         artist_info: List[str] = []
-    ) -> Dict[str, Any]:
+    ) -> Dict[str, bool]:
     
     field_structure = {key: True for key in (info or [])}
-
+    
     if track_info or album_info or artist_info:
         field_structure["track"] = {key: True for key in (track_info or [])}
-
+    
     if album_info:
         field_structure["track"]["album"] = {key: True for key in album_info}
-
+    
     if artist_info:
         field_structure["track"]["artists"] = {key: True for key in artist_info}
-
+    
     return field_structure
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Contains the logic to find the main iterable list or single item in a Spotify API response. Currently 
+             just uses a few hardcoded paths since there should only be one main iterable.
+INPUT: response - Spotify api response.
+       track_info - List of fields to extract at the 'track' level.
+       album_info - List of fields to extract at the 'track' -> 'album' level.
+       artist_info - List of fields to extract at the 'track' -> 'artists' level.
+OUTPUT: Tuple of the main iterable and the path to it. (None if not found)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def find_main_iterator(response: Dict[str, Any]) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+    for path in [["items"], ["item"], ["playlists", "items"], ["albums", "items"], 
+                 ["tracks", "items"], ["artists", "items"], ["albums"], ["artists"]]: 
+        data = response
+        for key in path:
+            if not isinstance(data, dict) or key not in data: # If path does not exist
+                break
+            data = data[key]
+        else:  # Successfully traversed the path
+            return data, path
+    return response, None
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Extracts fields from a Spotify API response. Recursively traverses the response for any sub-dictionaries.
+INPUT: data - Spotify API response item or list of items.
+       field_structure - Dictionary of fields to extract.
+OUTPUT: List of the extracted field dictionaries.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def extract_fields(data, field_structure):
+    if isinstance(data, list):
+        return [extract_fields(item, field_structure) for item in data]
+    elif isinstance(data, dict):
+        extracted = {}
+        for key, sub_structure in field_structure.items():
+            if isinstance(sub_structure, bool) and sub_structure is False:
+                continue
+            value = data.get(key, None)  # Default to None if missing
+            
+            # Unwrap 'items' if it's a dictionary containing a list
+            if isinstance(value, dict) and "items" in value:
+                value = value["items"]
+            
+            if isinstance(sub_structure, dict) and isinstance(value, (dict, list)):
+                extracted[key] = extract_fields(value, sub_structure)
+            else:
+                extracted[key] = value  # Store None if missing
+        return extracted
+    return data
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstract helper that uses spotipy. Handles are token authorization and offers abstract methods
@@ -211,73 +219,28 @@ class GeneralSpotifyHelpers:
         self.logger = logger if logger is not None else logging.getLogger()
         self._scopes = []
         self.sp = SpotipyProxy(logger=self.logger)
-
-    # # TODO
-    # def extract_data(self, item: Any, field_structure: Dict[str, Any]) -> Any:
-    #     """
-    #     Recursively extracts specified fields from an item based on a given nested field structure.
-        
-    #     Args:
-    #         item (Any): The current data item being processed.
-    #         field_structure (Dict[str, Any]): The structure dict defining which fields to extract.
-
-    #     Returns:
-    #         Any: Extracted data in the same structure as field_structure.
-    #     """
-    #     if not isinstance(item, dict):
-    #         return None
-
-    #     extracted = {}
-
-    #     for key, sub_fields in field_structure.items():
-    #         if key not in item:
-    #             continue
-
-    #         value = item[key]
-
-    #         if isinstance(value, list):  # Handle lists (e.g., 'artists')
-    #             extracted[key] = [self.extract_data(sub_item, sub_fields) for sub_item in value if isinstance(sub_item, dict)]
-    #         elif isinstance(sub_fields, dict):  # Nested dictionary case
-    #             extracted[key] = self.extract_data(value, sub_fields)
-    #         else:  # Terminal value
-    #             extracted[key] = value
-
-    #     return extracted
-
-    # # TODO
-    # def _gather_data(self, response: Dict[str, Any], field_structure: Dict[str, Any]) -> List[Dict[str, Any]]:
-    #     """
-    #     Extracts specified fields from a Spotify API response while handling pagination.
-
-    #     Args:
-    #         sp (spotipy.Spotify): Spotipy client.
-    #         response (dict): The initial API response.
-    #         field_structure (dict): Nested structure defining what data to extract.
-
-    #     Returns:
-    #         List[Dict[str, Any]]: A structured list of extracted data.
-    #     """
-    #     all_items = []
-    #     while response:
-    #         for key in field_structure.get("path_to_items", []):
-    #             response = response.get(key, {})
-
-    #         print(response)
-    #         if isinstance(response, dict):
-    #             all_items.extend(response.get("items", response))
-    #             print("who dis")
-    #         else:
-    #             all_items.extend(response)
-    #         response = self.sp.next(response)
-        
-    #     print("all items", all_items)
-    #     pprint(field_structure)
-    #     # pprint(all_items)
-        
-    #     return [self.extract_data(item, field_structure) for item in all_items]
     
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Generalized helper to pull specified data from a spotify api response.
+    INPUT: response - Dictionary response from spotipy api call.
+           field_structure - Dictionary of fields we want to pull from 'response'.
+                             Follows below template
+                             {<field name>: <True for pull, False for skip>, ...}
+                             ex. {"name": True, "track": {"name": True, "album": {"name": True}}}.
+    OUTPUT: Elements requested through the 'field_structure'.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _gather_data(self, response: Dict[str, Any], field_structure: Dict[str, Any]) -> List[Dict[str, Any]]:
-        return parse_spotify_response(response, field_structure)
+        data = []
+        while response:
+            main_data, next_response_path = find_main_iterator(response)
+            extracted_data = extract_fields(main_data, field_structure)
+            data.extend(extracted_data if isinstance(extracted_data, list) else [extracted_data])
+
+            if next_response_path and len(next_response_path) > 1:
+                response = response.get(next_response_path[-2], {})
+            response = self.sp.next(response)
+
+        return data
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
@@ -358,10 +321,8 @@ class GeneralSpotifyHelpers:
             field_structure = build_field_structure(info=track_info)
             field_structure["artists"] = {key: True for key in artist_info}
             track_data = self._gather_data(playback, field_structure)
-            ret['track'] = track_data
-            
-        print(ret)
-        
+            ret['track'] = track_data[0]
+
         return ret
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -531,13 +492,6 @@ class GeneralSpotifyHelpers:
                           album_types: list[str]=['album'], 
                           info: list[str]=['id']):
         validate_inputs([artist_id, album_types, info], [str, list, list])
-        
-        pprint(self.sp.artist_albums(artist_id
-                                  , country="US"
-                                  , limit=50
-                                  , include_groups=','.join(album_types)))
-        
-        pprint(build_field_structure(info=info))
         
         return self._gather_data(
             self.sp.artist_albums(artist_id

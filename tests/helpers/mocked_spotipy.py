@@ -44,11 +44,6 @@ class MockedSpotipyProxy():
         try:
             if "next" in response:
                 ret = response['next']
-            else:
-                for key, field in list(response.items()):
-                    if "next" in response[key]:
-                        ret = response[key]['next']
-                        break
         except Exception as e:
             pass
         return ret

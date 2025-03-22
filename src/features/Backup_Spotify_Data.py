@@ -193,6 +193,7 @@ class BackupSpotifyData(LogAllMethods):
     @gsh.scopes(["user-follow-read"])
     def _add_followed_artists_to_db(self) -> None:
         artists = self.spotify.get_user_artists(info=["id", "name"])
+        print(artists)
         self.logger.info(f"\t Inserting {len(artists)} Artists")
         self._insert_many("artists", artists)
         self._insert_many("followed_artists", [artist['id'] for artist in artists])
@@ -268,7 +269,9 @@ class BackupSpotifyData(LogAllMethods):
     def backup_data(self) -> None:
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
         self._create_backup_data_db()
+        print("Created backup")
         self._add_followed_artists_to_db()
+        print("finished adding artists")
         self._add_user_playlists_to_db()
 
 
