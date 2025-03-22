@@ -235,11 +235,11 @@ class GeneralSpotifyHelpers:
             main_data, next_response_path = find_main_iterator(response)
             extracted_data = extract_fields(main_data, field_structure)
             data.extend(extracted_data if isinstance(extracted_data, list) else [extracted_data])
-
+            
             if next_response_path and len(next_response_path) > 1:
                 response = response.get(next_response_path[-2], {})
             response = self.sp.next(response)
-
+        
         return data
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""

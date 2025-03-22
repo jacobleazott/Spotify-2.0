@@ -342,17 +342,58 @@ class TestGSH(unittest.TestCase):
     # "PRIVATE" CLASS FUNCTIONS ═══════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def test_gather_data(self):
+        GSH = gsh.GeneralSpotifyHelpers()
         # Test Extend On List
+        response = [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure), response)
         
         # Test Extend On Dictionary
+        response = {"name": "Track1", "duration": 30}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure), [response])
+        
+        # Test Items
+        response = {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]}
+        field_structure = {'name': True, "duration": False}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1"}, {"name": "Track2"}])
         
         # Test Base Level Next
+        response = {"name": "Track1", "duration": 30, "next": {"name": "Track2", "duration": 45}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}])
         
         # Test Nested Next
+        response = {"name": "Track1", "duration": 30, "next": {"name": "Track2", "duration": 45
+                                                               , "next": {"name": "Track3"}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": None}])
         
-        # Test No Next
+        # Test Next In Path
+        response = {"artists": {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}]
+                                , "next": {"artists": {"items": [{"name": "Track3", "duration": 60}]}}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": 60}])
         
-        pass
+        # Test Different Levels Of Next
+        response = {"artists": {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}]
+                                , "next": {"name": "Track3", "duration": 60, "next": {"name": "Track4"}}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": 60}, {"name": "Track4", "duration": None}])
+        
+        # Test None Next
+        response = {"name": "Track1", "duration": 30, "next": None}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}])
 
     def test_validate_scope(self):
         test_scopes = [ "user-read-private"
