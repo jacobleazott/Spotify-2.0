@@ -182,15 +182,15 @@ class MiscFeatures(LogAllMethods):
         for track in tracks:
             del track['artists']
 
-            if track['album_id'] not in album_sorted_dict:
-                album_sorted_dict[track['album_id']] = []
-            album_sorted_dict[track['album_id']].append(track)
+            if track['album']['id'] not in album_sorted_dict:
+                album_sorted_dict[track['album']['id']] = []
+            album_sorted_dict[track['album']['id']].append(track)
             
         # Within each album sort by disc number / track number
         album_track_sorted_list = []
         for key, value in album_sorted_dict.items():
             tmp_tracks = sorted(value, key=lambda element: (element['disc_number'], element['track_number']))
-            album_track_sorted_list.append((tmp_tracks[0]['album_release_date'], 
+            album_track_sorted_list.append((tmp_tracks[0]['album']['release_date'], 
                                             [track['id'] for track in tmp_tracks]))
 
         # Order collection by release date and collapse into one list
