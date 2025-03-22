@@ -281,47 +281,53 @@ class TestMiscFeatures(unittest.TestCase):
     def test_reorganize_playlist(self):
         self.mock_spotify.get_playlist_tracks.side_effect = lambda playlist_id, track_info=None, album_info=None: {
             # No Tracks
-            'playlist_id_0': []
+            'playlist_id_0': [],
+
             # Test Single Track
-            , 'playlist_id_1': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
+            'playlist_id_1': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []}],
+
             # Test Multiple Tracks With Same Album
-            , 'playlist_id_2': [{'id': 'track_2', 'name': 'Track Two', 'disc_number': 2, 'track_number': 4, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
-                                , {'id': 'track_3', 'name': 'Track Three', 'disc_number': 1, 'track_number': 8, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
-                                , {'id': 'track_4', 'name': 'Track Four', 'disc_number': 1, 'track_number': 3, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2025-01-01', 'artists': []}
-                                , {'id': 'track_5', 'name': 'Track Five', 'disc_number': 4, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_2', 'album_release_date': '2025-01-01', 'artists': []}
-                                , {'id': 'track_6', 'name': 'Track Six', 'disc_number': 1, 'track_number': 9, 'is_local': False
-                                 , 'album_id': 'album_2', 'album_release_date': '2023-01-01', 'artists': []}
-                                , {'id': 'track_7', 'name': 'Track Seven', 'disc_number': 100, 'track_number': 100, 'is_local': False
-                                 , 'album_id': 'album_3', 'album_release_date': '2024-01-01', 'artists': []}]
+            'playlist_id_2': [{'id': 'track_2', 'name': 'Track Two', 'disc_number': 2, 'track_number': 4, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2025-01-01'}, 'artists': []},
+                              {'id': 'track_3', 'name': 'Track Three', 'disc_number': 1, 'track_number': 8, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2025-01-01'}, 'artists': []},
+                              {'id': 'track_4', 'name': 'Track Four', 'disc_number': 1, 'track_number': 3, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2025-01-01'}, 'artists': []},
+                              {'id': 'track_5', 'name': 'Track Five', 'disc_number': 4, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_2', 'release_date': '2025-01-01'}, 'artists': []},
+                              {'id': 'track_6', 'name': 'Track Six', 'disc_number': 1, 'track_number': 9, 'is_local': False,
+                               'album': {'id': 'album_2', 'release_date': '2023-01-01'}, 'artists': []},
+                              {'id': 'track_7', 'name': 'Track Seven', 'disc_number': 100, 'track_number': 100, 'is_local': False,
+                               'album': {'id': 'album_3', 'release_date': '2024-01-01'}, 'artists': []}],
+
             # Macro Tracks
-            , 'playlist_id_3': [{'id': Test_Settings.DISTRIBUTE_TRACKS_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
-                                , {'id': Test_Settings.GEN_ARTIST_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
+            'playlist_id_3': [{'id': Test_Settings.DISTRIBUTE_TRACKS_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []},
+                              {'id': Test_Settings.GEN_ARTIST_MACRO_ID, 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []}],
+
             # Local Tracks
-            , 'playlist_id_4': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': True
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
-                                , {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': True
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}]
-            # DIfferent Release Date Precision
-            , 'playlist_id_5': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_1', 'album_release_date': '2020-01-01', 'artists': []}
-                                , {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_2', 'album_release_date': '2020', 'artists': []}
-                                , {'id': 'track_3', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_3', 'album_release_date': '2020-01', 'artists': []}
-                                , {'id': 'track_4', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_4', 'album_release_date': '2020-01-02', 'artists': []}
-                                , {'id': 'track_5', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_5', 'album_release_date': '2021', 'artists': []}
-                                , {'id': 'track_6', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False
-                                 , 'album_id': 'album_6', 'album_release_date': '2020-02', 'artists': []}]
+            'playlist_id_4': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': True,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []},
+                              {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': True,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []}],
+
+            # Different Release Date Precision
+            'playlist_id_5': [{'id': 'track_1', 'name': 'Track One', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_1', 'release_date': '2020-01-01'}, 'artists': []},
+                              {'id': 'track_2', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_2', 'release_date': '2020'}, 'artists': []},
+                              {'id': 'track_3', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_3', 'release_date': '2020-01'}, 'artists': []},
+                              {'id': 'track_4', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_4', 'release_date': '2020-01-02'}, 'artists': []},
+                              {'id': 'track_5', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_5', 'release_date': '2021'}, 'artists': []},
+                              {'id': 'track_6', 'name': 'Track Two', 'disc_number': 1, 'track_number': 1, 'is_local': False,
+                               'album': {'id': 'album_6', 'release_date': '2020-02'}, 'artists': []}]
         }.get(playlist_id, [])
+
         
         # Test No Tracks
         self.mFeatures.reorganize_playlist('playlist_id_0')
@@ -357,7 +363,7 @@ class TestMiscFeatures(unittest.TestCase):
         
         # Test Exception
         with self.assertRaises(Exception):
-            with mock.patch('builtins.sorted', return_value=[{'id': 'track_1', 'album_release_date': '2020'}]) as mock_sorted:
+            with mock.patch('builtins.sorted', return_value=[{'id': 'track_1', 'album': {'release_date': '2020'}}]) as mock_sorted:
                 self.mFeatures.reorganize_playlist('playlist_id_2')
         self.mock_spotify.add_tracks_to_playlist.assert_not_called()
         self.mock_spotify.add_tracks_to_playlist.reset_mock()
