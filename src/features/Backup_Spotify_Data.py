@@ -225,13 +225,13 @@ class BackupSpotifyData(LogAllMethods):
             
             track_table_entries.append((track['id'], track['name'], track['duration_ms']
                                         , track['is_local'], track['is_playable']))
-            album_table_entries.append((track['album_id'], track['album_name'], track['album_release_date']))
+            album_table_entries.append((track['album']['id'], track['album']['name'], track['album']['release_date']))
             artist_table_entries += [(artist['id'], artist['name']) for artist in track['artists']]
-            artist_table_entries += [(artist['id'], artist['name']) for artist in track['album_artists']]
+            artist_table_entries += [(artist['id'], artist['name']) for artist in track['album']['artists']]
             playlists_tracks_entries.append((playlist_id, track['id']))
             tracks_artists_entries += [(track['id'], artist['id']) for artist in track['artists']]
-            tracks_albums_entries.append((track['id'], track['album_id']))
-            album_artists_entries += [(track['album_id'], artist['id']) for artist in track['album_artists']]
+            tracks_albums_entries.append((track['id'], track['album']['id']))
+            album_artists_entries += [(track['album']['id'], artist['id']) for artist in track['album']['artists']]
             
         self._insert_many("tracks", track_table_entries)
         self._insert_many("albums", album_table_entries)

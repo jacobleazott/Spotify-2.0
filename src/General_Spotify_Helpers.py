@@ -18,7 +18,7 @@ import time
 
 from datetime  import datetime
 from functools import wraps
-from typing    import Optional
+from typing    import Any, Dict, List, Optional, Union
 
 from src.helpers.decorators  import *
 from src.helpers.Settings    import Settings
@@ -103,10 +103,11 @@ def get_elements_in_date_range(elements: list[dict], start_date: datetime, end_d
             valid_elements.append(element)
     return valid_elements
 
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Scopes decorator, this will set the scopes for the function and reset them after the function is done.
 INPUT: scopes_list - List of scopes to set for the function.
-OUTPUT: N/A.
+OUTPUT: Decorator/ wrapper which alters the scopes for the function.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def scopes(scopes_list):
     # This is the decorator that gets returned
@@ -124,6 +125,85 @@ def scopes(scopes_list):
         return wrapper
     return decorator  # Return the decorator
 
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Builds the field structure for the 'extract_fields' function.
+INPUT: info - List of fields to extract at the base level.
+       track_info - List of fields to extract at the 'track' level.
+       album_info - List of fields to extract at the 'track' -> 'album' level.
+       artist_info - List of fields to extract at the 'track' -> 'artists' level.
+OUTPUT: Dictionary of fields to extract.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def build_field_structure(
+        info: List[str] = [],
+        track_info: List[str] = [],
+        album_info: List[str] = [],
+        artist_info: List[str] = []
+    ) -> Dict[str, bool]:
+    
+    field_structure = {key: True for key in (info or [])}
+    
+    if track_info or album_info or artist_info:
+        field_structure["track"] = {key: True for key in (track_info or [])}
+    
+    if album_info:
+        field_structure["track"]["album"] = {key: True for key in album_info}
+    
+    if artist_info:
+        field_structure["track"]["artists"] = {key: True for key in artist_info}
+    
+    return field_structure
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Contains the logic to find the main iterable list or single item in a Spotify API response. Currently 
+             just uses a few hardcoded paths since there should only be one main iterable.
+INPUT: response - Spotify api response.
+       track_info - List of fields to extract at the 'track' level.
+       album_info - List of fields to extract at the 'track' -> 'album' level.
+       artist_info - List of fields to extract at the 'track' -> 'artists' level.
+OUTPUT: Tuple of the main iterable and the path to it. (None if not found)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def find_main_iterator(response: Dict[str, Any]) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+    for path in [["items"], ["item"], ["playlists", "items"], ["albums", "items"], 
+                 ["tracks", "items"], ["artists", "items"], ["albums"], ["artists"]]: 
+        data = response
+        for key in path:
+            if not isinstance(data, dict) or key not in data: # If path does not exist
+                break
+            data = data[key]
+        else:  # Successfully traversed the path
+            return data, path
+    return response, None
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Extracts fields from a Spotify API response. Recursively traverses the response for any sub-dictionaries.
+INPUT: data - Spotify API response item or list of items.
+       field_structure - Dictionary of fields to extract.
+OUTPUT: List of the extracted field dictionaries.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def extract_fields(data, field_structure):
+    if isinstance(data, list):
+        return [extract_fields(item, field_structure) for item in data]
+    elif isinstance(data, dict):
+        extracted = {}
+        for key, sub_structure in field_structure.items():
+            if isinstance(sub_structure, bool) and sub_structure is False:
+                continue
+            value = data.get(key, None)  # Default to None if missing
+            
+            # Unwrap 'items' if it's a dictionary containing a list
+            if isinstance(value, dict) and "items" in value:
+                value = value["items"]
+            
+            if isinstance(sub_structure, dict) and isinstance(value, (dict, list)):
+                extracted[key] = extract_fields(value, sub_structure)
+            else:
+                extracted[key] = value  # Store None if missing
+        return extracted
+    return data
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Abstract helper that uses spotipy. Handles are token authorization and offers abstract methods
              to better access spotify's api.
@@ -139,94 +219,29 @@ class GeneralSpotifyHelpers:
         self.logger = logger if logger is not None else logging.getLogger()
         self._scopes = []
         self.sp = SpotipyProxy(logger=self.logger)
-
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Given a spotify api response it will get the 'next' response from the api page if available.
-    INPUT: response - Spotify api response (dict).
-    OUTPUT: 'None' if no 'next' response, or a spotify api response (dict) if available.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def _get_next_response(self, response: dict) -> None | dict:
-        validate_inputs([response], [dict])
-        
-        ret = None
-        if "next" in response and response["next"] is not None:
-            ret = self.sp.next(response)
-        else:
-            for key, field in response.items():
-                if type(response[key]) in [str, list, dict] and "next" in response[key]:
-                    ret = self.sp.next(response[key])
-                    break
-        return ret
-
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Abstract helper for _gather_data() to best traverse down the dictionary response.
-    INPUT: iterator - List of specific dictionary fields we wish to itterate over.
-           list_of_data_paths - Dict path to the data we care about returning (in list format).
-           other_iterators - If there is a sub list of data we need that will be these (dict).
-    OUTPUT: List of dictionaries for the requested data.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def _iterate_and_grab_data(self, iterator: dict, list_of_data_paths: list[str], other_iterators: dict) -> list[dict]:
-        validate_inputs([iterator, list_of_data_paths, other_iterators], [list, list, dict])
-        
-        dict_list = []
-        for item in iterator:
-            if item is None:
-                continue
-            elem_dict = {}
-            # Get Base Iterator Data
-            for data_path in list_of_data_paths:
-                data_path = [data_path] if type(data_path) is not list else data_path
-                tmp_item = item
-                for data_path_part in data_path:
-                    tmp_item = tmp_item.get(data_path_part, None)
-                    if tmp_item is None:
-                        break  # Stop if any part of the path is not found
-                # Generates key w/o first elem since we know what it should be
-                elem_dict['_'.join(data_path[1:]) if len(data_path) > 1 else data_path[0]] = tmp_item
-            # Get All other_iterators data
-            if len(other_iterators) > 0:
-                # Janky list conversion since dictionaries need tuples as keys
-                iterator_path = list(list(other_iterators)[0]) if type(list(other_iterators)[0]) is \
-                                tuple else [list(other_iterators)[0]]
-                data_fields = other_iterators[list(other_iterators)[0]]
-                tmp_results = item
-                for iterator_path_part in iterator_path:
-                    tmp_results = tmp_results.get(iterator_path_part, None)
-                    if tmp_results is None:
-                        break  # Stop if any part of the path is not found
-                iterator_path.remove("items") if "items" in iterator_path else None
-                # Generates key like above, but this nests a dictionary for our further iterators
-                elem_dict['_'.join(iterator_path[1:]) if len(iterator_path) > 1 else iterator_path[0]] \
-                    = self._iterate_and_grab_data(tmp_results, data_fields, dict(list(other_iterators.items())[1:]))
-            dict_list.append(elem_dict)
-        return dict_list
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Generalized helper to pull specified data from a spotify api response.
-    INPUT: results - Dictionary response from spotipy api call.
-           iter_dict - Dict path to the data we care about returning (in list format).
-           other_iterators - Dictionary of associated iterator paths and fields desired from iterator. 
+    INPUT: response - Dictionary response from spotipy api call.
+           field_structure - Dictionary of fields we want to pull from 'response'.
                              Follows below template
-                             {<iterator or path to iterator>: <list of paths to fields>, ...}
-                             ex. {"items": [["track", "name"], ["track", "album", "name"]]
-                                  , ("track", "artists"): ["name", "id"]}):}.
-    OUTPUT: Elements requested through the "iter_dict'".
+                             {<field name>: <True for pull, False for skip>, ...}
+                             ex. {"name": True, "track": {"name": True, "album": {"name": True}}}.
+    OUTPUT: Elements requested through the 'field_structure'.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def _gather_data(self, results: dict, iter_dict: dict) -> list[dict]:
-        validate_inputs([results, iter_dict], [dict, dict])
+    def _gather_data(self, response: Dict[str, Any], field_structure: Dict[str, Any]) -> List[Dict[str, Any]]:
+        data = []
+        while response:
+            main_data, next_response_path = find_main_iterator(response)
+            extracted_data = extract_fields(main_data, field_structure)
+            data.extend(extracted_data if isinstance(extracted_data, list) else [extracted_data])
+            
+            if next_response_path and len(next_response_path) > 1:
+                response = response.get(next_response_path[-2], {})
+            
+            response = self.sp.next(response) if "next" in response else None
         
-        elements = []
-        iterator_path = list(iter_dict)[0]
-        data_fields = iter_dict[iterator_path]
-        
-        while results is not None:
-            tmp_results = results
-            for iterator_path_part in tuple([iterator_path]) if type(iterator_path) is not tuple else iterator_path:
-                tmp_results = tmp_results[iterator_path_part]
-
-            elements += self._iterate_and_grab_data(tmp_results, data_fields, dict(list(iter_dict.items())[1:]))
-            results = self._get_next_response(results)
-        return elements
+        return data
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Validates the desired scope compared to the scopes used on the creation of the class. If the scope is 
@@ -239,7 +254,7 @@ class GeneralSpotifyHelpers:
         
         if set(desired_scopes).intersection(set(self._scopes)) != set(desired_scopes):
             raise Exception(f"SCOPE PROTECTION: {desired_scopes} NOT IN {self._scopes}")
-
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # USER ════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -255,9 +270,9 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_followed_artists(limit=50)
-            , {("artists", "items"): info}
+            ,  build_field_structure(info=info)
         )
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Returns list of user's playlists.
     INPUT: info - List of info to return from api response.
@@ -269,13 +284,13 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_playlists(limit=50)
-            , {"items": info}
+            , build_field_structure(info=info)
         )
-        
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets playback state of current spotify session.
     INPUT: track_info - List of track info we want from the track obj in the response.
@@ -288,7 +303,7 @@ class GeneralSpotifyHelpers:
         
         playback = self.sp.current_playback()
         ret = None
-
+        
         if playback is not None and playback['item'] is not None:
             ret = {"context": None
                    , "currently_playing_type": playback['currently_playing_type']
@@ -303,10 +318,14 @@ class GeneralSpotifyHelpers:
             # Here we have to trick our _gather_data function to think there are "multiple"
             altered_playback = playback.copy()
             altered_playback['item'] = [playback['item'].copy()]
-            ret['track'] = self._gather_data(altered_playback, {"item": track_info, ("artists",): artist_info})[0]
+            
+            field_structure = build_field_structure(info=track_info)
+            field_structure["artists"] = {key: True for key in artist_info}
+            track_data = self._gather_data(playback, field_structure)
+            ret['track'] = track_data[0]
 
         return ret
-        
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Overwrites spotify queue with given tracks.
     INPUT: tracks - The tracks that will be written to the queue.
@@ -335,22 +354,22 @@ class GeneralSpotifyHelpers:
         
         if pause == True:
             self.sp.pause_playback()
-            
+        
         if skip == "next":
             self.sp.next_track()
         elif skip == "prev":
             self.sp.previous_track()
-            
+        
         if shuffle != None:
             self.sp.shuffle(shuffle)
         
         if repeat != "":
             self.sp.repeat(repeat)
-
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYLISTS ═══════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds given tracks into the given playlist.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
@@ -364,7 +383,7 @@ class GeneralSpotifyHelpers:
         track_chunks = chunks(track_ids, 100)
         for chunk in track_chunks:
             self.sp.playlist_add_items(playlist_id, chunk)
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Adds given tracks into the given playlist BUT ONLY THE UNIQUE ONES.
     INPUT: playlist_id - Id of the playlist we will add the tracks to.
@@ -395,15 +414,13 @@ class GeneralSpotifyHelpers:
                             artist_info: list[str]=['id']) -> list[dict]:
         self._validate_scope(["playlist-read-private"])
         validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
-
-        # Response is items->track so we need to pad a "track" to all paths to not bother upstream user with it
-        return self._gather_data(
+        
+        res = self._gather_data(
             self.sp.playlist_items(playlist_id, limit=100, offset=offset, market="US")
-            , {"items": [["track", elem] if type(elem) is str else ["track"] + elem for elem in track_info] +
-                [["track", "album", elem] if type(elem) is str else ["track", "album"] + elem for elem in album_info]
-                , ("track", "artists"): artist_info}
+            , build_field_structure(track_info=track_info, album_info=album_info, artist_info=artist_info)
         )
-
+        return [d["track"] for d in res if "track" in d]
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates a new playlist for the user.
     INPUT: playlist_name - Name of the playlist that will be displayed on spotify.
@@ -459,7 +476,7 @@ class GeneralSpotifyHelpers:
         self.logger.error(f"Incorrectly Called DELETE With Playlist: ID: {playlist_id}, " +
                                    f"Length: {len(tracks)}, Max: {max_playlist_length}")
         return False
-            
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -482,7 +499,7 @@ class GeneralSpotifyHelpers:
                                   , country="US"
                                   , limit=50
                                   , include_groups=','.join(album_types))
-            , {"items": info}
+            , build_field_structure(info=info)
         )
 
 
@@ -561,13 +578,12 @@ class GeneralSpotifyHelpers:
         validate_inputs([album_ids, album_info, track_info], [list, list, list])
         
         album_chunks = chunks(album_ids, 20)
-        album_data = []
-        for album_chunk in album_chunks:
-            album_data += self._gather_data(
-                self.sp.albums(album_chunk, market="US")
-                , {"albums": album_info, ("tracks", "items"): track_info, "artists": artist_info}
-            )
-        return album_data
+        field_structure = {key: True for key in album_info}
+        field_structure["tracks"] = {key: True for key in track_info}
+        field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+
+        return [album for album_chunk in album_chunks
+                for album in self._gather_data(self.sp.albums(album_chunk, market="US"), field_structure)]
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════

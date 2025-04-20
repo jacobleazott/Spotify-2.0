@@ -80,8 +80,6 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(gsh.get_generic_field({}, []), [])
    
     def test_get_elements_in_date_range(self):
-        print("")
-        
         with self.assertRaises(Exception): gsh.get_elements_in_date_range([""], datetime(0, 0, 0), "i")
         with self.assertRaises(Exception): gsh.get_elements_in_date_range([""], 2, datetime(0, 0, 0))
         with self.assertRaises(Exception): gsh.get_elements_in_date_range(1, datetime(0, 0, 0), datetime(0, 0, 0))
@@ -125,7 +123,7 @@ class TestGSH(unittest.TestCase):
                                 {'release_date': '2000-12-30'},
                                 {'release_date': '2000-12-31'},
                                 {'release_date': 's'},
-                                {'release_date': ''}]
+                                {'release_date': ''}]  
         # Y-M-D, Y-M, Y, []
         # Y-M-D only counts if given day is in range
         # Y-M only counts if last day of the month is included
@@ -134,8 +132,7 @@ class TestGSH(unittest.TestCase):
         print(f"\t{inspect.stack()[0][3]}: Inter Month (End Month) -----------------------------")
         #   2000-12-10 -> 2000-12-31    Should include 2000-12-10 -> 2000-12-31, 2000-12, 2000
         tester(datetime(2000, 12, 10),  datetime(2000, 12, 31), [False, False, False, False, False, 
-                                                                 False, False, False, False, True , 
-                                                                 False, False, False, True , False, 
+                                                                 False, False, False, False, True ,                                                   False, False, False, True , False, 
                                                                  False, False, False, False, False, 
                                                                  False, False, True , True , True , 
                                                                  True])
@@ -193,46 +190,206 @@ class TestGSH(unittest.TestCase):
                                                                  True , True , False, False, True , 
                                                                  True])
     
+    def test_scopes(self):
+        class MockSpotifyClass:
+            def __init__(cls):
+                cls.spotify = mock.MagicMock()
+                cls.spotify._scopes = []
+
+            @gsh.scopes(["playlist-read-private", "user-library-read"])
+            def fetch_data(cls):
+                self.assertEqual(cls.spotify._scopes, ["playlist-read-private", "user-library-read"])
+                return "Data"
+        
+        client = MockSpotifyClass()
+        self.assertEqual(client.spotify._scopes, [])
+        self.assertEqual(client.fetch_data(), "Data")
+        self.assertEqual(client.spotify._scopes, [])
+    
+    def test_build_field_structure(self):
+        # No info provided
+        self.assertEqual(gsh.build_field_structure(), {})
+        # 'info' provided
+        self.assertEqual(gsh.build_field_structure(info=['name', 'id'])
+                         , {'name': True, 'id': True})
+        # 'track_info' provided
+        self.assertEqual(gsh.build_field_structure(track_info=['name', 'id'])
+                         , {'track': {'name': True, 'id': True}})
+        # 'album_info' provided
+        self.assertEqual(gsh.build_field_structure(album_info=['name', 'id'])
+                         , {'track': {'album': {'name': True, 'id': True}}})
+        # 'artist_info' provided
+        self.assertEqual(gsh.build_field_structure(artist_info=['name', 'id'])
+                         , {'track': {'artists': {'name': True, 'id': True}}})
+        # all info given
+        self.assertEqual(gsh.build_field_structure(info=['name', 'id'], track_info=['name', 'id']
+                                                   , album_info=['name', 'id'], artist_info=['name', 'id'])
+                         , {'name': True, 'id': True, 'track': {'name': True, 'id': True
+                                                                , 'album': {'name': True, 'id': True}
+                                                                , 'artists': {'name': True, 'id': True}}})
+    
+    def test_find_main_iterator(self):
+        # Path not found
+        self.assertEqual(gsh.find_main_iterator({}), ({}, None))
+        self.assertEqual(gsh.find_main_iterator({"no_item": 10}), ({"no_item": 10}, None))
+        
+        # Path with items
+        response = {"not_valid": 1, "items": [{"id": "Track1"}]}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([{"id": "Track1"}], ["items"]))
+        
+        # Path with item
+        response = {"item": {"name": "Single Track"}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ({"name": "Single Track"}, ["item"]))
+        
+        # Path with playlists -> items
+        response = {"playlists": {"items": [{"name": "Playlist 1"}]}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([{'name': 'Playlist 1'}], ['playlists', 'items']))
+        
+        # path with albums -> items and empty list
+        response = {"albums": {"items": []}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([], ["albums", "items"]))
+        
+        # Path with tracks -> items
+        response = {"tracks": {"items": []}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([], ["tracks", "items"]))
+        
+        # Path with artists -> items
+        response = {"artists": {"items": []}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([], ["artists", "items"]))
+        
+        # Path with albums
+        response = {"albums": {"Test": "Value"}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ({"Test": "Value"}, ["albums"]))
+        
+        # Path with artists
+        response = {"artists": [{"Test": "Value"}]}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , ([{"Test": "Value"}], ["artists"]))
+        
+        # Invalid path in a dictionary structure
+        response = {"tracks": {}}
+        self.assertEqual(gsh.find_main_iterator(response)
+                         , (response, None))
+
+    def test_extract_fields(self):
+        # Test List
+        data = [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]
+        field_structure = {'name': True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), [{"name": "Track1"}, {"name": "Track2"}])
+        
+        # Test Dictionary
+        data = {"name": "Track1", "duration": 30}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), data)
+        
+        # Test List of Dictionaries
+        data = [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), data)
+        
+        # Test Dictionary of Lists
+        data = {"name": ["Track1", "Track2"], "duration": [30, 25]}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), data)
+        
+        # Test Non List/ Dictionary
+        data = "Test"
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), data)
+        
+        # Test Sub Dictionary
+        data = {"name": "Track1", "album": {"release": 30, "name": "Album1"}}
+        field_structure = {'name': True, "album": {"name": True}}
+        self.assertEqual(gsh.extract_fields(data, field_structure), {"name": "Track1", "album": {"name": "Album1"}})
+        
+        # Test Empty 'field_structure'
+        data = {"name": "Track1", "duration": 30}
+        field_structure = {}
+        self.assertEqual(gsh.extract_fields(data, field_structure), {})
+        
+        # Test Missing 'info' from 'field_structure'
+        data = [{"name": "Track1", "duration": 30}, {"name": "Track2"}]
+        field_structure = {'duration': True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), [{"duration": 30}, {"duration": None}])
+        
+        # Test False in 'field_structure'
+        data = {'name': "Track1", "duration": 30}
+        field_structure = {'name': False, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), {'duration': 30})
+        
+        # Test Empty List
+        data = []
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), [])
+        
+        # Test Empty Dict
+        data = {}
+        field_structure = {'name': False, "duration": True}
+        self.assertEqual(gsh.extract_fields(data, field_structure), {'duration': None})
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # "PRIVATE" CLASS FUNCTIONS ═══════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
-    def test_get_next_response(self):
-        spotify = gsh.GeneralSpotifyHelpers()
-        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
-        
-        # No 'next'
-        test_response = {'id': '0', 'name': 'bob'}
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' value in base dict
-        test_response['next'] = 'value'
-        self.assertEqual(spotify._get_next_response(test_response), 'value')
-        # Remove and verify
-        del test_response['next']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' in dict in values
-        test_response['items'] = {'tracks': [], 'next': 'test_next'}
-        self.assertEqual(spotify._get_next_response(test_response), "test_next")
-        # Remove and verify
-        del test_response['items']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' in dict but not 'items'
-        test_response['not_items'] = {'tracks': [], 'next': 'second_test'}
-        self.assertEqual(spotify._get_next_response(test_response), "second_test")
-        # Remove and verify
-        del test_response['not_items']
-        self.assertEqual(spotify._get_next_response(test_response), None)
-        # 'next' value present, but too deep into dict
-        test_response['TooDeep'] = {'tracks': [], 'second_next': {'next': 'not_found'}}
-        self.assertEqual(spotify._get_next_response(test_response), None)
-    
-    def test_iterate_and_grab_data(self):
-        # Rework is planned for these functions, BRO-94
-        print("\n\tNot Implemented")
-    
     def test_gather_data(self):
-        # Rework is planned for these functions, BRO-94
-        print("\n\tNot Implemented")
+        GSH = gsh.GeneralSpotifyHelpers()
+        # Test Extend On List
+        response = [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure), response)
+        
+        # Test Extend On Dictionary
+        response = {"name": "Track1", "duration": 30}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure), [response])
+        
+        # Test Items
+        response = {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 25}]}
+        field_structure = {'name': True, "duration": False}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1"}, {"name": "Track2"}])
+        
+        # Test Base Level Next
+        response = {"name": "Track1", "duration": 30, "next": {"name": "Track2", "duration": 45}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}])
+        
+        # Test Nested Next
+        response = {"name": "Track1", "duration": 30, "next": {"name": "Track2", "duration": 45
+                                                               , "next": {"name": "Track3"}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": None}])
+        
+        # Test Next In Path
+        response = {"artists": {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}]
+                                , "next": {"artists": {"items": [{"name": "Track3", "duration": 60}]}}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": 60}])
+        
+        # Test Different Levels Of Next
+        response = {"artists": {"items": [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}]
+                                , "next": {"name": "Track3", "duration": 60, "next": {"name": "Track4"}}}}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}, {"name": "Track2", "duration": 45}
+                            , {"name": "Track3", "duration": 60}, {"name": "Track4", "duration": None}])
+        
+        # Test None Next
+        response = {"name": "Track1", "duration": 30, "next": None}
+        field_structure = {'name': True, "duration": True}
+        self.assertEqual(GSH._gather_data(response, field_structure)
+                         , [{"name": "Track1", "duration": 30}])
 
     def test_validate_scope(self):
         test_scopes = [ "user-read-private"
@@ -456,51 +613,58 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
         # "Regular" Playlist Default Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002"), 
-                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
-                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
-                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
+                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
+                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
+                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
         # No Track Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[]), 
-                         [{'album_id': 'Al002', 'artists': [{'id': 'Ar002'}]},
-                          {'album_id': 'Al003', 'artists': [{'id': 'Ar002'}]},
-                          {'album_id': 'Al004', 'artists': [{'id': 'Ar002'}]}])
+                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}]}])
         # No Track or Artist Info
+        
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[]), 
-                         [{'album_id': 'Al002', 'artists': [{}]},
-                          {'album_id': 'Al003', 'artists': [{}]},
-                          {'album_id': 'Al004', 'artists': [{}]}])
+                         [{'album': {'id': 'Al002'}},
+                          {'album': {'id': 'Al003'}},
+                          {'album': {'id': 'Al004'}}])
         # No Track, Artist, or Album Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), 
-                         [{'artists': [{}]},
-                          {'artists': [{}]},
-                          {'artists': [{}]}])
+        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), [])
         # Different Info From Default
-        self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=['name'], 
-                                                     artist_info=['name'], album_info=['name']), 
-                     [{'album_name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'},
-                      {'album_name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'},
-                      {'album_name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl002", track_info=['name'], artist_info=['name'], album_info=['name']),
+            [
+                {'album': {'name': 'Fake Album 2'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'}
+              , {'album': {'name': 'Fake Album 3'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'}
+              , {'album': {'name': 'Fake Album 4'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
         # Duplicate Tracks and Local Tracks Default Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl004"), 
-                         [{'album_id': None, 'artists': [{'id': None}], 'id': None},
-                          {'album_id': None, 'artists': [{'id': None}], 'id': None},
-                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
-                          {'album_id': 'Al002', 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl004"),
+            [
+                {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}
+              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
         # Duplicate Tracks and Local Tracks Extra Info
-        self.assertEqual(spotify.get_playlist_tracks("Pl004", track_info=['id', 'name'], 
-                                                     artist_info=['id', 'name'], album_info=['id', 'name']), 
-                         [{'album_id': None, 'album_name': 'Fake Local Album 1', 
-                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
-                           'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': None, 'album_name': 'Fake Local Album 1', 
-                           'artists': [{'id': None, 'name': 'Fake Local Artist 1'}], 
-                           'id': None, 'name': 'Fake Local Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
-                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
-                           'id': 'Tr001', 'name': 'Fake Track 1'},
-                          {'album_id': 'Al002', 'album_name': 'Fake Album 2', 
-                           'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
-                           'id': 'Tr001', 'name': 'Fake Track 1'}])
+        self.assertEqual(
+            spotify.get_playlist_tracks("Pl004", track_info=['id', 'name']
+                                        , artist_info=['id', 'name']
+                                        , album_info=['id', 'name']),
+            [
+                {'album': {'id': None, 'name': 'Fake Local Album 1'}
+               , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
+               , 'id': None, 'name': 'Fake Local Track 1'}
+
+              , {'album': {'id': None, 'name': 'Fake Local Album 1'}
+               , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
+               , 'id': None, 'name': 'Fake Local Track 1'}
+
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+               , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
+               , 'id': 'Tr001', 'name': 'Fake Track 1'}
+
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+               , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
+               , 'id': 'Tr001', 'name': 'Fake Track 1'}])
 
     def test_create_playlist(self):
         spotify = gsh.GeneralSpotifyHelpers()
@@ -630,7 +794,6 @@ class TestGSH(unittest.TestCase):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
     def test_get_albums_tracks(self):
         spotify = gsh.GeneralSpotifyHelpers()
         spotify._scopes = list(Settings.MAX_SCOPE_LIST)
@@ -730,7 +893,7 @@ class TestGSH(unittest.TestCase):
                                                                                    ['Ar004', 'Fake Artist 4']])
 
     def test_verify_appears_on_tracks(self):
-        # We will need search functionality mocked for this, BRO-76
+        # TODO BRO-76: We will need search functionality mocked for this.
         print("\n\tNot Implemented")
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
