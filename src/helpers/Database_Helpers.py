@@ -31,6 +31,75 @@ from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
 
 
+SCHEMA_FIELDS = {
+    "playlists": {
+         "id" : "TEXT UNIQUE PRIMARY KEY"
+        , "name"         : "TEXT"
+        , "description"  : "TEXT"
+        , "__without_rowid__" : True
+    },
+    "artists": {
+         "id" : "TEXT UNIQUE PRIMARY KEY"
+        , "name"         : "TEXT"
+        , "__without_rowid__" : True
+    },
+    "albums": {
+         "id" : "TEXT UNIQUE PRIMARY KEY"
+        , "name"         : "TEXT"
+        , "release_date" : "TEXT"
+        , "total_tracks" : "INTEGER"
+        , "__without_rowid__" : True
+    },
+    "tracks": {
+         "id" : "TEXT UNIQUE PRIMARY KEY"
+        , "name"         : "TEXT"
+        , "duration_ms"  : "INTEGER"
+        , "is_local"     : "INTEGER"
+        , "is_playable"  : "INTEGER"
+        , "disc_number"  : "INTEGER"
+        , "track_number" : "INTEGER"
+        , "__without_rowid__" : True
+    },
+    "followed_artists": {
+         "id" : "TEXT PRIMARY KEY REFERENCES artists(id)"
+        , "__without_rowid__" : True
+    },
+    "playlists_tracks": {
+         "id_playlist"  : "TEXT REFERENCES playlists(id)"
+        , "id_track"     : "TEXT REFERENCES tracks(id)"
+    },
+    "tracks_artists": {
+         "id_track"     : "TEXT REFERENCES tracks(id)"
+        , "id_artist"    : "TEXT REFERENCES artists(id)"
+        , "__constraints__" : ["UNIQUE(id_track, id_artist)"]
+    },
+    "tracks_albums": {
+         "id_track"     : "TEXT REFERENCES tracks(id)"
+        , "id_album"     : "TEXT REFERENCES albums(id)"
+        , "__constraints__" : ["UNIQUE(id_track, id_album)"]
+    },
+    "albums_artists": {
+         "id_album"     : "TEXT REFERENCES albums(id)"
+        , "id_artist"    : "TEXT REFERENCES artists(id)"
+        , "__constraints__" : ["UNIQUE(id_album, id_artist)"]
+    },
+    "listening_session": {
+         "time"         : "TIMESTAMP NOT NULL"
+        , "id_track"     : "TEXT REFERENCES tracks(id)"
+    },
+    "track_play_counts": {
+         "id_track"     : "TEXT REFERENCES tracks(id) PRIMARY KEY"
+        , "play_count"   : "INTEGER NOT NULL"
+        , "__without_rowid__" : True
+    },
+}
+
+def extract_values(item: dict, table: str) -> tuple:
+    return tuple(item.get(field) for field in get_table_fields(table))
+
+def get_table_fields(table: str) -> list[str]:
+    return [field for field in SCHEMA_FIELDS[table] if not field.startswith("__")]
+
 class DatabaseSchema(Enum):
     FULL = "full"         # includes listening_session and track_play_counts
     SNAPSHOT = "snapshot" # excludes those two tables
@@ -70,8 +139,8 @@ DESCRIPTION: Collection of methods similar to GSH that grab from our latest loca
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class DatabaseHelpers(LogAllMethods):
     
-    def __init__(self, db_path: str = Settings.LISTENING_VAULT_DB,
-                 schema: DatabaseSchema = DatabaseSchema.FULL,
+    def __init__(self, db_path: str=Settings.LISTENING_VAULT_DB,
+                 schema: DatabaseSchema=DatabaseSchema.FULL,
                  logger: logging.Logger=None) -> None:
         self.db_path = db_path
         self.schema = schema
@@ -80,6 +149,7 @@ class DatabaseHelpers(LogAllMethods):
         
     @contextlib.contextmanager
     def connect_db(self):
+        print(self.db_path)
         conn = sqlite3.connect(self.db_path)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
@@ -89,80 +159,33 @@ class DatabaseHelpers(LogAllMethods):
             conn.close()
             
     def create_database(self) -> None:
+        schema_sql = []
+
+        for table, fields in SCHEMA_FIELDS.items():
+            if self.schema == DatabaseSchema.SNAPSHOT and table in {"listening_session", "track_play_counts"}:
+                continue
+            
+            field_copy = fields.copy()
+            stmt = self._generate_create_statement(table, field_copy)
+            schema_sql.append(stmt)
+            
         with self.connect_db() as db_conn:
-            db_conn.executescript(self._get_schema_script())
-        
-    def _get_schema_script(self) -> str:
-        common_tables = """
-            CREATE TABLE IF NOT EXISTS playlists (
-                id TEXT UNIQUE PRIMARY KEY,
-                name TEXT,
-                description TEXT
-            ) WITHOUT ROWID;
+            db_conn.executescript("\n".join(schema_sql))
+            
+    def _generate_create_statement(self, table: str, fields: dict[str, str]) -> str:
+        constraints = fields.pop("__constraints__", [])
+        without_rowid = fields.pop("__without_rowid__", False)
+        columns = ",\n\t".join(f"{name} {col_type}" for name, col_type in fields.items())
 
-            CREATE TABLE IF NOT EXISTS artists (
-                id TEXT UNIQUE PRIMARY KEY,
-                name TEXT
-            ) WITHOUT ROWID;
+        constraints_clause = ""
+        if constraints:
+            constraints_clause = ",\n\t" + ",\n\t".join(constraints)
 
-            CREATE TABLE IF NOT EXISTS albums (
-                id TEXT UNIQUE PRIMARY KEY,
-                name TEXT,
-                release_date TEXT
-            ) WITHOUT ROWID;
+        statement = f"CREATE TABLE IF NOT EXISTS {table} (\n    {columns}{constraints_clause}\n)"
+        if without_rowid:
+            statement += " WITHOUT ROWID"
 
-            CREATE TABLE IF NOT EXISTS tracks (
-                id TEXT UNIQUE PRIMARY KEY,
-                name TEXT,
-                duration_ms INTEGER,
-                is_local INTEGER,
-                is_playable INTEGER
-            ) WITHOUT ROWID;
-
-            CREATE TABLE IF NOT EXISTS followed_artists (
-                id TEXT PRIMARY KEY REFERENCES artists(id)
-            ) WITHOUT ROWID;
-
-            CREATE TABLE IF NOT EXISTS playlists_tracks (
-                id_playlist TEXT REFERENCES playlists(id),
-                id_track TEXT REFERENCES tracks(id)
-            );
-
-            CREATE TABLE IF NOT EXISTS tracks_artists (
-                id_track TEXT REFERENCES tracks(id),
-                id_artist TEXT REFERENCES artists(id),
-                UNIQUE(id_track, id_artist)
-            );
-
-            CREATE TABLE IF NOT EXISTS tracks_albums (
-                id_track TEXT REFERENCES tracks(id),
-                id_album TEXT REFERENCES albums(id),
-                UNIQUE(id_track, id_album)
-            );
-
-            CREATE TABLE IF NOT EXISTS albums_artists (
-                id_album TEXT REFERENCES albums(id),
-                id_artist TEXT REFERENCES artists(id),
-                UNIQUE(id_album, id_artist)
-            );
-        """
-
-        full_only_tables = """
-            CREATE TABLE IF NOT EXISTS listening_session (
-                time TIMESTAMP NOT NULL,
-                id_track TEXT REFERENCES tracks(id)
-            ) WITHOUT ROWID;
-
-            CREATE TABLE IF NOT EXISTS track_play_counts (
-                id_track TEXT REFERENCES tracks(id),
-                play_count INTEGER NOT NULL
-            ) WITHOUT ROWID;
-        """
-
-        if self.schema == DatabaseSchema.FULL:
-            return full_only_tables + common_tables
-        
-        return common_tables
+        return statement + ";"
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Inserts a variable amount of elements into a database table while verifying the types of your 'values'
@@ -179,19 +202,18 @@ class DatabaseHelpers(LogAllMethods):
         with self.connect_db() as db_conn:
             expected_types = get_column_types(db_conn, table)
         
-        # Translates values into our format from either dict, list of tuples, or just list
-        data = [tuple(d.values()) for d in values] if type(values[0]) is dict \
-                else [(v,) for v in values] if type(values[0]) is not tuple else values 
+            # Translates values into our format from either dict, list of tuples, or just list
+            data = [tuple(d.values()) for d in values] if type(values[0]) is dict \
+                    else [(v,) for v in values] if type(values[0]) is not tuple else values 
 
-        for row in data:
-            for i, (val, expected_type) in enumerate(zip(row, expected_types)):
-                if not isinstance(val, expected_type):
-                    raise ValueError(f"'{val}' in column {i+1} of table '{table}' should be of type {expected_type}")
+            for row in data:
+                for i, (val, expected_type) in enumerate(zip(row, expected_types)):
+                    if not isinstance(val, expected_type):
+                        raise ValueError(f"'{val}' in column {i+1} of table '{table}' should be of type {expected_type}")
 
-        placeholders = ", ".join("?" for _ in data[0])
-        query = f"INSERT OR IGNORE INTO {table} VALUES ({placeholders})"
+            placeholders = ", ".join("?" for _ in data[0])
+            query = f"INSERT OR IGNORE INTO {table} VALUES ({placeholders})"
 
-        with self.connect_db() as db_conn:
             for i in range(0, len(data), batch_size):
                 batch = data[i:i + batch_size]
                 db_conn.executemany(query, batch)
@@ -260,6 +282,107 @@ class DatabaseHelpers(LogAllMethods):
             JOIN artists on artists.id = followed_artists.id 
         """
         return self._conn_query_to_dict(query)
+    
+    def id_is_in_db(self, id: str, table: str) -> bool:
+        with self.backup_db_conn as db_conn:
+            return db_conn.execute(f"SELECT * FROM {table} WHERE id = ?", (id)).fetchone() is not None
+        
+    
+    def print_playlist_tracks(self, playlist_id: str) -> None:
+        query = """
+            SELECT 
+                t.id AS track_id,
+                t.name AS track_name,
+                t.duration_ms,
+                t.is_local,
+                t.is_playable,
+                t.disc_number,
+                t.track_number,
+                GROUP_CONCAT(DISTINCT ar.name) AS artists,
+                al.name AS album_name,
+                al.release_date,
+                al.total_tracks
+            FROM playlists_tracks pt
+            JOIN tracks t ON pt.id_track = t.id
+            LEFT JOIN tracks_artists ta ON t.id = ta.id_track
+            LEFT JOIN artists ar ON ta.id_artist = ar.id
+            LEFT JOIN tracks_albums tal ON t.id = tal.id_track
+            LEFT JOIN albums al ON tal.id_album = al.id
+            WHERE pt.id_playlist = ?
+            GROUP BY t.id
+            ORDER BY t.disc_number, t.track_number;
+        """
 
+        with self.connect_db() as db_conn:
+            cursor = db_conn.execute(query, (playlist_id,))
+            rows = cursor.fetchall()
+            col_names = [description[0] for description in cursor.description]
+
+            if not rows:
+                print(f"No tracks found for playlist ID '{playlist_id}'.")
+                return
+
+            # Print headers
+            print("\n" + "-" * 80)
+            print("TRACKS IN PLAYLIST".center(80))
+            print("-" * 80)
+            print(" | ".join(col_names))
+            print("-" * 80)
+
+            # Print rows
+            for row in rows:
+                print(" | ".join(str(item) if item is not None else "" for item in row))
+            print("-" * 80)
+            
+    def print_tracks_by_id(self, track_ids: list[str]) -> None:
+        if not track_ids:
+            print("No track IDs provided.")
+            return
+
+        placeholders = ", ".join("?" for _ in track_ids)
+        query = f"""
+            SELECT 
+                t.id AS track_id,
+                t.name AS track_name,
+                t.duration_ms,
+                t.is_local,
+                t.is_playable,
+                t.disc_number,
+                t.track_number,
+                GROUP_CONCAT(DISTINCT ar.name) AS artists,
+                al.name AS album_name,
+                al.release_date,
+                al.total_tracks
+            FROM tracks t
+            LEFT JOIN tracks_artists ta ON t.id = ta.id_track
+            LEFT JOIN artists ar ON ta.id_artist = ar.id
+            LEFT JOIN tracks_albums tal ON t.id = tal.id_track
+            LEFT JOIN albums al ON tal.id_album = al.id
+            WHERE t.id IN ({placeholders})
+            GROUP BY t.id
+            ORDER BY t.disc_number, t.track_number
+        """
+
+        with self.connect_db() as db_conn:
+            cursor = db_conn.execute(query, track_ids)
+            rows = cursor.fetchall()
+            col_names = [desc[0] for desc in cursor.description]
+
+            if not rows:
+                print("No matching tracks found.")
+                return
+
+            print("\n" + "-" * 80)
+            print("TRACK INFO".center(80))
+            print("-" * 80)
+            print(" | ".join(col_names))
+            print("-" * 80)
+
+            for row in rows:
+                print(" | ".join(str(val) if val is not None else "" for val in row))
+            print("-" * 80)
+
+
+    
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

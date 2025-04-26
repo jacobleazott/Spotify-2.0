@@ -298,6 +298,7 @@ class GeneralSpotifyHelpers:
     OUTPUT: Returns a dict holding track, and playback information.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_playback_state(self, track_info: list[str]=['id']
+                           , album_info: list[str]=['id']
                            , artist_info: list[str]=['id']) -> dict:
         self._validate_scope(["user-read-playback-state"])
         
@@ -320,6 +321,7 @@ class GeneralSpotifyHelpers:
             altered_playback['item'] = [playback['item'].copy()]
             
             field_structure = build_field_structure(info=track_info)
+            field_structure["albums"] = {key: True for key in album_info}
             field_structure["artists"] = {key: True for key in artist_info}
             track_data = self._gather_data(playback, field_structure)
             ret['track'] = track_data[0]
@@ -588,14 +590,30 @@ class GeneralSpotifyHelpers:
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
+    def get_several_tracks(self, track_ids: list[str], info: list[str]=['id']) -> list[dict]:
+        validate_inputs([track_ids, info], [list, list])
+        track_chunks = chunks(track_ids, 50)
+        
+        print(track_ids)
 
+        tracks = []
+        field_structure = {}
+        field_structure["tracks"] = {key: True for key in info}
+        
+        for track_chunk in track_chunks:
+            data = self._gather_data(self.sp.tracks(track_chunk, market="US"), field_structure)[0]['tracks']
+            tracks.extend(data)
+        
+        return tracks
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets all artists from the given track .
     INPUT: track_id - List of spotify scopes to request access for.
     OUTPUT: List of artist ids for the given track.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_track_artists(self, track_id: str, info: list[str]=['id']) -> list[str]:
-        validate_inputs([track_id], [str])
+        validate_inputs([track_id, info], [str, list])
         
         artist_ids = []
         for artist_data in self.sp.track(track_id, market="US")['artists']:
