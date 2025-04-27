@@ -21,37 +21,39 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import contextlib
 import logging
-import os
 import sqlite3
 
 from enum import Enum
-from glob import glob
 
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
 
+class DatabaseSchema(Enum):
+    FULL = "full"         # includes listening_session and track_play_counts
+    SNAPSHOT = "snapshot" # excludes those two tables
+
 
 SCHEMA_FIELDS = {
     "playlists": {
-         "id" : "TEXT UNIQUE PRIMARY KEY"
+          "id" : "TEXT UNIQUE PRIMARY KEY"
         , "name"         : "TEXT"
         , "description"  : "TEXT"
         , "__without_rowid__" : True
     },
     "artists": {
-         "id" : "TEXT UNIQUE PRIMARY KEY"
+          "id" : "TEXT UNIQUE PRIMARY KEY"
         , "name"         : "TEXT"
         , "__without_rowid__" : True
     },
     "albums": {
-         "id" : "TEXT UNIQUE PRIMARY KEY"
+          "id" : "TEXT UNIQUE PRIMARY KEY"
         , "name"         : "TEXT"
         , "release_date" : "TEXT"
         , "total_tracks" : "INTEGER"
         , "__without_rowid__" : True
     },
     "tracks": {
-         "id" : "TEXT UNIQUE PRIMARY KEY"
+          "id" : "TEXT UNIQUE PRIMARY KEY"
         , "name"         : "TEXT"
         , "duration_ms"  : "INTEGER"
         , "is_local"     : "INTEGER"
@@ -61,49 +63,100 @@ SCHEMA_FIELDS = {
         , "__without_rowid__" : True
     },
     "followed_artists": {
-         "id" : "TEXT PRIMARY KEY REFERENCES artists(id)"
+          "id" : "TEXT PRIMARY KEY REFERENCES artists(id)"
         , "__without_rowid__" : True
     },
     "playlists_tracks": {
-         "id_playlist"  : "TEXT REFERENCES playlists(id)"
+          "id_playlist"  : "TEXT REFERENCES playlists(id)"
         , "id_track"     : "TEXT REFERENCES tracks(id)"
     },
     "tracks_artists": {
-         "id_track"     : "TEXT REFERENCES tracks(id)"
+          "id_track"     : "TEXT REFERENCES tracks(id)"
         , "id_artist"    : "TEXT REFERENCES artists(id)"
         , "__constraints__" : ["UNIQUE(id_track, id_artist)"]
     },
     "tracks_albums": {
-         "id_track"     : "TEXT REFERENCES tracks(id)"
+          "id_track"     : "TEXT REFERENCES tracks(id)"
         , "id_album"     : "TEXT REFERENCES albums(id)"
         , "__constraints__" : ["UNIQUE(id_track, id_album)"]
     },
     "albums_artists": {
-         "id_album"     : "TEXT REFERENCES albums(id)"
+          "id_album"     : "TEXT REFERENCES albums(id)"
         , "id_artist"    : "TEXT REFERENCES artists(id)"
         , "__constraints__" : ["UNIQUE(id_album, id_artist)"]
     },
     "listening_session": {
-         "time"         : "TIMESTAMP NOT NULL"
+          "time"         : "TIMESTAMP NOT NULL"
         , "id_track"     : "TEXT REFERENCES tracks(id)"
     },
     "track_play_counts": {
-         "id_track"     : "TEXT REFERENCES tracks(id) PRIMARY KEY"
+          "id_track"     : "TEXT REFERENCES tracks(id) PRIMARY KEY"
         , "play_count"   : "INTEGER NOT NULL"
         , "__without_rowid__" : True
     },
 }
 
-def extract_values(item: dict, table: str) -> tuple:
-    return tuple(item.get(field) for field in get_table_fields(table))
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Grabs the column names of an SQLite table from our schema.
+INPUT: table - SQLite table that we will grab column names of from SCHEMA_FIELDS.
+OUTPUT: List of column names from SCHEMA_FIELDS.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 def get_table_fields(table: str) -> list[str]:
     return [field for field in SCHEMA_FIELDS[table] if not field.startswith("__")]
 
-class DatabaseSchema(Enum):
-    FULL = "full"         # includes listening_session and track_play_counts
-    SNAPSHOT = "snapshot" # excludes those two tables
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Finds the given types of an SQLite table columns and returns their associated python type to help us
+             verify data going into our DB.
+INPUT: tracks - List of tracks we are pulling data from to generate our values to be inserted into the DB.
+       playlist_id - Optional playlist ID that we are inserting into.
+OUTPUT: Dict of tables and values to insert for the given tracks.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def build_entries_from_tracks(tracks: list, playlist_id: Optional[str]=None) -> dict:
+    # Helper function to extract values from a dict for a given table.
+    def extract_values(item: dict, table: str) -> tuple:
+        return tuple(item.get(field) for field in get_table_fields(table))
     
+    # Regular Object Table Entries
+    track_table_entries, album_table_entries, artist_table_entries = [], [], []
+    # Many To Many Relationship Tables
+    playlists_tracks_entries, tracks_artists_entries, tracks_albums_entries, albums_artists_entries = [], [], [], []
+
+    for track in tracks:
+        if track['is_playable'] is None:
+            track['is_playable'] = False
+        if track['album']['total_tracks'] is None:
+            track['album']['total_tracks'] = 0
+
+        # Replace any None values with a unique identifier for local tracks
+        if track['is_local']:
+            track = replace_none(track, f"local_track_{track['name']}")
+
+        track_table_entries.append(extract_values(track, 'tracks'))
+        album_table_entries.append(extract_values(track['album'], 'albums'))
+        artist_table_entries += [extract_values(artist, 'artists') for artist in track['artists']]
+        artist_table_entries += [extract_values(artist, 'artists') for artist in track['album']['artists']]
+        
+        tracks_artists_entries += [(track['id'], artist['id']) for artist in track['artists']]
+        tracks_albums_entries.append((track['id'], track['album']['id']))
+        albums_artists_entries += [(track['album']['id'], artist['id']) for artist in track['album']['artists']]
+        
+        # Add to playlists_tracks if playlist_id is provided
+        if playlist_id:
+            playlists_tracks_entries.append((playlist_id, track['id']))
+
+    return {
+        "tracks": track_table_entries,
+        "albums": album_table_entries,
+        "artists": artist_table_entries,
+        "playlists_tracks": playlists_tracks_entries,
+        "tracks_artists": tracks_artists_entries,
+        "tracks_albums": tracks_albums_entries,
+        "albums_artists": albums_artists_entries
+    }
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Finds the given types of an SQLite table columns and returns their associated python type to help us
              verify data going into our DB.
@@ -133,6 +186,27 @@ def get_column_types(db_conn, table: str) -> list:
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: This function recursively traverses any list/ dict with any complexity to find and replace every 'None'
+             value in it with our 'replace_with' value.
+INPUT: data - Any list, value, or dict collection with any complexity that we will be finding 'None' values in.
+OUTPUT: 'data' but with any 'None' value replaced with the value of 'replace_with'.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def replace_none(data, replace_with: str):
+    if isinstance(data, dict):
+        # Iterate through dict and recursively go through items
+        return {key: replace_none(value, replace_with) for key, value in data.items()}
+    elif isinstance(data, list):
+        # # Iterate through list and recursively go through elements
+        return [replace_none(item, replace_with) for item in data]
+    elif data is None:
+        # Replace None with the specified string
+        return replace_with
+    else:
+        # Return the value if it's not None, dict, or list
+        return data
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Collection of methods similar to GSH that grab from our latest local backup rather than spotify itself.
              Table definitions can be found in Backup_Spotify_Data.py.
              The Database we use is just the latest from our Backup_Spotify_Data location.
@@ -149,7 +223,6 @@ class DatabaseHelpers(LogAllMethods):
         
     @contextlib.contextmanager
     def connect_db(self):
-        print(self.db_path)
         conn = sqlite3.connect(self.db_path)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
@@ -205,7 +278,7 @@ class DatabaseHelpers(LogAllMethods):
             # Translates values into our format from either dict, list of tuples, or just list
             data = [tuple(d.values()) for d in values] if type(values[0]) is dict \
                     else [(v,) for v in values] if type(values[0]) is not tuple else values 
-
+              
             for row in data:
                 for i, (val, expected_type) in enumerate(zip(row, expected_types)):
                     if not isinstance(val, expected_type):
@@ -282,107 +355,6 @@ class DatabaseHelpers(LogAllMethods):
             JOIN artists on artists.id = followed_artists.id 
         """
         return self._conn_query_to_dict(query)
-    
-    def id_is_in_db(self, id: str, table: str) -> bool:
-        with self.backup_db_conn as db_conn:
-            return db_conn.execute(f"SELECT * FROM {table} WHERE id = ?", (id)).fetchone() is not None
-        
-    
-    def print_playlist_tracks(self, playlist_id: str) -> None:
-        query = """
-            SELECT 
-                t.id AS track_id,
-                t.name AS track_name,
-                t.duration_ms,
-                t.is_local,
-                t.is_playable,
-                t.disc_number,
-                t.track_number,
-                GROUP_CONCAT(DISTINCT ar.name) AS artists,
-                al.name AS album_name,
-                al.release_date,
-                al.total_tracks
-            FROM playlists_tracks pt
-            JOIN tracks t ON pt.id_track = t.id
-            LEFT JOIN tracks_artists ta ON t.id = ta.id_track
-            LEFT JOIN artists ar ON ta.id_artist = ar.id
-            LEFT JOIN tracks_albums tal ON t.id = tal.id_track
-            LEFT JOIN albums al ON tal.id_album = al.id
-            WHERE pt.id_playlist = ?
-            GROUP BY t.id
-            ORDER BY t.disc_number, t.track_number;
-        """
 
-        with self.connect_db() as db_conn:
-            cursor = db_conn.execute(query, (playlist_id,))
-            rows = cursor.fetchall()
-            col_names = [description[0] for description in cursor.description]
-
-            if not rows:
-                print(f"No tracks found for playlist ID '{playlist_id}'.")
-                return
-
-            # Print headers
-            print("\n" + "-" * 80)
-            print("TRACKS IN PLAYLIST".center(80))
-            print("-" * 80)
-            print(" | ".join(col_names))
-            print("-" * 80)
-
-            # Print rows
-            for row in rows:
-                print(" | ".join(str(item) if item is not None else "" for item in row))
-            print("-" * 80)
-            
-    def print_tracks_by_id(self, track_ids: list[str]) -> None:
-        if not track_ids:
-            print("No track IDs provided.")
-            return
-
-        placeholders = ", ".join("?" for _ in track_ids)
-        query = f"""
-            SELECT 
-                t.id AS track_id,
-                t.name AS track_name,
-                t.duration_ms,
-                t.is_local,
-                t.is_playable,
-                t.disc_number,
-                t.track_number,
-                GROUP_CONCAT(DISTINCT ar.name) AS artists,
-                al.name AS album_name,
-                al.release_date,
-                al.total_tracks
-            FROM tracks t
-            LEFT JOIN tracks_artists ta ON t.id = ta.id_track
-            LEFT JOIN artists ar ON ta.id_artist = ar.id
-            LEFT JOIN tracks_albums tal ON t.id = tal.id_track
-            LEFT JOIN albums al ON tal.id_album = al.id
-            WHERE t.id IN ({placeholders})
-            GROUP BY t.id
-            ORDER BY t.disc_number, t.track_number
-        """
-
-        with self.connect_db() as db_conn:
-            cursor = db_conn.execute(query, track_ids)
-            rows = cursor.fetchall()
-            col_names = [desc[0] for desc in cursor.description]
-
-            if not rows:
-                print("No matching tracks found.")
-                return
-
-            print("\n" + "-" * 80)
-            print("TRACK INFO".center(80))
-            print("-" * 80)
-            print(" | ".join(col_names))
-            print("-" * 80)
-
-            for row in rows:
-                print(" | ".join(str(val) if val is not None else "" for val in row))
-            print("-" * 80)
-
-
-    
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

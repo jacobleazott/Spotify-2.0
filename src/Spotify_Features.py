@@ -52,7 +52,7 @@ from glob import glob
 import src.General_Spotify_Helpers as gsh
 from src.helpers.decorators       import *
 from src.helpers.Settings         import Settings
-from src.helpers.Database_Helpers import DatabaseHelpers
+from src.helpers.Database_Helpers import DatabaseHelpers, get_table_fields
 
 # FEATURES
 from src.features.Misc_Features         import MiscFeatures
@@ -183,8 +183,10 @@ class SpotifyFeatures(LogAllMethods):
     OUTPUT: (track_id, shuffle_state, playlist_id) of current playback.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["user-read-playback-state"])
-    def get_playback_state(self, track_info: list=['id', 'name']) -> dict:
-        return self.spotify.get_playback_state(track_info=track_info)
+    def get_playback_state(self, track_info: list[str]=get_table_fields('tracks')
+                           , album_info: list[str]=get_table_fields('albums')
+                           , artist_info: list[str]=get_table_fields('artists')) -> dict:
+        return self.spotify.get_playback_state(track_info=track_info, album_info=album_info, artist_info=artist_info)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Updates our "latest" playlist with the "latest" tracks in our main playlist. 

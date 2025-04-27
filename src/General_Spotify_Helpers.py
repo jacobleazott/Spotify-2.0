@@ -321,11 +321,12 @@ class GeneralSpotifyHelpers:
             altered_playback['item'] = [playback['item'].copy()]
             
             field_structure = build_field_structure(info=track_info)
-            field_structure["albums"] = {key: True for key in album_info}
+            field_structure["album"] = {key: True for key in album_info}
+            field_structure["album"]["artists"] = {key: True for key in artist_info}
             field_structure["artists"] = {key: True for key in artist_info}
             track_data = self._gather_data(playback, field_structure)
             ret['track'] = track_data[0]
-
+        
         return ret
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
