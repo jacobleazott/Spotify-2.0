@@ -64,8 +64,7 @@ class MockedSettingsClass():
     # DB Locations
     BACKUPS_LOCATION: str       = "fake_path/fake_backups/"
     LAST_TRACK_PICKLE: str      = "fake_path/fake_pickle.pk"
-    LISTENING_DB: str           = "fake_path/fake_ldb.db"
-    TRACK_COUNTS_DB: str        = "fake_path/fake_tcdb.db"
+    LISTENING_VAULT_DB: str     = "fake_path/fake_ldb.db"
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15

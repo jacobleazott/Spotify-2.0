@@ -24,17 +24,40 @@ DESCRIPTION: Unit test collection for all Statistics functionality.
 @mock.patch('src.features.Statistics.Settings', Test_Settings)
 class TestStatistics(unittest.TestCase):
     
+    #     @mock.patch('src.Spotify_Features.DriveUploader')
+    # @mock.patch('src.Spotify_Features.glob')
+    # @mock.patch('os.path.getmtime')
+    # def test_latest_backup(self, mock_getmtime, mock_glob, MockDriveUploader):
+    #     # Define your mocked file paths
+    #     mock_glob.return_value = ['/path/to/file1.txt'
+    #                               , '/path/to/file2.txt'
+    #                               , '/path/to/file3.txt']
+    
+    @mock.patch('src.features.Statistics.glob')
+    @mock.patch('os.path.getmtime')
     @mock.patch('src.features.Statistics.DatabaseHelpers')
-    def setUp(self, mock_dbh):
+    def setUp(self, mock_dbh, mock_getmtime, mock_glob):
+        mock_glob.return_value = ['/path/to/file1.txt']
         self.statistics = SpotifyStatistics()
         self.mock_dbh = mock.MagicMock()
         self.statistics.dbh = self.mock_dbh
     
+    @mock.patch('src.features.Statistics.glob')
+    @mock.patch('os.path.getmtime')
     @mock.patch('src.features.Statistics.DatabaseHelpers')
-    def test_init(self, mock_dbh):
+    def test_init(self, mock_dbh, mock_getmtime, mock_glob):
+        mock_glob.return_value = ['/path/to/file1.txt'
+                                , '/path/to/file2.txt'
+                                , '/path/to/file3.txt']
+        
+        mock_getmtime.side_effect = lambda path: {'/path/to/file1.txt': 100
+                                                  , '/path/to/file2.txt': 200
+                                                  , '/path/to/file3.txt': 300}[path]
+        
         statistics_default = SpotifyStatistics()
         self.assertEqual(statistics_default.logger, logging.getLogger())
         self.assertEqual(statistics_default.dbh, mock_dbh.return_value)
+        self.assertEqual(statistics_default.latest_backup, '/path/to/file3.txt')
         
         statistics_logger = SpotifyStatistics(logger=logging.getLogger('custom_logger'))
         self.assertEqual(statistics_logger.logger, logging.getLogger('custom_logger'))
@@ -83,16 +106,15 @@ class TestStatistics(unittest.TestCase):
         
     def test_generate_latest_artists(self):
         # Setup Databases and Tables
-        Test_Settings.LISTENING_DB = "file:shared_memory?mode=memory&cache=shared"
-        listening_conn = sqlite3.connect(Test_Settings.LISTENING_DB)
+        Test_Settings.LISTENING_VAULT_DB = "file:shared_memory?mode=memory&cache=shared"
+        listening_conn = sqlite3.connect(Test_Settings.LISTENING_VAULT_DB)
         
-        for year in range(2022, 2024):
-            listening_conn.execute(f"""
-                CREATE TABLE IF NOT EXISTS '{year}' (
-                    track_id TEXT,
-                    time TEXT
-                );
-            """)
+        listening_conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS 'listening_sessions' (
+                track_id TEXT,
+                time TEXT
+            );
+        """)
         listening_conn.commit()
         
         backup_db_conn = sqlite3.connect(":memory:")

@@ -22,8 +22,8 @@ import sqlite3
 from datetime import datetime
 
 from src.helpers.Database_Helpers   import DatabaseHelpers, build_entries_from_tracks
-from src.helpers.decorators import *
-from src.helpers.Settings   import Settings
+from src.helpers.decorators         import *
+from src.helpers.Settings           import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Populates our listening_connection and track_count. Note that this class does not require a GSH object 
@@ -91,7 +91,7 @@ class LogPlayback(LogAllMethods):
             self.vault_db.insert_many(table, values)
 
         with self.vault_db.connect_db() as db_conn:
-            db_conn.execute(f"""INSERT INTO 'listening_session' ('time', 'id_track') VALUES (?, ?);""", 
+            db_conn.execute(f"""INSERT INTO 'listening_sessions' ('time', 'id_track') VALUES (?, ?);""", 
                                   (datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), self.track['id']))
         if inc_track_count:
             self.update_last_track_count()

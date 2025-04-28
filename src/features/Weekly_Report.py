@@ -225,7 +225,7 @@ class WeeklyReport(LogAllMethods):
         days = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
         for delta in range((datetime.today() - start).days):
             result_date = (start + timedelta(days=delta)).date()
-            tmp_vals = listening_conn.execute(f"""SELECT * FROM '{result_date.year}'
+            tmp_vals = listening_conn.execute(f"""SELECT * FROM 'listening_sessions'
                                 WHERE time >= ?
                                 AND time < ?;""",
                                 (f"{result_date} 00:00:00", f"{result_date} 23:59:59")).fetchall()
@@ -242,13 +242,13 @@ class WeeklyReport(LogAllMethods):
     OUTPUT: Saves off a listening_data_plot.png file for use later.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _gen_playback_graph(self):
-        conn = sqlite3.connect(Settings.LISTENING_DB)
+        conn = sqlite3.connect(Settings.LISTENING_VAULT_DB)
         values = []
         
         for diff_day in range(0, 7):
             # Since we run on Monday AM, we want prev Sun to this past Sat
             date = datetime.today() - timedelta(days=8-diff_day)
-            db_res = conn.execute(f"""SELECT * FROM '{date.year}'
+            db_res = conn.execute(f"""SELECT * FROM 'listening_sessions'
                                   WHERE time >= ?
                                   AND time < ?;"""
                                   , (f"{date.strftime(r"%Y-%m-%d")} 00:00:00", f"{date.strftime(r"%Y-%m-%d")} 23:59:59")

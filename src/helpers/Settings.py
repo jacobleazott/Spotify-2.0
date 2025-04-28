@@ -72,8 +72,6 @@ class SettingsClass:
     BACKUPS_LOCATION: str       = "databases/backups/"
     LISTENING_VAULT_DB: str     = "databases/listening_vault.db"
     LAST_TRACK_PICKLE: str      = "databases/lastTrack.pk"
-    LISTENING_DB: str           = "databases/listening_data.db"
-    TRACK_COUNTS_DB: str        = "databases/track_counts.db"
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15

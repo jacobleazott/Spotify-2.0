@@ -22,14 +22,13 @@
 import contextlib
 import logging
 import sqlite3
-
 from enum import Enum
 
 from src.helpers.decorators import *
 from src.helpers.Settings   import Settings
 
 class DatabaseSchema(Enum):
-    FULL = "full"         # includes listening_session and track_play_counts
+    FULL = "full"         # includes listening_sessions and track_play_counts
     SNAPSHOT = "snapshot" # excludes those two tables
 
 
@@ -85,7 +84,7 @@ SCHEMA_FIELDS = {
         , "id_artist"    : "TEXT REFERENCES artists(id)"
         , "__constraints__" : ["UNIQUE(id_album, id_artist)"]
     },
-    "listening_session": {
+    "listening_sessions": {
           "time"         : "TIMESTAMP NOT NULL"
         , "id_track"     : "TEXT REFERENCES tracks(id)"
     },
@@ -220,22 +219,48 @@ class DatabaseHelpers(LogAllMethods):
         self.schema = schema
         self.logger = logger if logger is not None else logging.getLogger()
         self.create_database()
-        
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Context manager for our database connection to enforce foreign key and auto commit.
+    INPUT: N/A
+    Output: N/A
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
     @contextlib.contextmanager
     def connect_db(self):
         conn = sqlite3.connect(self.db_path)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
             yield conn 
-            conn.commit()
+            if conn.in_transaction:
+                conn.commit()
         finally:
             conn.close()
-            
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Context manager for our database connection in readonly mode.
+    INPUT: N/A
+    Output: N/A
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
+    @contextlib.contextmanager
+    def connect_db_readonly(self):
+        uri = f'file:{self.db_path}?mode=ro'
+        conn = sqlite3.connect(uri, uri=True)
+        try:
+            conn.execute("PRAGMA foreign_keys = ON;")
+            yield conn
+        finally:
+            conn.close()
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Creates our database with the necessary schema.
+    INPUT: N/A
+    Output: N/A
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
     def create_database(self) -> None:
         schema_sql = []
 
         for table, fields in SCHEMA_FIELDS.items():
-            if self.schema == DatabaseSchema.SNAPSHOT and table in {"listening_session", "track_play_counts"}:
+            if self.schema == DatabaseSchema.SNAPSHOT and table in {"listening_sessions", "track_play_counts"}:
                 continue
             
             field_copy = fields.copy()
@@ -244,7 +269,13 @@ class DatabaseHelpers(LogAllMethods):
             
         with self.connect_db() as db_conn:
             db_conn.executescript("\n".join(schema_sql))
-            
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Generic function to create a sql statement to create a table.
+    INPUT: table - table value we are creating.
+           fields - fields that our table will have.
+    Output: SQL statement to create our table with name 'table' and columns 'fields'.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
     def _generate_create_statement(self, table: str, fields: dict[str, str]) -> str:
         constraints = fields.pop("__constraints__", [])
         without_rowid = fields.pop("__without_rowid__", False)
@@ -298,10 +329,12 @@ class DatabaseHelpers(LogAllMethods):
     OUTPUT: List of dicts from the db query.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _conn_query_to_dict(self, query: str, p_val: tuple=()) -> list[dict]:
-        cursor = self.backup_db_conn.execute(query, p_val)
-        column_names = [desc[0] for desc in cursor.description]
+        with self.connect_db_readonly() as db_conn:
+            cursor = db_conn.execute(query, p_val)
+            column_names = [desc[0] for desc in cursor.description]
+            results = [dict(zip(column_names, row)) for row in cursor.fetchall()]
         
-        return [dict(zip(column_names, row)) for row in cursor.fetchall()]
+        return results
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs the tracks from a playlist if we have it in our backup database.
@@ -355,6 +388,62 @@ class DatabaseHelpers(LogAllMethods):
             JOIN artists on artists.id = followed_artists.id 
         """
         return self._conn_query_to_dict(query)
+    
+    def get_tracks_listened_in_date_range(self, start_date: str, end_date: str) -> list[dict]:
+        query = f"""
+            SELECT id_track, COUNT(*) as track_count
+            FROM listening_sessions
+            WHERE time BETWEEN ? AND ?
+            GROUP BY id_track;
+        """
+        return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
+                                                    , end_date.strftime("%Y-%m-%d %H:%M:%S")))
+        
+    def get_artists_listened_in_date_range(self, start_date: str, end_date: str) -> list[dict]:
+        query = f"""
+            SELECT a.*, COUNT(*) AS artist_count
+            FROM listening_sessions ls
+            JOIN tracks_artists ta ON ls.id_track = ta.id_track
+            JOIN artists a ON ta.id_artist = a.id
+            WHERE ls.time BETWEEN ? AND ?
+            GROUP BY a.name
+            ORDER BY artist_count DESC;
+        """
+        return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
+                                                    , end_date.strftime("%Y-%m-%d %H:%M:%S")))
+        
+    def get_artists_appear_in_playlist(self, playlist_id: str) -> list[dict]:
+        query = f"""
+            SELECT ta.id_artist, a.*, COUNT(*) AS num_appearances
+            FROM playlists_tracks pt
+            JOIN tracks_artists ta ON pt.id_track = ta.id_track
+            JOIN artists a ON ta.id_artist = a.id
+            WHERE pt.id_playlist = ?
+            GROUP BY ta.id_artist, a.name
+            ORDER BY num_appearances DESC;
+        """
+        return self._conn_query_to_dict(query, p_val=(playlist_id,))
+    
+    def get_artist_appears_with(self, artist_id: str) -> list[dict]:
+        query = f"""
+            SELECT DISTINCT a2.*
+            FROM tracks_artists ta1
+            JOIN tracks_artists ta2 ON ta1.id_track = ta2.id_track
+            JOIN artists a2 ON ta2.id_artist = a2.id
+            WHERE ta1.id_artist = ? AND ta1.id_artist != ta2.id_artist;
+        """
+        return self._conn_query_to_dict(query, p_val=(artist_id,))
+    
+    def get_artist_tracks(self, artist_id: str) -> list[dict]:
+        query = f"""
+            SELECT t.*
+            FROM tracks_artists ta
+            JOIN tracks t ON ta.id_track = t.id
+            WHERE ta.id_artist = ?;
+        """
+        return self._conn_query_to_dict(query, p_val=(artist_id,))
+        
+
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

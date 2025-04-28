@@ -49,9 +49,8 @@ class Shuffler(LogAllMethods):
     def __init__(self, spotify, tcdb_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
-        self.dbh = DatabaseHelpers(logger=self.logger)
-        self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
-        
+        self.dbh = DatabaseHelpers(logger=self.logger)        
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
                  randomizes the queue based upon how many times specifically we have listened to each track.
@@ -60,15 +59,11 @@ class Shuffler(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
         track_count_data = []
-        with sqlite3.connect(self.tcdb_path) as tcdb_conn:
-            tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
-                                     track_id TEXT PRIMARY KEY,
-                                     play_count INTEGER NOT NULL);''')
-            
+        with self.dbh.connect_db() as db_conn:     
             # Grab all the track_counts for our track_ids, we default to 0 listens if we don't find it
             for track_id in track_ids:
-                track_query = tcdb_conn.execute(
-                    f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
+                track_query = db_conn.execute(
+                    f"SELECT * FROM 'track_play_counts' WHERE 'tracks'.id_track = '{track_id}'").fetchone()
                 if track_query is None:
                     track_count_data.append((0, track_id))
                 else:
