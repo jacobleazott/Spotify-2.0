@@ -22,10 +22,10 @@
 import contextlib
 import logging
 import sqlite3
-from enum import Enum
+from datetime import datetime
+from enum     import Enum
 
 from src.helpers.decorators import *
-from src.helpers.Settings   import Settings
 
 class DatabaseSchema(Enum):
     FULL = "full"         # includes listening_sessions and track_play_counts
@@ -212,7 +212,7 @@ DESCRIPTION: Collection of methods similar to GSH that grab from our latest loca
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 class DatabaseHelpers(LogAllMethods):
     
-    def __init__(self, db_path: str=Settings.LISTENING_VAULT_DB,
+    def __init__(self, db_path: str,
                  schema: DatabaseSchema=DatabaseSchema.FULL,
                  logger: logging.Logger=None) -> None:
         self.db_path = db_path
@@ -228,6 +228,7 @@ class DatabaseHelpers(LogAllMethods):
     @contextlib.contextmanager
     def connect_db(self):
         conn = sqlite3.connect(self.db_path)
+        print("WRITE MODE", self.db_path)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
             yield conn 
@@ -243,7 +244,8 @@ class DatabaseHelpers(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
     @contextlib.contextmanager
     def connect_db_readonly(self):
-        uri = f'file:{self.db_path}?mode=ro'
+        uri = f'file:{self.db_path}?mode=ro' if '?' not in self.db_path else self.db_path
+        print("READONLY", uri)
         conn = sqlite3.connect(uri, uri=True)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
@@ -330,15 +332,13 @@ class DatabaseHelpers(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _conn_query_to_dict(self, query: str, p_val: tuple=()) -> list[dict]:
         with self.connect_db_readonly() as db_conn:
-            cursor = db_conn.execute(query, p_val)
-            column_names = [desc[0] for desc in cursor.description]
-            results = [dict(zip(column_names, row)) for row in cursor.fetchall()]
-        
-        return results
+            db_conn.row_factory = sqlite3.Row
+            return [dict(row) for row in db_conn.execute(query, p_val).fetchall()]
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs the tracks from a playlist if we have it in our backup database.
     INPUT: playlist_id - Id of playlist we will be grabbing tracks from.
+    
     OUTPUT: List of track dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def db_get_tracks_from_playlist(self, playlist_id: str) -> list[dict]:
@@ -442,8 +442,40 @@ class DatabaseHelpers(LogAllMethods):
             WHERE ta.id_artist = ?;
         """
         return self._conn_query_to_dict(query, p_val=(artist_id,))
+    
+    def increment_track_count(self, track_id: str):
+        query = f"""
+            INSERT INTO track_play_counts (id_track, play_count)
+            VALUES (?, 1)
+            ON CONFLICT(id_track) DO UPDATE SET play_count = play_count + 1;
+        """
+        with self.connect_db() as db_conn:
+            db_conn.execute(query, (track_id,))
+    
+    def add_listening_session(self, track_id: str) -> None:
+        self.insert_many("listening_sessions", [(datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), track_id)])
         
-
+    def get_row_by_id(self, table: str, id: str):
+        if table not in SCHEMA_FIELDS.keys():
+            raise ValueError(f"Invalid Table: {table}")
+        rows = self._conn_query_to_dict(f"SELECT * FROM {table} WHERE id = ?", p_val=(id,))
+        return rows[0] if rows else None
+    
+    def get_table_size(self, table: str):
+        if table not in SCHEMA_FIELDS.keys():
+            raise ValueError(f"Invalid Table: {table}")
+        with self.connect_db_readonly() as db_conn:
+            return db_conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        
+    def get_track_play_counts(self, track_ids: list[str], batch_size: int=999):
+        for i in range(0, len(track_ids), batch_size):
+            batch = track_ids[i:i + batch_size]
+            query = f"""
+                SELECT id_track, play_count
+                FROM track_play_counts
+                WHERE id_track IN ({", ".join("?" for _ in batch)});
+            """
+            return self._conn_query_to_dict(query, p_val=batch)
 
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

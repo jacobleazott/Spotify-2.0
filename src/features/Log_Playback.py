@@ -18,8 +18,6 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import pickle
-import sqlite3
-from datetime import datetime
 
 from src.helpers.Database_Helpers   import DatabaseHelpers, build_entries_from_tracks
 from src.helpers.decorators         import *
@@ -32,22 +30,8 @@ DESCRIPTION: Populates our listening_connection and track_count. Note that this 
 class LogPlayback(LogAllMethods):        
     def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
-        self.vault_db = DatabaseHelpers(logger=self.logger)
+        self.vault_db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
         self.track = {}
-
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
-    INPUT: N/A
-    OUTPUT: N/A
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def increment_play_count_db(self) -> None:
-        with self.vault_db.connect_db() as db_conn:
-            # This will insert a new row if it doesn't exist, or update if it does
-            db_conn.execute("""
-                INSERT INTO track_play_counts (id_track, play_count)
-                VALUES (?, 1)
-                ON CONFLICT(id_track) DO UPDATE SET play_count = play_count + 1;
-            """, (self.track['id'],))
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Reads our pickle file to determine if we have listened to the track for at least 30s and updates as
@@ -68,7 +52,7 @@ class LogPlayback(LogAllMethods):
         elif last_track_pickle[1]:
             with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
                 pickle.dump((self.track['id'], False), fi)
-            self.increment_play_count_db()
+            self.vault_db.increment_track_count(self.track['id'])
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
@@ -83,16 +67,15 @@ class LogPlayback(LogAllMethods):
             return
         
         self.track = playback['track']
-        self.track['id'] = self.track['id'] if self.track is not None else f"local_track_{self.track['name']}"
-        
+        self.track['id'] = self.track['id'] if self.track['id'] is not None else f"local_track_{self.track['name']}"
+        print(self.track)
         entries = build_entries_from_tracks([self.track])
+        print(entries)
         for table, values in entries.items():
-            print(table, values)
             self.vault_db.insert_many(table, values)
 
-        with self.vault_db.connect_db() as db_conn:
-            db_conn.execute(f"""INSERT INTO 'listening_sessions' ('time', 'id_track') VALUES (?, ?);""", 
-                                  (datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), self.track['id']))
+        self.vault_db.add_listening_session(self.track['id'])
+        
         if inc_track_count:
             self.update_last_track_count()
 

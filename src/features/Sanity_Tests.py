@@ -55,7 +55,7 @@ class SanityTest(LogAllMethods):
     def __init__(self, logger: logging.Logger=None) -> None:
         self.track_list_to_disregard = list(Settings.MACRO_LIST) 
         self.logger = logger if logger is not None else logging.getLogger()
-        self.dbh = DatabaseHelpers(self.logger)
+        self.dbh = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
         
         self._gather_playlist_data()
     

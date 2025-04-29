@@ -462,7 +462,8 @@ class TestGSH(unittest.TestCase):
             'is_playing': True,
             'repeat_state': 'off',
             'shuffle_state': False,
-            'track': {'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
+            'track': {'album': {'id': 'Al000', 'artists': [{'id': 'Ar000'}]}
+                      , 'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
         
         # Test None Context
         spotify.sp.current_playback_response['context'] = None
@@ -472,18 +473,27 @@ class TestGSH(unittest.TestCase):
             'is_playing': True,
             'repeat_state': 'off',
             'shuffle_state': False,
-            'track': {'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
+            'track': {'album': {'id': 'Al000', 'artists': [{'id': 'Ar000'}]}
+                      , 'artists': [{'id': 'Ar000'}], 'id': 'Tr000'}})
         
         # Test Different Track Info
         self.assertEqual(spotify.get_playback_state(track_info=['name', 'duration_ms'])['track'], {
+            'album': {'id': 'Al000', 'artists': [{'id': 'Ar000'}]},
             'artists': [{'id': 'Ar000'}], 
             'name': 'Fake Track 0', 
             'duration_ms': 0})
         
         # Test Different Artist Info
         self.assertEqual(spotify.get_playback_state(track_info=['name'], artist_info=['name'])['track'], {
+            'album': {'id': 'Al000', 'artists': [{'name': 'Fake Artist 0'}]},
             'artists': [{'name': 'Fake Artist 0'}], 
-            'name': 'Fake Track 0', })
+            'name': 'Fake Track 0'})
+        
+        # Test Different Artist Info
+        self.assertEqual(spotify.get_playback_state(track_info=['name'], album_info=['name'], artist_info=['name'])['track'], {
+            'album': {'name': 'Fake Album 0', 'artists': [{'name': 'Fake Artist 0'}]},
+            'artists': [{'name': 'Fake Artist 0'}], 
+            'name': 'Fake Track 0'})
         
         # Test None 'Item'
         spotify.sp.current_playback_response['item'] = None

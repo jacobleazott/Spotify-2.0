@@ -10,8 +10,7 @@
 #   It utilizes a simple many to many relationship table for playlists and tracks.
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
-import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import src.General_Spotify_Helpers as gsh
 
@@ -27,10 +26,10 @@ class BackupSpotifyData(LogAllMethods):
     def __init__(self, spotify, backup_db_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
-        self.vault_db = DatabaseHelpers(logger=self.logger)
+        self.vault_db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
         
         snapshot_db_path = backup_db_path or f"{Settings.BACKUPS_LOCATION}playlist_snapshot_{datetime.today().date()}.db"
-        self.snapshot_db = DatabaseHelpers(db_path=snapshot_db_path, schema=DatabaseSchema.SNAPSHOT
+        self.snapshot_db = DatabaseHelpers(snapshot_db_path, schema=DatabaseSchema.SNAPSHOT
                                            , logger=self.logger)
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -100,51 +99,8 @@ class BackupSpotifyData(LogAllMethods):
         for playlist in user_playlists:
             self.logger.debug(f"\t Saving Data For Playlist: {playlist['name']}")
             self._insert_tracks_into_db_from_playlist(playlist['id'])
-        
-        with self.snapshot_db.connect_db() as db_conn:
-            self.logger.info(f"\t Inserted {db_conn.execute("SELECT COUNT(*) FROM tracks").fetchone()[0]} Tracks")
-    
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Grabs the row from the table that matches the id.
-    INPUT: table - The table that we will be querying in our db.
-           id_value - The id that we will be searching for in our db.
-    Output: The row from the table that matches the id else None.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def get_row_by_id(self, table: str, id: str):
-        with self.vault_db.connect_db() as db_conn:
-            db_conn.row_factory = sqlite3.Row  # So you can get dict-like rows
-            cursor = db_conn.execute(
-                f"SELECT * FROM {table} WHERE id = ?",
-                (id,)
-            )
-            row = cursor.fetchone()
-        
-        return dict(row) if row else None
-    
-    def test_me(self, num_artists=10):
-        # Ignore artists from our 'ignored' playlists.
-        ignored_artist_ids = set(artist['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS 
-                                for artist in self.vault_db.get_artists_appear_in_playlist(playlist_id))
-        # Ignore artists we follow.
-        ignored_artist_ids.update(artist['id'] for artist in self.vault_db.db_get_user_followed_artists())
-        
-        artist_appearances = [artist for artist in self.vault_db.get_artists_appear_in_playlist(Settings.MASTER_MIX_ID)
-                                if artist['id'] not in ignored_artist_ids]
-            
-        artist_data = []
-        for artist in artist_appearances:
-            tracks = [track['name'] for track in self.vault_db.get_artist_tracks(artist['id'])]
-            artist_data.append({
-                'Artist Name': artist['name']
-              , 'Number of Tracks':len(tracks)
-              , 'Unique Artists': [artist['name'] for artist in self.vault_db.get_artist_appears_with(artist['id'])
-                                        if artist['id'] in ignored_artist_ids]
-              , 'Track Names': tracks
-            })
-            
-        return sorted(artist_data
-                    , key=lambda artist: (artist['Number of Tracks'] + 2 * len(artist['Unique Artists']))
-                    , reverse=True)[:num_artists]
+
+        self.logger.info(f"\t Inserted {self.snapshot_db.get_table_size('tracks')} Tracks")
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
@@ -154,10 +110,8 @@ class BackupSpotifyData(LogAllMethods):
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""    
     def backup_data(self) -> None:
         self.logger.info(f"CREATING NEW BACKUP =====================================================================")
-        # self._clear_vault_playlists()
-        # self._add_followed_artists_to_db()
-        # self._add_user_playlists_to_db()
-        for x in self.test_me():
-            print(x)
+        self._clear_vault_playlists()
+        self._add_followed_artists_to_db()
+        self._add_user_playlists_to_db()
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

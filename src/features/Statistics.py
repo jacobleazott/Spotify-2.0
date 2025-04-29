@@ -29,8 +29,7 @@ class SpotifyStatistics(LogAllMethods):
     
     def __init__(self, logger=None):
         self.logger = logger if logger is not None else logging.getLogger()
-        self.latest_backup = max(glob(f"{Settings.BACKUPS_LOCATION}*"), key=os.path.getmtime)
-        self.vault_db = DatabaseHelpers(logger=self.logger, db_path=self.latest_backup)
+        self.vault_db = DatabaseHelpers(Settings.LISTENING_VAULT_DB,logger=self.logger)
         
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Generates a list of all artists that appear in our 'Master' collection that we do not follow.
@@ -42,16 +41,23 @@ class SpotifyStatistics(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_featured_artists_list(self, num_artists: int) -> list:
         # Ignore artists from our 'ignored' playlists and artists we follow.
-        ignored_artist_ids = set(artist['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS 
-                                for artist in self.vault_db.get_artists_appear_in_playlist(playlist_id))
-        ignored_artist_ids.update(artist['id'] for artist in self.vault_db.db_get_user_followed_artists())
+        ignored_track_ids = set(track['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS
+                                for track in self.vault_db.db_get_tracks_from_playlist(playlist_id))
+                                
+        # ignored_artist_ids = set(artist['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS 
+        #                         for artist in self.vault_db.get_artists_appear_in_playlist(playlist_id))
+        
+        ignored_artist_ids = set(artist['id'] for artist in self.vault_db.db_get_user_followed_artists())
+        
+        print(ignored_artist_ids)
         
         artist_appearances = [artist for artist in self.vault_db.get_artists_appear_in_playlist(Settings.MASTER_MIX_ID)
                                 if artist['id'] not in ignored_artist_ids]
-            
+        
         artist_data = []
         for artist in artist_appearances:
-            tracks = [track['name'] for track in self.vault_db.get_artist_tracks(artist['id'])]
+            tracks = [track['name'] for track in self.vault_db.get_artist_tracks(artist['id']) 
+                      if track['id'] not in ignored_track_ids]
             artist_data.append({
                 'Artist Name': artist['name']
               , 'Number of Tracks':len(tracks)

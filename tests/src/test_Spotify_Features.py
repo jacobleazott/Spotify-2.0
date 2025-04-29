@@ -17,7 +17,9 @@ import tests.helpers.tester_helpers as thelp
 from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
 from src.Spotify_Features           import SpotifyFeatures
 from src.features.Shuffle_Styles    import ShuffleType
+from src.helpers.Database_Helpers   import get_table_fields
 from src.helpers.Settings           import Settings
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Spotify Features functionality.
@@ -176,11 +178,15 @@ class TestSpotifyFeatures(unittest.TestCase):
     @mock.patch('src.General_Spotify_Helpers.GeneralSpotifyHelpers.get_playback_state')
     def test_get_playback_state(self, MockGetPlaybackState):
         self.spotify_features.get_playback_state()
-        MockGetPlaybackState.assert_called_once_with(track_info=['id', 'name'])
+        MockGetPlaybackState.assert_called_once_with(track_info=get_table_fields('tracks')
+                                                    , album_info=get_table_fields('albums')
+                                                    , artist_info=get_table_fields('artists'))
         MockGetPlaybackState.reset_mock()
         
         self.spotify_features.get_playback_state(track_info=['test1','test2'])
-        MockGetPlaybackState.assert_called_once_with(track_info=['test1', 'test2'])
+        MockGetPlaybackState.assert_called_once_with(track_info=['test1', 'test2']
+                                                    , album_info=get_table_fields('albums')
+                                                    , artist_info=get_table_fields('artists'))
         MockGetPlaybackState.reset_mock()
     
     def test_update_daily_latest_playlist(self):

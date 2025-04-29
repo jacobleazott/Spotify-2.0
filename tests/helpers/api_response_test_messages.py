@@ -76,7 +76,7 @@ album_test = {
     'name': 'Fake Album 0',
     'release_date': '0000-01-01',
     # 'release_date_precision': 'day',
-    # 'total_tracks': 0,
+    'total_tracks': 0,
     # 'type': 'album',
     # 'uri': 'spotify:album:'
     }
@@ -85,7 +85,7 @@ track_test = {
     'album': album_test,
     'artists': [artist_full_test],
     # 'available_markets': ['US'],
-    # 'disc_number': 0,
+    'disc_number': 0,
     'duration_ms': 0,
     # 'explicit': False,
     # 'external_ids': {'isrc': 'fake_isrc'},
@@ -97,7 +97,7 @@ track_test = {
     'is_playable': True,
     # 'popularity': 0,
     # 'preview_url': 'spotify_preview_url',
-    # 'track_number': 0,
+    'track_number': 0,
     # 'type': 'track',
     # 'uri': 'spotify:track:'
     }
@@ -184,10 +184,7 @@ get_playback_state_test_message = {
     'is_playing': True,
     'repeat_state': 'off',
     'shuffle_state': False,
-    'track': {'id': "Tr001",
-             'name': "Fake Track 1",
-             'artists': [{'id': 'Ar001',
-                           'track': 'Fake Artist 1'}]}
+    'track': track_test
     }
 
 playlist_items_test_message = {
