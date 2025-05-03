@@ -115,14 +115,14 @@ class TestShuffler(unittest.TestCase):
     def test_shuffle(self, mock_weighted_shuffle, mock_random_shuffle):
         self.shuffler.vault_db = mock.MagicMock()
         # Mock return for method call to sim getting playlist tracks.
-        self.shuffler.vault_db.db_get_tracks_from_playlist.return_value = [
+        self.shuffler.vault_db.get_tracks_from_playlist.return_value = [
               {'id': 'track_1', 'is_local': False}
             , {'id': 'track_2', 'is_local': False}
             , {'id': 'track_3', 'is_local': False}]
 
         # Test RANDOM shuffle.
         self.shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
-        self.shuffler.vault_db.db_get_tracks_from_playlist.assert_called_once_with('some_playlist_id')
+        self.shuffler.vault_db.get_tracks_from_playlist.assert_called_once_with('some_playlist_id')
         mock_random_shuffle.assert_called_once_with(['track_1', 'track_2', 'track_3'])
         self.mock_spotify.write_to_queue.assert_any_call(['track_1'])
 
@@ -135,7 +135,7 @@ class TestShuffler(unittest.TestCase):
         
         # Test MACRO_LIST isn't included.
         Test_Settings.MACRO_LIST.append("fake_macro_track")
-        self.shuffler.vault_db.db_get_tracks_from_playlist.return_value = [
+        self.shuffler.vault_db.get_tracks_from_playlist.return_value = [
               {'id': "fake_macro_track", 'is_local': False}
             , {'id': 'track_2', 'is_local': False}
             , {'id': 'track_3', 'is_local': False}]
@@ -147,7 +147,7 @@ class TestShuffler(unittest.TestCase):
         self.mock_spotify.write_to_queue.assert_any_call(['track_3'])
         
         # Test local tracks aren't included.
-        self.shuffler.vault_db.db_get_tracks_from_playlist.return_value = [
+        self.shuffler.vault_db.get_tracks_from_playlist.return_value = [
               {'id': "track_1", 'is_local': True}
             , {'id': 'track_2', 'is_local': False}
             , {'id': 'track_3', 'is_local': True}]
@@ -162,7 +162,7 @@ class TestShuffler(unittest.TestCase):
     
     def test_shuffle_no_tracks(self):
         self.shuffler.vault_db = mock.MagicMock()
-        self.shuffler.vault_db.db_get_tracks_from_playlist.return_value = []
+        self.shuffler.vault_db.get_tracks_from_playlist.return_value = []
         self.shuffler.shuffle('some_playlist_id', ShuffleType.RANDOM)
         self.mock_spotify.write_to_queue.assert_not_called()
         self.mock_spotify.change_playback.assert_not_called()

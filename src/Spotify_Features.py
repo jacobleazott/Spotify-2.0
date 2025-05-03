@@ -145,9 +145,9 @@ class SpotifyFeatures(LogAllMethods):
         # Here we decide to not increment the track_count db if we are playing a '__' playlist.
         if playback['context'] is not None and playback['context']['type'] == "playlist":
             dbh = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
-            playlist_name = next((playlist['name'] for playlist in dbh.db_get_user_playlists() 
+            playlist_name = next((playlist['name'] for playlist in dbh.get_user_playlists() 
                                   if playlist['id'] == playback['context']['id']), None)
-            inc_tcdb = not any([artist for artist in dbh.db_get_user_followed_artists() 
+            inc_tcdb = not any([artist for artist in dbh.get_user_followed_artists() 
                                 if playlist_name is not None and artist['name'] == playlist_name[2:]])
         LogPlayback(logger=self.logger).log_track(playback, inc_tcdb)
         

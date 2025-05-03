@@ -37,6 +37,7 @@ def create_album(album_id: str, name: str, artists: list[dict], album_type: str)
         'name': name,
         'artists': artists,
         'album_type': album_type,   # "album", "single", "compilation"
+        'total_tracks': 0,
         'release_date': '0000-01-01'
     }
 

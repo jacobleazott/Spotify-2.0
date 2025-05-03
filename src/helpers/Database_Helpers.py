@@ -97,6 +97,28 @@ SCHEMA_FIELDS = {
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: Generic function to create a sql statement to create a table.
+INPUT: table - table value we are creating.
+       fields - fields that our table will have.
+Output: SQL statement to create our table with name 'table' and columns 'fields'.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""         
+def generate_create_statement(table: str, fields: dict[str, str]) -> str:
+    constraints = fields.pop("__constraints__", [])
+    without_rowid = fields.pop("__without_rowid__", False)
+    columns = ",\n\t".join(f"{name} {col_type}" for name, col_type in fields.items())
+
+    constraints_clause = ""
+    if constraints:
+        constraints_clause = ",\n\t" + ",\n\t".join(constraints)
+
+    statement = f"CREATE TABLE IF NOT EXISTS {table} (\n    {columns}{constraints_clause}\n)"
+    if without_rowid:
+        statement += " WITHOUT ROWID"
+
+    return statement + ";"
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Grabs the column names of an SQLite table from our schema.
 INPUT: table - SQLite table that we will grab column names of from SCHEMA_FIELDS.
 OUTPUT: List of column names from SCHEMA_FIELDS.
@@ -157,6 +179,27 @@ def build_entries_from_tracks(tracks: list, playlist_id: Optional[str]=None) -> 
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+DESCRIPTION: This function recursively traverses any list/ dict with any complexity to find and replace every 'None'
+             value in it with our 'replace_with' value.
+INPUT: data - Any list, value, or dict collection with any complexity that we will be finding 'None' values in.
+OUTPUT: 'data' but with any 'None' value replaced with the value of 'replace_with'.
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+def replace_none(data, replace_with: str):
+    if isinstance(data, dict):
+        # Iterate through dict and recursively go through items
+        return {key: replace_none(value, replace_with) for key, value in data.items()}
+    elif isinstance(data, list):
+        # # Iterate through list and recursively go through elements
+        return [replace_none(item, replace_with) for item in data]
+    elif data is None:
+        # Replace None with the specified string
+        return replace_with
+    else:
+        # Return the value if it's not None, dict, or list
+        return data
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Finds the given types of an SQLite table columns and returns their associated python type to help us
              verify data going into our DB.
 INPUT: db_conn - SQLite DB connection that we will grab our 'table' columns from.
@@ -182,27 +225,6 @@ def get_column_types(db_conn, table: str) -> list:
         column_types.append(python_type)
 
     return column_types
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: This function recursively traverses any list/ dict with any complexity to find and replace every 'None'
-             value in it with our 'replace_with' value.
-INPUT: data - Any list, value, or dict collection with any complexity that we will be finding 'None' values in.
-OUTPUT: 'data' but with any 'None' value replaced with the value of 'replace_with'.
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def replace_none(data, replace_with: str):
-    if isinstance(data, dict):
-        # Iterate through dict and recursively go through items
-        return {key: replace_none(value, replace_with) for key, value in data.items()}
-    elif isinstance(data, list):
-        # # Iterate through list and recursively go through elements
-        return [replace_none(item, replace_with) for item in data]
-    elif data is None:
-        # Replace None with the specified string
-        return replace_with
-    else:
-        # Return the value if it's not None, dict, or list
-        return data
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -253,6 +275,10 @@ class DatabaseHelpers(LogAllMethods):
         finally:
             conn.close()
     
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # Updating Database ═══════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Creates our database with the necessary schema.
     INPUT: N/A
@@ -266,32 +292,11 @@ class DatabaseHelpers(LogAllMethods):
                 continue
             
             field_copy = fields.copy()
-            stmt = self._generate_create_statement(table, field_copy)
+            stmt = generate_create_statement(table, field_copy)
             schema_sql.append(stmt)
             
         with self.connect_db() as db_conn:
             db_conn.executescript("\n".join(schema_sql))
-    
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Generic function to create a sql statement to create a table.
-    INPUT: table - table value we are creating.
-           fields - fields that our table will have.
-    Output: SQL statement to create our table with name 'table' and columns 'fields'.
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
-    def _generate_create_statement(self, table: str, fields: dict[str, str]) -> str:
-        constraints = fields.pop("__constraints__", [])
-        without_rowid = fields.pop("__without_rowid__", False)
-        columns = ",\n\t".join(f"{name} {col_type}" for name, col_type in fields.items())
-
-        constraints_clause = ""
-        if constraints:
-            constraints_clause = ",\n\t" + ",\n\t".join(constraints)
-
-        statement = f"CREATE TABLE IF NOT EXISTS {table} (\n    {columns}{constraints_clause}\n)"
-        if without_rowid:
-            statement += " WITHOUT ROWID"
-
-        return statement + ";"
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Inserts a variable amount of elements into a database table while verifying the types of your 'values'
@@ -325,6 +330,32 @@ class DatabaseHelpers(LogAllMethods):
                 db_conn.executemany(query, batch)
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Increments the play count of a track by 1. If the track is not in the database, it will be added.
+    INPUT: track_id - Track id that we want to increment.
+    OUTPUT: N/A
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def increment_track_count(self, track_id: str):
+        query = f"""
+            INSERT INTO track_play_counts (id_track, play_count)
+            VALUES (?, 1)
+            ON CONFLICT(id_track) DO UPDATE SET play_count = play_count + 1;
+        """
+        with self.connect_db() as db_conn:
+            db_conn.execute(query, (track_id,))
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Adds a new listening session to the database for the given track and the current time.
+    INPUT: track_id - Track id we are listening to currently.
+    OUTPUT: N/A
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def add_listening_session(self, track_id: str) -> None:
+        self.insert_many("listening_sessions", [(datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), track_id)])
+    
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # Generic Data Functions ══════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Since we want to return dicts and not lists of our db data we can use this method to grab our db 
                  column names and zip it up into a dictionary for us.
     INPUT: query - Sqlite query we will fetchall results from and turn into a dict.
@@ -334,14 +365,40 @@ class DatabaseHelpers(LogAllMethods):
         with self.connect_db_readonly() as db_conn:
             db_conn.row_factory = sqlite3.Row
             return [dict(row) for row in db_conn.execute(query, p_val).fetchall()]
-
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs a row from a table by its 'id' column.
+    INPUT: table - Table we are grabbing a row from.
+           id - Id we are looking for in the 'table'.
+    OUTPUT: Dict of the row we found.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def get_row_by_id(self, table: str, id: str):
+        if table not in SCHEMA_FIELDS.keys():
+            raise ValueError(f"Invalid Table: {table}")
+        rows = self._conn_query_to_dict(f"SELECT * FROM {table} WHERE id = ?", p_val=(id,))
+        return rows[0] if rows else None
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Gets the number of rows in a table.
+    INPUT: table - Table we want to get the size of.
+    OUTPUT: Length of the table.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    def get_table_size(self, table: str):
+        if table not in SCHEMA_FIELDS.keys():
+            raise ValueError(f"Invalid Table: {table}")
+        with self.connect_db_readonly() as db_conn:
+            return db_conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # Music Specific Data Functions ═══════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs the tracks from a playlist if we have it in our backup database.
     INPUT: playlist_id - Id of playlist we will be grabbing tracks from.
-    
     OUTPUT: List of track dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def db_get_tracks_from_playlist(self, playlist_id: str) -> list[dict]:
+    def get_tracks_from_playlist(self, playlist_id: str) -> list[dict]:
         query = f"""
             SELECT tracks.*
             FROM tracks
@@ -355,7 +412,7 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: track_id - Id of the track we will be grabbing artists for.
     OUTPUT: List of artist dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def db_get_track_artists(self, track_id: str) -> list[dict]:
+    def get_track_artists(self, track_id: str) -> list[dict]:
         query = f"""
             SELECT artists.* 
             FROM artists
@@ -369,7 +426,7 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: N/A
     OUTPUT: List of playlist dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""" 
-    def db_get_user_playlists(self) -> list[dict]:
+    def get_user_playlists(self) -> list[dict]:
         query = f"""
             SELECT playlists.*
             FROM playlists
@@ -381,7 +438,7 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: N/A
     OUTPUT: List of artist dicts.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""" 
-    def db_get_user_followed_artists(self) -> list[dict]:
+    def get_user_followed_artists(self) -> list[dict]:
         query = f"""
             SELECT artists.*
             FROM followed_artists
@@ -389,16 +446,29 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query)
     
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs all tracks listened to in a given date range.
+    INPUT: start_date - Start of date range.
+           end_date - End of date range.
+    OUTPUT: List of track dictionaries.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_tracks_listened_in_date_range(self, start_date: str, end_date: str) -> list[dict]:
         query = f"""
-            SELECT id_track, COUNT(*) as track_count
+            SELECT id_track as id, COUNT(*) as track_count
             FROM listening_sessions
             WHERE time BETWEEN ? AND ?
-            GROUP BY id_track;
+            GROUP BY id;
         """
+        print(start_date.strftime("%Y-%m-%d %H:%M:%S"))
         return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
                                                     , end_date.strftime("%Y-%m-%d %H:%M:%S")))
         
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs all of the artists that have been listened to in a given date range.
+    INPUT: start_date - Start of date range.
+           end_date - End of date range.
+    OUTPUT: List of artist dictionaries.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_artists_listened_in_date_range(self, start_date: str, end_date: str) -> list[dict]:
         query = f"""
             SELECT a.*, COUNT(*) AS artist_count
@@ -411,10 +481,15 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
                                                     , end_date.strftime("%Y-%m-%d %H:%M:%S")))
-        
+    
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs all artists that appear in a given playlist.
+    INPUT: playlist_id - Playlist id for the playlist we are grabbing artists for.
+    OUTPUT: List of artist dictionaries.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_artists_appear_in_playlist(self, playlist_id: str) -> list[dict]:
         query = f"""
-            SELECT ta.id_artist, a.*, COUNT(*) AS num_appearances
+            SELECT a.*, COUNT(*) AS num_appearances
             FROM playlists_tracks pt
             JOIN tracks_artists ta ON pt.id_track = ta.id_track
             JOIN artists a ON ta.id_artist = a.id
@@ -424,6 +499,11 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query, p_val=(playlist_id,))
     
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs all artists that an artist appears with on all of their tracks.
+    INPUT: artist_id - Artist id to get other artists they appear with.
+    OUTPUT: List of artist dictionaries
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_artist_appears_with(self, artist_id: str) -> list[dict]:
         query = f"""
             SELECT DISTINCT a2.*
@@ -434,6 +514,11 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query, p_val=(artist_id,))
     
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs all tracks for a given artist in our database.
+    INPUT: artist_id - Artist id to get tracks for.
+    OUTPUT: List of track dictionaries.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_artist_tracks(self, artist_id: str) -> list[dict]:
         query = f"""
             SELECT t.*
@@ -443,39 +528,23 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query, p_val=(artist_id,))
     
-    def increment_track_count(self, track_id: str):
-        query = f"""
-            INSERT INTO track_play_counts (id_track, play_count)
-            VALUES (?, 1)
-            ON CONFLICT(id_track) DO UPDATE SET play_count = play_count + 1;
-        """
-        with self.connect_db() as db_conn:
-            db_conn.execute(query, (track_id,))
-    
-    def add_listening_session(self, track_id: str) -> None:
-        self.insert_many("listening_sessions", [(datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), track_id)])
-        
-    def get_row_by_id(self, table: str, id: str):
-        if table not in SCHEMA_FIELDS.keys():
-            raise ValueError(f"Invalid Table: {table}")
-        rows = self._conn_query_to_dict(f"SELECT * FROM {table} WHERE id = ?", p_val=(id,))
-        return rows[0] if rows else None
-    
-    def get_table_size(self, table: str):
-        if table not in SCHEMA_FIELDS.keys():
-            raise ValueError(f"Invalid Table: {table}")
-        with self.connect_db_readonly() as db_conn:
-            return db_conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-        
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
+    DESCRIPTION: Grabs play counts for a list of tracks.
+    INPUT: track_ids - List of track ids to get play counts for.
+           batch_size - Optional parameter to set batch size to prevent SQL errors.
+    OUTPUT: List of track id dictionaries with play counts.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def get_track_play_counts(self, track_ids: list[str], batch_size: int=999):
+        res = []
         for i in range(0, len(track_ids), batch_size):
             batch = track_ids[i:i + batch_size]
             query = f"""
-                SELECT id_track, play_count
+                SELECT id_track as id, play_count
                 FROM track_play_counts
                 WHERE id_track IN ({", ".join("?" for _ in batch)});
             """
-            return self._conn_query_to_dict(query, p_val=batch)
-
+            res += self._conn_query_to_dict(query, p_val=batch)
+        return res
+    
 
 # FIN ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

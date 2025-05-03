@@ -16,12 +16,12 @@ from src.helpers.decorators import *
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class SmartInterface(LogAllMethods):
+# class SmartInterface(LogAllMethods):
     
-    def __init__(self, spotify, logger: logging.Logger=None) -> None:
-        self.spotify = spotify
-        self.logger = logger if logger is not None else logging.getLogger()
-        self.db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
+#     def __init__(self, spotify, logger: logging.Logger=None) -> None:
+#         self.spotify = spotify
+#         self.logger = logger if logger is not None else logging.getLogger()
+#         self.db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
     
     
     # List of methods

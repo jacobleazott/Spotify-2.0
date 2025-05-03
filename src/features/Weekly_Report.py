@@ -284,9 +284,9 @@ class WeeklyReport(LogAllMethods):
     def _gen_progress_bar(self):
         GOAL = 500
         # Find current year playlist, and count number of tracks, if it exists
-        playlists = [playlist['id'] for playlist in self.sanity_tester.dbh.db_get_user_playlists() 
+        playlists = [playlist['id'] for playlist in self.sanity_tester.dbh.get_user_playlists() 
                             if playlist['name'] == f'{datetime.today().year}']
-        current = len(self.sanity_tester.dbh.db_get_tracks_from_playlist(playlists[0])) if len(playlists) > 0 else 0
+        current = len(self.sanity_tester.dbh.get_tracks_from_playlist(playlists[0])) if len(playlists) > 0 else 0
 
         # Calculate the percentage of the way to the middle of October
         target = min(GOAL, int((datetime.today().timetuple().tm_yday / 288) * GOAL))

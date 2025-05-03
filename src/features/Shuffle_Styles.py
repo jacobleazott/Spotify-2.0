@@ -58,11 +58,11 @@ class Shuffler(LogAllMethods):
     OUTPUT: List of tracks partially randomized in the reverse weighted form.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
-        track_counts = {row['id_track']: row['play_count'] for row in self.vault_db.get_track_play_counts(track_ids)}
+        track_counts = {row['id']: row['play_count'] for row in self.vault_db.get_track_play_counts(track_ids)}
         for track_id in track_ids:
             track_counts[track_id] = track_counts.get(track_id, 0)
         
-        track_counts_list = [{'id_track': k, 'play_count': v} for k, v in track_counts.items()]
+        track_counts_list = [{'id': k, 'play_count': v} for k, v in track_counts.items()]
         track_counts_list.sort(key=lambda x: x['play_count'])
         
         # Below we are going to group same play_count tracks, so we start with [[1, a], [1, b], [4, c], [4, d], [5, e]]
@@ -80,7 +80,7 @@ class Shuffler(LogAllMethods):
                 tmp_track_count_group = []
                 if idx >= Settings.MAX_QUEUE_LENGTH:
                     break
-            tmp_track_count_group.append(track_data['id_track'])
+            tmp_track_count_group.append(track_data['id'])
             cur_play_count = track_data['play_count']
             
         track_count_groupings.append(tmp_track_count_group)
@@ -105,7 +105,7 @@ class Shuffler(LogAllMethods):
     @gsh.scopes(["user-modify-playback-state"])
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         self.logger.info(f"Shuffle Type: {shuffle_type}, Playlist: {playlist_id}")
-        track_ids = [track['id'] for track in self.vault_db.db_get_tracks_from_playlist(playlist_id) 
+        track_ids = [track['id'] for track in self.vault_db.get_tracks_from_playlist(playlist_id) 
                      if track['id'] not in Settings.MACRO_LIST and not track['is_local']]
         self.logger.info(f"\tFound '{len(track_ids)}' Tracks")
         
