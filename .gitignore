@@ -14,4 +14,4 @@ coverage.xml
 __pycache__/
 Test/
 
-!tests/test_data/unit_test.db
+!tests/helpers/unit_test.db
