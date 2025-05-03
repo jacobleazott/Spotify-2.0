@@ -10,7 +10,6 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import unittest
-from pprint import pprint
 from unittest import mock
 
 from src.features.Sanity_Tests import SanityTest
@@ -239,8 +238,6 @@ class TestSanityTests(unittest.TestCase):
         self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         sanity_artists = self.sanityTester.sanity_contributing_artists()
-        for x in sanity_artists:
-            print(x)
             
         self.assertEqual(sanity_artists, [
             {'Track': 'Track 1', 'Artists': ['Artist 2', 'Artist 1', 'Artist 5'], 'Missing': ['Artist 2']}
@@ -268,9 +265,6 @@ class TestSanityTests(unittest.TestCase):
         self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         sanity_artists = self.sanityTester.sanity_artist_playlist_integrity()
-        # print(sanity_artists)
-        for playlist in sanity_artists:
-            print(playlist)
         self.assertEqual(sanity_artists, [
             {'Playlist': 'Artist 1', 'Track': [{'Name': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}]}
           , {'Playlist': 'Artist 2', 'Track': [{'Name': 'Track 3', 'Artists': ['Artist 3']}]}

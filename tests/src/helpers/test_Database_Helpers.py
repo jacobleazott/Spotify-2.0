@@ -442,7 +442,6 @@ class TestDatabaseHelpers(unittest.TestCase):
     
     def test_get_user_followed_artists(self):
         self.setup_test_db()
-        print(self.dbh.get_user_followed_artists())
         self.assertEqual(self.dbh.get_user_followed_artists(), [{'id': '0MlOPi3zIDMVrfA9R04Fe3', 'name': 'American Authors'}
                                                               , {'id': '0WQh63ofwTzWOy1ubiHMdk', 'name': 'Peech.'}
                                                               , {'id': '0gadJ2b9A4SKsB1RFkBb66', 'name': 'Passenger'}

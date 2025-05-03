@@ -83,8 +83,6 @@ class TestStatistics(unittest.TestCase):
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_7", "artist_1"))
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_7", "artist_3"))
 
-        print(self.statistics.generate_featured_artists_list(2))
-
         self.assertEqual(self.statistics.generate_featured_artists_list(2)
                          , [{'Artist Name': 'Artist Three', 'Number of Tracks': 3
                              , 'Unique Artists': ['Artist One', 'Artist Two']

@@ -156,7 +156,6 @@ class TestSpotifyProxyServer(unittest.TestCase):
             {'expires_at': time.time() + expires_in}
             , {'expires_at': time.time() + expires_in}
         ]
-        print("Begin")
         self.proxy_server._token_refresh_thread()
         
         mock_refresh_token.assert_called_once()
@@ -221,7 +220,6 @@ class TestSpotifyProxyServer(unittest.TestCase):
         
         # Test Argument Error
         response = client.post('/spotipy/arg_method', json={})
-        print(response.json)
         self.assertEqual(response.json, {'error': "Incorrect arguments or non-callable method 'arg_method': " +
                                          "Object of type MagicMock is not JSON serializable"})
         self.assertEqual(response.status_code, 400)

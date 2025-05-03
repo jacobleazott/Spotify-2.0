@@ -80,7 +80,6 @@ class TestShuffler(unittest.TestCase):
         self.db_conn_owner.commit()
         mock_shuffle.reset_mock()
         res = self.shuffler._weighted_shuffle([track[0] for track in tracks])
-        print(res)
         self.assertEqual(res, [track[0] for track in tracks][:Test_Settings.MAX_QUEUE_LENGTH])
         self.assertEqual(mock_shuffle.call_count, Test_Settings.MAX_QUEUE_LENGTH+1) # 81 Groupings Of Different Play Counts From Loop.
         

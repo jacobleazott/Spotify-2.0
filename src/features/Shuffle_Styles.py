@@ -71,11 +71,8 @@ class Shuffler(LogAllMethods):
         cur_play_count = 0
         tmp_track_count_group, track_count_groupings = [], []
 
-        print(track_counts_list)
         for idx, track_data in enumerate(track_counts_list):
-            print(idx, track_data)
             if track_data['play_count'] > cur_play_count and len(tmp_track_count_group) > 0:
-                print("inside")
                 track_count_groupings.append(tmp_track_count_group)
                 tmp_track_count_group = []
                 if idx >= Settings.MAX_QUEUE_LENGTH:

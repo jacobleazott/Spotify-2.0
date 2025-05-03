@@ -68,9 +68,8 @@ class LogPlayback(LogAllMethods):
         
         self.track = playback['track']
         self.track['id'] = self.track['id'] if self.track['id'] is not None else f"local_track_{self.track['name']}"
-        print(self.track)
         entries = build_entries_from_tracks([self.track])
-        print(entries)
+        
         for table, values in entries.items():
             self.vault_db.insert_many(table, values)
 

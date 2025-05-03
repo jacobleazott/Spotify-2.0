@@ -250,7 +250,6 @@ class DatabaseHelpers(LogAllMethods):
     @contextlib.contextmanager
     def connect_db(self):
         conn = sqlite3.connect(self.db_path)
-        print("WRITE MODE", self.db_path)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
             yield conn 
@@ -267,7 +266,6 @@ class DatabaseHelpers(LogAllMethods):
     @contextlib.contextmanager
     def connect_db_readonly(self):
         uri = f'file:{self.db_path}?mode=ro' if '?' not in self.db_path else self.db_path
-        print("READONLY", uri)
         conn = sqlite3.connect(uri, uri=True)
         try:
             conn.execute("PRAGMA foreign_keys = ON;")
@@ -459,7 +457,6 @@ class DatabaseHelpers(LogAllMethods):
             WHERE time BETWEEN ? AND ?
             GROUP BY id;
         """
-        print(start_date.strftime("%Y-%m-%d %H:%M:%S"))
         return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
                                                     , end_date.strftime("%Y-%m-%d %H:%M:%S")))
         

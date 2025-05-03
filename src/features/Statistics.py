@@ -43,14 +43,9 @@ class SpotifyStatistics(LogAllMethods):
         # Ignore artists from our 'ignored' playlists and artists we follow.
         ignored_track_ids = set(track['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS
                                 for track in self.vault_db.get_tracks_from_playlist(playlist_id))
-                                
-        # ignored_artist_ids = set(artist['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS 
-        #                         for artist in self.vault_db.get_artists_appear_in_playlist(playlist_id))
-        
+
         ignored_artist_ids = set(artist['id'] for artist in self.vault_db.get_user_followed_artists())
-        
-        print(ignored_artist_ids)
-        
+
         artist_appearances = [artist for artist in self.vault_db.get_artists_appear_in_playlist(Settings.MASTER_MIX_ID)
                                 if artist['id'] not in ignored_artist_ids]
         
