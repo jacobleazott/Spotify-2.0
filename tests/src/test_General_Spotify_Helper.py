@@ -802,72 +802,113 @@ class TestGSH(unittest.TestCase):
         # No Albums
         self.assertEqual(spotify.get_albums_tracks([]), [])
         # No Album Info
+        print(spotify.get_albums_tracks(['Al003'], album_info=[]))
         self.assertEqual(spotify.get_albums_tracks(['Al003'], album_info=[]), 
-                         [{'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
+                         [{'tracks': [{'id': 'Tr003', 'artists': [{'id': 'Ar002'}]}], 'artists': [{'id': 'Ar002'}]}])
         # No Track Info
         self.assertEqual(spotify.get_albums_tracks(['Al003'], track_info=[]), 
-                         [{'id': 'Al003', 'tracks': [{'artists': [{'id': 'Ar002'}]}]}])
+                         [{'id': 'Al003', 'artists': [{'id': 'Ar002'}]}])
         # No Artist Info
         self.assertEqual(spotify.get_albums_tracks(['Al003'], artist_info=[]),
-                         [{'id': 'Al003', 'tracks': [{'artists': [{}], 'id': 'Tr003'}]}])
+                         [{'id': 'Al003', 'tracks': [{'id': 'Tr003'}]}])
         # No Info At All
         self.assertEqual(spotify.get_albums_tracks(['Al003'], album_info=[], track_info=[], artist_info=[]), 
-                         [{'tracks': [{'artists': [{}]}]}])
+                         [{}])
         # Empty Album
-        self.assertEqual(spotify.get_albums_tracks(['Al001']), [{'id': 'Al001', 'tracks': []}])
+        self.assertEqual(spotify.get_albums_tracks(['Al001']), [{'id': 'Al001', 'tracks': [], 'artists': []}])
         # Single Track ALbum
         self.assertEqual(spotify.get_albums_tracks(['Al003']), 
                          [{'id': 'Al003', 
-                        'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
+                        'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}],
+                        'artists': [{'id': 'Ar002'}]}])
         # Multi Track Album
         self.assertEqual(spotify.get_albums_tracks(['Al002']), 
                          [{'id': 'Al002',
                         'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
-                                 {'artists': [{'id': 'Ar002'}], 'id': 'Tr002'}]}])
+                                 {'artists': [{'id': 'Ar002'}], 'id': 'Tr002'}],
+                        'artists': [{'id': 'Ar002'}]}])
         # Multi Track Album, Differing Album Info
         self.assertEqual(spotify.get_albums_tracks(['Al002'], album_info=['id', 'name']), 
                          [{'id': 'Al002',
                         'name': "Fake Album 2",
                         'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr001'},
-                                   {'artists': [{'id': 'Ar002'}], 'id': 'Tr002'}]}])
+                                   {'artists': [{'id': 'Ar002'}], 'id': 'Tr002'}],
+                        'artists': [{'id': 'Ar002'}]}])
         # Multi Track Album, Differing Album Info and Track Info
         self.assertEqual(spotify.get_albums_tracks(['Al002'], album_info=['id', 'name'], track_info=['id', 'name']), 
                          [{'id': 'Al002',
                         'name': "Fake Album 2",
                         'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr001', 'name': 'Fake Track 1'},
-                                   {'artists': [{'id': 'Ar002'}], 'id': 'Tr002', 'name': 'Fake Track 2'}]}])
+                                   {'artists': [{'id': 'Ar002'}], 'id': 'Tr002', 'name': 'Fake Track 2'}],
+                        'artists': [{'id': 'Ar002'}]}])
         # Multi Track Album, Differing Artist Info and Track Info
         self.assertEqual(spotify.get_albums_tracks(['Al002'], artist_info=['id', 'name'], track_info=['id', 'name']), 
                          [{'id': 'Al002',
                         'tracks': [{'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}], 
                                     'id': 'Tr001', 'name': 'Fake Track 1'},
                                    {'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}],
-                                    'id': 'Tr002', 'name': 'Fake Track 2'}]}])
+                                    'id': 'Tr002', 'name': 'Fake Track 2'}],
+                        'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]}])
         # Album With Tracks Having Multiple Artists
         self.assertEqual(spotify.get_albums_tracks(['Al010']), 
                          [{'id': 'Al010',
                         'tracks': [{'artists': [{'id': 'Ar005'}], 'id': 'Tr014'},
-                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}]}])
+                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}],
+                        'artists': [{'id': 'Ar005'}]}])
         # Multiple Albums
         self.assertEqual(spotify.get_albums_tracks(['Al010', "Al003"]), 
                          [{'id': 'Al010',
                            'tracks': [{'artists': [{'id': 'Ar005'}], 'id': 'Tr014'},
-                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}]},
+                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}],
+                           'artists': [{'id': 'Ar005'}]},
                           {'id': 'Al003', 
-                           'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
+                           'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}],
+                           'artists': [{'id': 'Ar002'}]}])
         # Multiple Albums Differing Album Info
         self.assertEqual(spotify.get_albums_tracks(['Al010', "Al003"], album_info=['id', 'name']), 
                          [{'id': 'Al010',
                            'name': 'Fake Album 10',
                            'tracks': [{'artists': [{'id': 'Ar005'}], 'id': 'Tr014'},
-                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}]},
+                                   {'artists': [{'id': 'Ar005'}, {'id': 'Ar004'}], 'id': 'Tr015'}],
+                           'artists': [{'id': 'Ar005'}]},
                           {'id': 'Al003', 
                            'name': 'Fake Album 3',
-                           'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}]}])
+                           'tracks': [{'artists': [{'id': 'Ar002'}], 'id': 'Tr003'}],
+                           'artists': [{'id': 'Ar002'}]}])
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
+    def test_get_tracks(self):
+        spotify = gsh.GeneralSpotifyHelpers()
+        spotify._scopes = list(Settings.MAX_SCOPE_LIST)
+        thelp.create_env(spotify)
+        
+        # Test for invalid inputs
+        with self.assertRaises(Exception): spotify.get_tracks("", track_info="")
+        with self.assertRaises(Exception): spotify.get_tracks("1", artist_info=["id"])
+        with self.assertRaises(Exception): spotify.get_tracks("Tr001", album_info=[""])
+        with self.assertRaises(Exception): (spotify.get_tracks('non_existent_id'))
+        
+        self.assertEqual(spotify.get_tracks(['Tr001'], track_info=['id', 'non_key']),
+                         [{'album': {'artists': [{'id': 'Ar002'}], 'id': 'Al002'}
+                           , 'artists': [{'id': 'Ar002'}]
+                           , 'id': 'Tr001'
+                           , 'non_key': None}])
+        
+        self.assertEqual(spotify.get_tracks(['Tr001'], artist_info=[]), 
+                         [{'album': {'id': 'Al002'}, 'id': 'Tr001'}]),
+        
+        self.assertEqual(spotify.get_tracks(['Tr001'], album_info=[], track_info=[], artist_info=[]), [])
+        
+        self.assertEqual(spotify.get_tracks(['Tr001', 'Tr007']),
+                            [{'album': {'artists': [{'id': 'Ar002'}], 'id': 'Al002'}
+                               , 'artists': [{'id': 'Ar002'}]
+                               , 'id': 'Tr001'},
+                             {'album': {'artists': [{'id': 'Ar003'}, {'id': 'Ar004'}], 'id': 'Al006'}
+                               , 'artists': [{'id': 'Ar003'}, {'id': 'Ar004'}]
+                               , 'id': 'Tr007'}])
 
     def test_get_track_artists(self):
         spotify = gsh.GeneralSpotifyHelpers()

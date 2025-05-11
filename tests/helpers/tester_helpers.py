@@ -144,7 +144,7 @@ def create_env(spotify_mocked):
     tr014 = create_track('Tr014', 'Fake Track 14', al010, [artist_unfollowed_appears_on])
     tr015 = create_track('Tr015', 'Fake Track 15', al010, [artist_unfollowed_appears_on, artist_followed_appears_on])
 
-    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008
+    spotify_mocked.sp.tracks_lookup_table += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008
                                  , tr009, tr010, tr011, tr012, tr013, tr014, tr015]
 
     # Create Playlists

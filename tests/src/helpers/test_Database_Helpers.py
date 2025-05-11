@@ -506,64 +506,82 @@ class TestDatabaseHelpers(unittest.TestCase):
                          , [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds', 'artist_count': 2}
                           , {'id': '0WQh63ofwTzWOy1ubiHMdk', 'name': 'Peech.', 'artist_count': 2}
                           , {'id': '0gadJ2b9A4SKsB1RFkBb66', 'name': 'Passenger', 'artist_count': 1}])
+    
+    def test_get_artists_and_their_collabs_from_playlists(self):
+        def normalize_artist_entry(entry):
+            """Sorts appears_with by id for consistent comparison."""
+            normalized = entry.copy()
+            normalized['appears_with'] = sorted(
+                normalized.get('appears_with', []),
+                key=lambda x: x['id']
+            )
+            return normalized
 
-    # def test_get_artists_appear_in_playlist(self):
-    #     self.setup_test_db()
+        def compare_artist_lists(list1, list2):
+            norm1 = sorted(
+                [normalize_artist_entry(e) for e in list1],
+                key=lambda x: x['id']
+            )
+            norm2 = sorted(
+                [normalize_artist_entry(e) for e in list2],
+                key=lambda x: x['id']
+            )
+            return norm1 == norm2
         
-    #     # Test Non-Existant Playlist
-    #     self.assertEqual(self.dbh.get_artists_appear_in_playlist("playlist_1"), [])
+        self.setup_test_db()
         
-    #     # Test Playlist
-    #     self.assertEqual(self.dbh.get_artists_appear_in_playlist("4UWdavQLwFVg3teF89KKEt")
-    #                      , [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds', 'num_appearances': 3}
-    #                         , {'id': '6bmlMHgSheBauioMgKv2tn', 'name': 'Powfu', 'num_appearances': 2}
-    #                         , {'id': '0MlOPi3zIDMVrfA9R04Fe3', 'name': 'American Authors', 'num_appearances': 1}
-    #                         , {'id': '0WQh63ofwTzWOy1ubiHMdk', 'name': 'Peech.', 'num_appearances': 1}
-    #                         , {'id': '0gadJ2b9A4SKsB1RFkBb66', 'name': 'Passenger', 'num_appearances': 1}
-    #                         , {'id': '1EowJ1WwkMzkCkRomFhui7', 'name': 'RADWIMPS', 'num_appearances': 1}
-    #                         , {'id': '1bq8rqNnfrojn0OSAfeNXJ', 'name': 'Sarcastic Sounds', 'num_appearances': 1}
-    #                         , {'id': '4DSFmAOMwMqDVKIsPY0kqs', 'name': 'Sweezy', 'num_appearances': 1}
-    #                         , {'id': '4t3LO0Or2OMeBrH9Jy1bLY', 'name': 'Ezra', 'num_appearances': 1}
-    #                         , {'id': '5gw5ANPCVcxU0maLiGRzzP', 'name': 'Billy Raffoul', 'num_appearances': 1}
-    #                         , {'id': '6R29RU7eyQHSNc5kaHPWJn', 'name': 'Ouse', 'num_appearances': 1}
-    #                         , {'id': 'local_track_Kiss Yourself Goodbye', 'name': 'The All-American Rejects', 'num_appearances': 1}])
-    
-    # def test_get_artist_appears_with_in_playlists(self):
-    #     self.setup_test_db()
+        # Test Non-Existant Playlist
+        self.assertEqual(self.dbh.get_artists_and_their_collabs_from_playlists(["playlist_1"]), [])
         
-    #     # Test Non-Existant Artist
-    #     self.assertEqual(self.dbh.get_artist_appears_with("artist_1"), [])
+        # Test Playlist
+        expected_res = [
+            {'id': '1EowJ1WwkMzkCkRomFhui7', 'name': 'RADWIMPS', 
+                'appears_with': []},
+            {'id': '0MlOPi3zIDMVrfA9R04Fe3', 'name': 'American Authors', 
+                'appears_with': [{'id': '5gw5ANPCVcxU0maLiGRzzP', 'name': 'Billy Raffoul'}]},
+            {'id': '5gw5ANPCVcxU0maLiGRzzP', 'name': 'Billy Raffoul', 
+                'appears_with': [{'id': '0MlOPi3zIDMVrfA9R04Fe3', 'name': 'American Authors'}]},
+            {'id': 'local_track_Kiss Yourself Goodbye', 'name': 'The All-American Rejects', 
+                'appears_with': []},
+            {'id': '0WQh63ofwTzWOy1ubiHMdk', 'name': 'Peech.', 
+                'appears_with': [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'}]},
+            {'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds', 
+                'appears_with': [{'id': '0WQh63ofwTzWOy1ubiHMdk', 'name': 'Peech.'}, 
+                                 {'id': '4DSFmAOMwMqDVKIsPY0kqs', 'name': 'Sweezy'}, 
+                                 {'id': '4t3LO0Or2OMeBrH9Jy1bLY', 'name': 'Ezra'}, 
+                                 {'id': '6R29RU7eyQHSNc5kaHPWJn', 'name': 'Ouse'},
+                                 {'id': '6bmlMHgSheBauioMgKv2tn', 'name': 'Powfu'}]},
+            {'id': '4DSFmAOMwMqDVKIsPY0kqs', 'name': 'Sweezy', 
+                'appears_with': [{'id': '4t3LO0Or2OMeBrH9Jy1bLY', 'name': 'Ezra'},
+                                 {'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'}]},
+            {'id': '4t3LO0Or2OMeBrH9Jy1bLY', 'name': 'Ezra', 
+                'appears_with': [{'id': '4DSFmAOMwMqDVKIsPY0kqs', 'name': 'Sweezy'}, 
+                                 {'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'}]},
+            {'id': '6R29RU7eyQHSNc5kaHPWJn', 'name': 'Ouse', 
+                'appears_with': [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'},
+                                 {'id': '6bmlMHgSheBauioMgKv2tn', 'name': 'Powfu'}]},
+            {'id': '6bmlMHgSheBauioMgKv2tn', 'name': 'Powfu', 
+                'appears_with': [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'}, 
+                                 {'id': '6R29RU7eyQHSNc5kaHPWJn', 'name': 'Ouse'}, 
+                                 {'id': '1bq8rqNnfrojn0OSAfeNXJ', 'name': 'Sarcastic Sounds'}]},
+            {'id': '1bq8rqNnfrojn0OSAfeNXJ', 'name': 'Sarcastic Sounds', 
+                'appears_with': [{'id': '6bmlMHgSheBauioMgKv2tn', 'name': 'Powfu'}]},
+            {'id': '0gadJ2b9A4SKsB1RFkBb66', 'name': 'Passenger', 
+                'appears_with': []}
+        ]
         
-    #     # Test Artist Who Only Appears With Themselves
-    #     self.assertEqual(self.dbh.get_artist_appears_with("1EowJ1WwkMzkCkRomFhui7"), [])
+        self.assertTrue(compare_artist_lists(self.dbh.get_artists_and_their_collabs_from_playlists(["4UWdavQLwFVg3teF89KKEt"])
+                                             , expected_res))
         
-    #     # Test Artist With One Collab
-    #     self.assertEqual(self.dbh.get_artist_appears_with("5gw5ANPCVcxU0maLiGRzzP")
-    #                      , [{'id': '0MlOPi3zIDMVrfA9R04Fe3', 'name': 'American Authors'}])
+        self.assertTrue(compare_artist_lists(self.dbh.get_artists_and_their_collabs_from_playlists(["4UWdavQLwFVg3teF89KKEt", "playlist_1"])
+                                             , expected_res))
         
-    #     # Test Artist With Multiple Collabs
-    #     self.assertEqual(self.dbh.get_artist_appears_with("6bmlMHgSheBauioMgKv2tn")
-    #                      , [{'id': '5b0j3TTNSKCByBq4rHYKvG', 'name': 'Promoting Sounds'}
-    #                       , {'id': '6R29RU7eyQHSNc5kaHPWJn', 'name': 'Ouse'}
-    #                       , {'id': '1bq8rqNnfrojn0OSAfeNXJ', 'name': 'Sarcastic Sounds'}])
-    
-    # def test_get_artist_tracks(self):
-    #     self.setup_test_db()
+        del expected_res[5]
+        del expected_res[2]
         
-    #     # Test Non-Existant Track
-    #     self.assertEqual(self.dbh.get_artist_tracks("artist_1"), [])
-        
-    #     # Test Artist With 1 Track
-    #     self.assertEqual(self.dbh.get_artist_tracks("0gadJ2b9A4SKsB1RFkBb66")
-    #                      , [{'id': '0FmfRErQFP13h77PKWCawW', 'name': 'Bird in Flight', 'duration_ms': 175346
-    #                          , 'is_local': 0, 'is_playable': 1, 'disc_number': 1, 'track_number': 1}])
-        
-    #     # Test Artist With Multiple Tracks
-    #     self.assertEqual(self.dbh.get_artist_tracks("6bmlMHgSheBauioMgKv2tn")
-    #                      , [{'id': '1iV5yIJimMf9pWfaDdf0UR', 'name': 'Dead Eyes', 'duration_ms': 219428
-    #                         , 'is_local': 0, 'is_playable': 1, 'disc_number': 1, 'track_number': 1}
-    #                       , {'id': '25yup6WYnPoITrfzhkBLmt', 'name': "I Can't Sleep", 'duration_ms': 152500
-    #                         , 'is_local': 0, 'is_playable': 1, 'disc_number': 1, 'track_number': 4}])
+        self.assertTrue(compare_artist_lists(self.dbh.get_artists_and_their_collabs_from_playlists(["4UWdavQLwFVg3teF89KKEt"]
+                                                     , exclude_artists=["5gw5ANPCVcxU0maLiGRzzP", "5b0j3TTNSKCByBq4rHYKvG"])
+                                             , expected_res))
     
     def test_get_track_play_counts(self):
         self.setup_test_db()

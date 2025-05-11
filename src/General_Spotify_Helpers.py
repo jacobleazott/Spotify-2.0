@@ -563,8 +563,12 @@ class GeneralSpotifyHelpers:
         
         album_chunks = chunks(album_ids, 20)
         field_structure = {key: True for key in album_info}
-        field_structure["tracks"] = {key: True for key in track_info}
-        field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+        if track_info:
+            field_structure["tracks"] = {key: True for key in (track_info or [])}
+            if artist_info:
+                field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+        if artist_info:
+            field_structure["artists"] = {key: True for key in artist_info}
 
         return [album for album_chunk in album_chunks
                 for album in self._gather_data(self.sp.albums(album_chunk, market="US"), field_structure)]
@@ -582,20 +586,31 @@ class GeneralSpotifyHelpers:
     OUTPUT: List of track dicts containing the requested info.
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def get_tracks(self, track_ids: list[str], 
-                          album_info:  list[str]=['id'], 
                           track_info:  list[str]=['id'], 
+                          album_info:  list[str]=['id'], 
                           artist_info: list[str]=['id']) -> list[dict]:
         validate_inputs([track_ids, album_info, track_info, artist_info], [list, list, list, list])
 
         track_chunks = chunks(track_ids, 50)
-        field_structure = {"tracks": {key: True for key in track_info}}
-        field_structure["tracks"]["album"] = {key: True for key in album_info}
-        field_structure["tracks"]["album"]["artists"] = {key: True for key in artist_info}
-        field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+        
+        field_structure = {}
+        if track_info or album_info or artist_info:
+            field_structure = {"tracks": {key: True for key in (track_info or [])}}
+        if album_info:
+            field_structure["tracks"]["album"] = {key: True for key in album_info}
+            if artist_info:
+                field_structure["tracks"]["album"]["artists"] = {key: True for key in artist_info}
+        if artist_info:
+            field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+        
+        for track_chunk in track_chunks:
+            spotify = self.sp.tracks(track_chunk, market="US")
+            data = self._gather_data(spotify, field_structure)
+            print(data)
 
         return [track for track_chunk in track_chunks
                 for track in self._gather_data(self.sp.tracks(track_chunk, market="US")
-                                               , field_structure)[0]["tracks"]]
+                                               , field_structure)[0].get("tracks", [])]
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets all artists from the given track .

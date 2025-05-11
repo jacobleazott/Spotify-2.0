@@ -519,7 +519,7 @@ class DatabaseHelpers(LogAllMethods):
                 "name": artist["name"],
                 "appears_with": collaborators
             })
-        
+
         return results
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""

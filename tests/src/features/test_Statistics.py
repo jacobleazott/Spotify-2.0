@@ -51,6 +51,7 @@ class TestStatistics(unittest.TestCase):
             vault_db_conn.execute("INSERT INTO artists VALUES (?, ?)", ("artist_2", "Artist Two"))
             vault_db_conn.execute("INSERT INTO artists VALUES (?, ?)", ("artist_3", "Artist Three"))
             vault_db_conn.execute("INSERT INTO artists VALUES (?, ?)", ("artist_4", "Artist Four"))
+            vault_db_conn.execute("INSERT INTO artists VALUES (?, ?)", ("artist_5", "Artist Five"))
             vault_db_conn.execute("INSERT INTO followed_artists VALUES (?)", ("artist_1",))
             vault_db_conn.execute("INSERT INTO followed_artists VALUES (?)", ("artist_2",))
             vault_db_conn.execute("INSERT INTO playlists VALUES (?, ?, ?)", (Test_Settings.MASTER_MIX_ID, "Playlist One", "desc"))
@@ -62,6 +63,7 @@ class TestStatistics(unittest.TestCase):
             vault_db_conn.execute("INSERT INTO tracks VALUES (?, ?, ?, ?, ?, ?, ?)", ("track_5", "Track Five",  0, 0, 1, 1, 1))
             vault_db_conn.execute("INSERT INTO tracks VALUES (?, ?, ?, ?, ?, ?, ?)", ("track_6", "Track Six",   0, 0, 1, 1, 1))
             vault_db_conn.execute("INSERT INTO tracks VALUES (?, ?, ?, ?, ?, ?, ?)", ("track_7", "Track Local", 0, 1, 1, 1, 1))
+            vault_db_conn.execute("INSERT INTO tracks VALUES (?, ?, ?, ?, ?, ?, ?)", ("track_8", "Track Eight", 0, 0, 1, 1, 1))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_1"))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_2"))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_3"))
@@ -69,6 +71,7 @@ class TestStatistics(unittest.TestCase):
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_5"))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_6"))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_7"))
+            vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", (Test_Settings.MASTER_MIX_ID, "track_8"))
             vault_db_conn.execute("INSERT INTO playlists_tracks VALUES (?, ?)", ("playlist_id_1", "track_3"))
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_1", "artist_1"))
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_1", "artist_2"))
@@ -82,8 +85,9 @@ class TestStatistics(unittest.TestCase):
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_6", "artist_3"))
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_7", "artist_1"))
             vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_7", "artist_3"))
+            vault_db_conn.execute("INSERT INTO tracks_artists VALUES (?, ?)", ("track_8", "artist_5"))
 
-        self.assertEqual(self.statistics.generate_featured_artists_list(2)
+        self.assertEqual(self.statistics.generate_featured_artists_list(20)
                          , [{'Artist Name': 'Artist Three', 'Number of Tracks': 3
                              , 'Unique Artists': ['Artist One', 'Artist Two']
                              , 'Track Names': ['Track Four', 'Track Six', 'Track Local']}
