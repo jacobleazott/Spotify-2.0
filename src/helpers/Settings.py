@@ -41,6 +41,7 @@ class SettingsClass:
     # Playlists
     PLAYLISTS_WE_CAN_DELETE_FROM: tuple = ("3dZVHLVdpOGlSy8oH9WvBi",) # 'The 100'
     MASTER_MIX_ID: str                  = "6kGQQoelXM2YDOSmqUUzRw"   # 'The Good - Master Mix'
+    CHRISTMAS_MASTER_MIX_ID: str        = "3qki5BF8FMoFklkBdugQN6"   # 'The Good Christmas - Master Mix'
     PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ("7Mgr45oWF0fzRzdlz0NNgT",) # 'Soundtracks - Master Mix'
     
     # Latest '100' Configuration

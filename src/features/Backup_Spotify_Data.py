@@ -101,7 +101,7 @@ class BackupSpotifyData(LogAllMethods):
             self._insert_tracks_into_db_from_playlist(playlist['id'])
 
         self.logger.info(f"\t Inserted {self.snapshot_db.get_table_size('tracks')} Tracks")
-
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Performs a backup of our local spotify library. This includes all of our followed artists and all of
                  our playlists including all track and artist data from anything in those playlists.

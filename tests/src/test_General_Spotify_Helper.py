@@ -206,28 +206,6 @@ class TestGSH(unittest.TestCase):
         self.assertEqual(client.fetch_data(), "Data")
         self.assertEqual(client.spotify._scopes, [])
     
-    def test_build_field_structure(self):
-        # No info provided
-        self.assertEqual(gsh.build_field_structure(), {})
-        # 'info' provided
-        self.assertEqual(gsh.build_field_structure(info=['name', 'id'])
-                         , {'name': True, 'id': True})
-        # 'track_info' provided
-        self.assertEqual(gsh.build_field_structure(track_info=['name', 'id'])
-                         , {'track': {'name': True, 'id': True}})
-        # 'album_info' provided
-        self.assertEqual(gsh.build_field_structure(album_info=['name', 'id'])
-                         , {'track': {'album': {'name': True, 'id': True}}})
-        # 'artist_info' provided
-        self.assertEqual(gsh.build_field_structure(artist_info=['name', 'id'])
-                         , {'track': {'artists': {'name': True, 'id': True}}})
-        # all info given
-        self.assertEqual(gsh.build_field_structure(info=['name', 'id'], track_info=['name', 'id']
-                                                   , album_info=['name', 'id'], artist_info=['name', 'id'])
-                         , {'name': True, 'id': True, 'track': {'name': True, 'id': True
-                                                                , 'album': {'name': True, 'id': True}
-                                                                , 'artists': {'name': True, 'id': True}}})
-    
     def test_find_main_iterator(self):
         # Path not found
         self.assertEqual(gsh.find_main_iterator({}), ({}, None))
@@ -621,58 +599,68 @@ class TestGSH(unittest.TestCase):
         
         # Empty Playlist
         self.assertEqual(spotify.get_playlist_tracks("Pl001"), [])
+        
         # "Regular" Playlist Default Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002"), 
-                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
-                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
-                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
+                         [{'album': {'id': 'Al002', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr002'},
+                          {'album': {'id': 'Al003', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr003'},
+                          {'album': {'id': 'Al004', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr004'}])
+        
         # No Track Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[]), 
-                         [{'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}]},
-                          {'album': {'id': 'Al003'}, 'artists': [{'id': 'Ar002'}]},
-                          {'album': {'id': 'Al004'}, 'artists': [{'id': 'Ar002'}]}])
-        # No Track or Artist Info
+                         [{'album': {'id': 'Al002', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al003', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}]},
+                          {'album': {'id': 'Al004', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}]}])
         
+        # No Track or Artist Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[]), 
                          [{'album': {'id': 'Al002'}},
                           {'album': {'id': 'Al003'}},
                           {'album': {'id': 'Al004'}}])
+        
         # No Track, Artist, or Album Info
         self.assertEqual(spotify.get_playlist_tracks("Pl002", track_info=[], artist_info=[], album_info=[]), [])
+        
         # Different Info From Default
         self.assertEqual(
             spotify.get_playlist_tracks("Pl002", track_info=['name'], artist_info=['name'], album_info=['name']),
             [
-                {'album': {'name': 'Fake Album 2'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'}
-              , {'album': {'name': 'Fake Album 3'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'}
-              , {'album': {'name': 'Fake Album 4'}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+                {'album': {'name': 'Fake Album 2', 'artists': [{'name': 'Fake Artist 2'}]}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 2'}
+              , {'album': {'name': 'Fake Album 3', 'artists': [{'name': 'Fake Artist 2'}]}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 3'}
+              , {'album': {'name': 'Fake Album 4', 'artists': [{'name': 'Fake Artist 2'}]}, 'artists': [{'name': 'Fake Artist 2'}], 'name': 'Fake Track 4'}])
+        
         # Duplicate Tracks and Local Tracks Default Info
         self.assertEqual(
             spotify.get_playlist_tracks("Pl004"),
             [
-                {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
-              , {'album': {'id': None}, 'artists': [{'id': None}], 'id': None}
-              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}
-              , {'album': {'id': 'Al002'}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
+                {'album': {'id': None, 'artists': []}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': None, 'artists': []}, 'artists': [{'id': None}], 'id': None}
+              , {'album': {'id': 'Al002', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}
+              , {'album': {'id': 'Al002', 'artists': [{'id': 'Ar002'}]}, 'artists': [{'id': 'Ar002'}], 'id': 'Tr001'}])
+        
+        test = spotify.get_playlist_tracks("Pl004", track_info=['id', 'name']
+                                        , artist_info=['id', 'name']
+                                        , album_info=['id', 'name'])
+
         # Duplicate Tracks and Local Tracks Extra Info
         self.assertEqual(
             spotify.get_playlist_tracks("Pl004", track_info=['id', 'name']
                                         , artist_info=['id', 'name']
                                         , album_info=['id', 'name']),
             [
-                {'album': {'id': None, 'name': 'Fake Local Album 1'}
+                {'album': {'id': None, 'name': 'Fake Local Album 1', 'artists': []}
                , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
                , 'id': None, 'name': 'Fake Local Track 1'}
 
-              , {'album': {'id': None, 'name': 'Fake Local Album 1'}
+              , {'album': {'id': None, 'name': 'Fake Local Album 1', 'artists': []}
                , 'artists': [{'id': None, 'name': 'Fake Local Artist 1'}]
                , 'id': None, 'name': 'Fake Local Track 1'}
 
-              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]}
                , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
                , 'id': 'Tr001', 'name': 'Fake Track 1'}
 
-              , {'album': {'id': 'Al002', 'name': 'Fake Album 2'}
+              , {'album': {'id': 'Al002', 'name': 'Fake Album 2', 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]}
                , 'artists': [{'id': 'Ar002', 'name': 'Fake Artist 2'}]
                , 'id': 'Tr001', 'name': 'Fake Track 1'}])
 

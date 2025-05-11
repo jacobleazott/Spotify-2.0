@@ -86,7 +86,7 @@ SCHEMA_FIELDS = {
     },
     "listening_sessions": {
           "time"         : "TIMESTAMP NOT NULL"
-        , "id_track"     : "TEXT REFERENCES tracks(id)"
+        , "id_track"     : "TEXT" # REFERENCES tracks(id)"
     },
     "track_play_counts": {
           "id_track"     : "TEXT REFERENCES tracks(id) PRIMARY KEY"
@@ -478,38 +478,49 @@ class DatabaseHelpers(LogAllMethods):
         """
         return self._conn_query_to_dict(query, p_val=(start_date.strftime("%Y-%m-%d %H:%M:%S")
                                                     , end_date.strftime("%Y-%m-%d %H:%M:%S")))
-    
+        
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Grabs all artists that appear in a given playlist.
-    INPUT: playlist_id - Playlist id for the playlist we are grabbing artists for.
-    OUTPUT: List of artist dictionaries.
+    DESCRIPTION: Grabs all unique artists that appear in the given playlists with a list of their collaborators from
+                 all tracks in those playlists.
+    INPUT: playlist_ids - List of playlist ids we are grabbing artists for.
+           exclude_artists - List of artists to exclude from the results.
+    OUTPUT: List of artist dictionaries
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_artists_appear_in_playlist(self, playlist_id: str) -> list[dict]:
-        query = f"""
-            SELECT a.*, COUNT(*) AS num_appearances
+    def get_artists_and_their_collabs_from_playlists(self, playlist_ids: list[str], exclude_artists: list[str]=[]) -> list[dict]:
+        placeholders = ','.join(['?'] * len(playlist_ids))
+        
+        # Grab all unique artists in those playlists
+        artist_query = f"""
+            SELECT DISTINCT a.*
             FROM playlists_tracks pt
             JOIN tracks_artists ta ON pt.id_track = ta.id_track
             JOIN artists a ON ta.id_artist = a.id
-            WHERE pt.id_playlist = ?
-            GROUP BY ta.id_artist, a.name
-            ORDER BY num_appearances DESC;
+            WHERE pt.id_playlist IN ({placeholders})
         """
-        return self._conn_query_to_dict(query, p_val=(playlist_id,))
-    
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    DESCRIPTION: Grabs all artists that an artist appears with on all of their tracks.
-    INPUT: artist_id - Artist id to get other artists they appear with.
-    OUTPUT: List of artist dictionaries
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
-    def get_artist_appears_with(self, artist_id: str) -> list[dict]:
-        query = f"""
-            SELECT DISTINCT a2.*
-            FROM tracks_artists ta1
-            JOIN tracks_artists ta2 ON ta1.id_track = ta2.id_track
-            JOIN artists a2 ON ta2.id_artist = a2.id
-            WHERE ta1.id_artist = ? AND ta1.id_artist != ta2.id_artist;
-        """
-        return self._conn_query_to_dict(query, p_val=(artist_id,))
+        artists = [artist for artist in self._conn_query_to_dict(artist_query, p_val=playlist_ids) 
+                    if artist["id"] not in exclude_artists]
+        
+        # For each artist, find collaborators in those same playlists
+        results = []
+        for artist in artists:
+            collab_query = f"""
+                SELECT DISTINCT a2.*
+                FROM playlists_tracks pt
+                JOIN tracks_artists ta1 ON pt.id_track = ta1.id_track
+                JOIN tracks_artists ta2 ON ta1.id_track = ta2.id_track
+                JOIN artists a2 ON ta2.id_artist = a2.id
+                WHERE pt.id_playlist IN ({placeholders})
+                  AND ta1.id_artist = ?
+                  AND ta2.id_artist != ta1.id_artist
+            """
+            collaborators = self._conn_query_to_dict(collab_query, p_val=playlist_ids + [artist["id"]])
+            results.append({
+                "id": artist["id"],
+                "name": artist["name"],
+                "appears_with": collaborators
+            })
+        
+        return results
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Grabs all tracks for a given artist in our database.

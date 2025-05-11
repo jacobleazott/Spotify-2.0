@@ -127,35 +127,6 @@ def scopes(scopes_list):
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Builds the field structure for the 'extract_fields' function.
-INPUT: info - List of fields to extract at the base level.
-       track_info - List of fields to extract at the 'track' level.
-       album_info - List of fields to extract at the 'track' -> 'album' level.
-       artist_info - List of fields to extract at the 'track' -> 'artists' level.
-OUTPUT: Dictionary of fields to extract.
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-def build_field_structure(
-        info: List[str] = [],
-        track_info: List[str] = [],
-        album_info: List[str] = [],
-        artist_info: List[str] = []
-    ) -> Dict[str, bool]:
-    
-    field_structure = {key: True for key in (info or [])}
-    
-    if track_info or album_info or artist_info:
-        field_structure["track"] = {key: True for key in (track_info or [])}
-    
-    if album_info:
-        field_structure["track"]["album"] = {key: True for key in album_info}
-    
-    if artist_info:
-        field_structure["track"]["artists"] = {key: True for key in artist_info}
-    
-    return field_structure
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Contains the logic to find the main iterable list or single item in a Spotify API response. Currently 
              just uses a few hardcoded paths since there should only be one main iterable.
 INPUT: response - Spotify api response.
@@ -270,7 +241,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_followed_artists(limit=50)
-            ,  build_field_structure(info=info)
+            ,  {key: True for key in info}
         )
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
@@ -284,7 +255,7 @@ class GeneralSpotifyHelpers:
         validate_inputs([info], [list])
         return self._gather_data(
             self.sp.current_user_playlists(limit=50)
-            , build_field_structure(info=info)
+            , {key: True for key in info}
         )
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -320,7 +291,7 @@ class GeneralSpotifyHelpers:
             altered_playback = playback.copy()
             altered_playback['item'] = [playback['item'].copy()]
             
-            field_structure = build_field_structure(info=track_info)
+            field_structure = {key: True for key in track_info}
             field_structure["album"] = {key: True for key in album_info}
             field_structure["album"]["artists"] = {key: True for key in artist_info}
             field_structure["artists"] = {key: True for key in artist_info}
@@ -418,9 +389,19 @@ class GeneralSpotifyHelpers:
         self._validate_scope(["playlist-read-private"])
         validate_inputs([playlist_id, track_info, album_info, artist_info], [str, list, list, list])
         
+        field_structure = {}
+        if track_info or album_info or artist_info:
+            field_structure["track"] = {key: True for key in (track_info or [])}
+        if album_info:
+            field_structure["track"]["album"] = {key: True for key in album_info}
+            if artist_info:
+                field_structure["track"]["album"]["artists"] = {key: True for key in artist_info}
+        if artist_info:
+            field_structure["track"]["artists"] = {key: True for key in artist_info}
+
         res = self._gather_data(
             self.sp.playlist_items(playlist_id, limit=100, offset=offset, market="US")
-            , build_field_structure(track_info=track_info, album_info=album_info, artist_info=artist_info)
+            , field_structure
         )
         return [d["track"] for d in res if "track" in d]
     
@@ -502,7 +483,7 @@ class GeneralSpotifyHelpers:
                                   , country="US"
                                   , limit=50
                                   , include_groups=','.join(album_types))
-            , build_field_structure(info=info)
+            , {key: True for key in info}
         )
 
 
@@ -590,7 +571,32 @@ class GeneralSpotifyHelpers:
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════    
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    DESCRIPTION: Gets multiple tracks and returns with given info.
+    INPUT: track_ids - List of spotify track ids to grab.
+           album_info - List of album info we wish to grab from each track.
+           track_info - List of track info we wish to grab from each track.
+           artist_info - List of artist info we wish to grab from each track and track album.
+    OUTPUT: List of track dicts containing the requested info.
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
+    def get_tracks(self, track_ids: list[str], 
+                          album_info:  list[str]=['id'], 
+                          track_info:  list[str]=['id'], 
+                          artist_info: list[str]=['id']) -> list[dict]:
+        validate_inputs([track_ids, album_info, track_info, artist_info], [list, list, list, list])
+
+        track_chunks = chunks(track_ids, 50)
+        field_structure = {"tracks": {key: True for key in track_info}}
+        field_structure["tracks"]["album"] = {key: True for key in album_info}
+        field_structure["tracks"]["album"]["artists"] = {key: True for key in artist_info}
+        field_structure["tracks"]["artists"] = {key: True for key in artist_info}
+
+        return [track for track_chunk in track_chunks
+                for track in self._gather_data(self.sp.tracks(track_chunk, market="US")
+                                               , field_structure)[0]["tracks"]]
+    
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Gets all artists from the given track .
     INPUT: track_id - List of spotify scopes to request access for.

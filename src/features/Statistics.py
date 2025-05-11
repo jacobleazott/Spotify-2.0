@@ -40,27 +40,36 @@ class SpotifyStatistics(LogAllMethods):
             {<artist_id>: (<artist_name>, <num_tracks_appeared_on>, <followed_artists>, <tracks_appeared_on>),}
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def generate_featured_artists_list(self, num_artists: int) -> list:
-        # Ignore artists from our 'ignored' playlists and artists we follow.
+        playlists_to_search = [Settings.MASTER_MIX_ID, Settings.CHRISTMAS_MASTER_MIX_ID]
+        followed_artist_ids = set(artist['id'] for artist in self.vault_db.get_user_followed_artists())
+        
         ignored_track_ids = set(track['id'] for playlist_id in Settings.PLAYLIST_IDS_NOT_IN_ARTISTS
                                 for track in self.vault_db.get_tracks_from_playlist(playlist_id))
-
-        ignored_artist_ids = set(artist['id'] for artist in self.vault_db.get_user_followed_artists())
-
-        artist_appearances = [artist for artist in self.vault_db.get_artists_appear_in_playlist(Settings.MASTER_MIX_ID)
-                                if artist['id'] not in ignored_artist_ids]
+        
+        artist_appearances = [artist for artist in self.vault_db.get_artists_and_their_collabs_from_playlists(playlists_to_search, exclude_artists=followed_artist_ids)
+                              if artist['id'] not in followed_artist_ids]
+        
+        all_playlists_tracks = set(track['id'] for playlist_id in playlists_to_search
+                                   for track in self.vault_db.get_tracks_from_playlist(playlist_id))
         
         artist_data = []
         for artist in artist_appearances:
+            unique_artists = [ar['name'] for ar in artist['appears_with'] if ar['id'] in followed_artist_ids]
+
             tracks = [track['name'] for track in self.vault_db.get_artist_tracks(artist['id']) 
-                      if track['id'] not in ignored_track_ids]
+                      if track['id'] not in ignored_track_ids and track['id'] in all_playlists_tracks
+                      and any(artist['id'] in followed_artist_ids for artist in self.vault_db.get_track_artists(track['id']))]
+            
+            if len(unique_artists) == 0 or len(tracks) == 0:
+                continue
+            
             artist_data.append({
                 'Artist Name': artist['name']
               , 'Number of Tracks':len(tracks)
-              , 'Unique Artists': [artist['name'] for artist in self.vault_db.get_artist_appears_with(artist['id'])
-                                        if artist['id'] in ignored_artist_ids]
+              , 'Unique Artists': [ar['name'] for ar in artist['appears_with'] if ar['id'] in followed_artist_ids]
               , 'Track Names': tracks
             })
-
+        
         return sorted(artist_data
                     , key=lambda artist: (artist['Number of Tracks'] + 2 * len(artist['Unique Artists']))
                     , reverse=True)[:num_artists]
