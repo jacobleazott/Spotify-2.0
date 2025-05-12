@@ -17,7 +17,9 @@ import tests.helpers.tester_helpers as thelp
 from tests.helpers.mocked_spotipy   import MockedSpotipyProxy
 from src.Spotify_Features           import SpotifyFeatures
 from src.features.Shuffle_Styles    import ShuffleType
+from src.helpers.Database_Helpers   import get_table_fields
 from src.helpers.Settings           import Settings
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Unit test collection for all Spotify Features functionality.
@@ -102,39 +104,39 @@ class TestSpotifyFeatures(unittest.TestCase):
     @mock.patch('src.Spotify_Features.DatabaseHelpers')
     def test_log_playback_to_db(self, MockDatabaseHelpers, MockLogPlayback):
         mock_db_helpers = MockDatabaseHelpers.return_value
-        mock_db_helpers.db_get_user_followed_artists.return_value = [{'name': 'Artist 1'}]
+        mock_db_helpers.get_user_followed_artists.return_value = [{'name': 'Artist 1'}]
         playback = {'context': {'type': 'playlist', 'id': 'Pl002'}}
         
         # Test __ playlist That its not incremented
-        mock_db_helpers.db_get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 1'}]
+        mock_db_helpers.get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 1'}]
         self.spotify_features.log_playback_to_db(playback)
         MockLogPlayback.assert_called_once_with(logger=self.spotify_features.logger)
         MockLogPlayback().log_track.assert_called_once_with(playback, False)
         MockLogPlayback().log_track.reset_mock()
         
         # Test __ playlist that I don't follow to increment
-        mock_db_helpers.db_get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 2'}]
+        mock_db_helpers.get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 2'}]
         self.spotify_features.log_playback_to_db(playback)
         MockLogPlayback().log_track.assert_called_once_with(playback, True)
         MockLogPlayback().log_track.reset_mock()
         
         # Test Incorrect __ playlist
-        mock_db_helpers.db_get_user_playlists.return_value = [{'id': 'Pl002', 'name': '_Artist 1'}]
+        mock_db_helpers.get_user_playlists.return_value = [{'id': 'Pl002', 'name': '_Artist 1'}]
         self.spotify_features.log_playback_to_db(playback)
         MockLogPlayback().log_track.assert_called_once_with(playback, True)
         MockLogPlayback().log_track.reset_mock()
         
         # Test unknown playlist
-        mock_db_helpers.db_get_user_playlists.return_value = [{'id': 'Pl001', 'name': '_Artist 1'}]
+        mock_db_helpers.get_user_playlists.return_value = [{'id': 'Pl001', 'name': '_Artist 1'}]
         self.spotify_features.log_playback_to_db(playback)
         MockLogPlayback().log_track.assert_called_once_with(playback, True)
         MockLogPlayback().log_track.reset_mock()
         
         # Test multiple artists, multiple playlists
-        mock_db_helpers.db_get_user_followed_artists. return_value = [{'name': 'Artist 1'}
+        mock_db_helpers.get_user_followed_artists. return_value = [{'name': 'Artist 1'}
                                                                      , {'name': 'Artist 22'}
                                                                      , {'name': 'Artist 3'}]     
-        mock_db_helpers.db_get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 1'}
+        mock_db_helpers.get_user_playlists.return_value = [{'id': 'Pl002', 'name': '__Artist 1'}
                                                               , {'id': 'Pl003', 'name': 'EMPTY'}
                                                               , {'id': 'Pl004', 'name': '__Artist 3'}]
         playback = {'context': {'type': 'playlist', 'id': 'Pl004'}}
@@ -176,11 +178,15 @@ class TestSpotifyFeatures(unittest.TestCase):
     @mock.patch('src.General_Spotify_Helpers.GeneralSpotifyHelpers.get_playback_state')
     def test_get_playback_state(self, MockGetPlaybackState):
         self.spotify_features.get_playback_state()
-        MockGetPlaybackState.assert_called_once_with(track_info=['id', 'name'])
+        MockGetPlaybackState.assert_called_once_with(track_info=get_table_fields('tracks')
+                                                    , album_info=get_table_fields('albums')
+                                                    , artist_info=get_table_fields('artists'))
         MockGetPlaybackState.reset_mock()
         
         self.spotify_features.get_playback_state(track_info=['test1','test2'])
-        MockGetPlaybackState.assert_called_once_with(track_info=['test1', 'test2'])
+        MockGetPlaybackState.assert_called_once_with(track_info=['test1', 'test2']
+                                                    , album_info=get_table_fields('albums')
+                                                    , artist_info=get_table_fields('artists'))
         MockGetPlaybackState.reset_mock()
     
     def test_update_daily_latest_playlist(self):

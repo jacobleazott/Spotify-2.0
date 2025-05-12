@@ -18,50 +18,25 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import pickle
-import sqlite3
-from datetime import datetime
 
-from src.helpers.decorators import *
-from src.helpers.Settings   import Settings
+from src.helpers.Database_Helpers   import DatabaseHelpers, build_entries_from_tracks
+from src.helpers.decorators         import *
+from src.helpers.Settings           import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-DESCRIPTION: Populates our 'listening_db' and 'track_counts_db' with the passed in track_id. Note that this class does
-                not require a GSH object as there is no spotify api call necessary.
+DESCRIPTION: Populates our listening_connection and track_count. Note that this class does not require a GSH object 
+                as there is no spotify api call necessary.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class LogPlayback(LogAllMethods):
-    track_id = ""
-        
-    def __init__(self, ldb_path: str=None, tcdb_path: str=None, logger: logging.Logger=None) -> None:
+class LogPlayback(LogAllMethods):        
+    def __init__(self, logger: logging.Logger=None) -> None:
         self.logger = logger if logger is not None else logging.getLogger()
-        self.ldb_path = ldb_path or Settings.LISTENING_DB
-        self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
-
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    DESCRIPTION: Either adds the new track to our track_count db or increments it by 1.
-    INPUT: track_id - Id of track we are updating.
-    OUTPUT: N/A
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
-    def increment_play_count_db(self) -> None:
-        with sqlite3.connect(self.tcdb_path) as tcdb_conn:
-            tcdb_conn.execute("""CREATE TABLE IF NOT EXISTS 'tracks'(
-                                     track_id TEXT PRIMARY KEY,
-                                     play_count INTEGER NOT NULL);""")
-
-            # Checks ot see if the track is already in the database or not
-            if not bool(tcdb_conn.execute(
-                    f"SELECT COUNT(*) from 'tracks' WHERE 'tracks'.track_id = '{self.track_id}'").fetchone()[0]):
-                tcdb_conn.execute("""INSERT OR IGNORE INTO 'tracks'
-                                        ('track_id', 'play_count') 
-                                        VALUES (?, ?);""", (self.track_id, 1))
-            else:
-                tcdb_conn.execute("""UPDATE 'tracks'
-                                        SET play_count = play_count + 1 
-                                        WHERE track_id = ?""", (self.track_id,)) 
+        self.vault_db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
+        self.track = {}
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Reads our pickle file to determine if we have listened to the track for at least 30s and updates as
                  necessary.
-    INPUT: track_id - What id we are currently listening to.
+    INPUT: N/A
     OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def update_last_track_count(self) -> None:
@@ -71,13 +46,13 @@ class LogPlayback(LogAllMethods):
         except (EOFError, FileNotFoundError):
             last_track_pickle = "", False
 
-        if last_track_pickle is None or last_track_pickle[0] != self.track_id:
+        if last_track_pickle is None or last_track_pickle[0] != self.track['id']:
             with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
-                pickle.dump((self.track_id, True), fi)
+                pickle.dump((self.track['id'], True), fi)
         elif last_track_pickle[1]:
             with open(Settings.LAST_TRACK_PICKLE, 'wb') as fi:
-                pickle.dump((self.track_id, False), fi)
-            self.increment_play_count_db()
+                pickle.dump((self.track['id'], False), fi)
+            self.vault_db.increment_track_count(self.track['id'])
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Logs the current playing track into our listening.db.
@@ -91,16 +66,14 @@ class LogPlayback(LogAllMethods):
             or playback['track']['id'] in Settings.MACRO_LIST:
             return
         
-        self.track_id = playback['track']['id']
-        self.track_id = self.track_id if self.track_id is not None else f"local_track_{playback['track']['name']}"
+        self.track = playback['track']
+        self.track['id'] = self.track['id'] if self.track['id'] is not None else f"local_track_{self.track['name']}"
+        entries = build_entries_from_tracks([self.track])
+        
+        for table, values in entries.items():
+            self.vault_db.insert_many(table, values)
 
-        with sqlite3.connect(self.ldb_path) as ldb_conn:
-            ldb_conn.execute(f"""CREATE TABLE IF NOT EXISTS '{datetime.now().year}'(
-                                    track_id TEXT NOT NULL,
-                                    time timestamp NOT NULL);""")
-                        
-            ldb_conn.execute(f"""INSERT INTO '{datetime.now().year}' ('track_id', 'time') VALUES (?, ?);""", 
-                                  (self.track_id, datetime.now().strftime(r"%Y-%m-%d %H:%M:%S")))
+        self.vault_db.add_listening_session(self.track['id'])
         
         if inc_track_count:
             self.update_last_track_count()

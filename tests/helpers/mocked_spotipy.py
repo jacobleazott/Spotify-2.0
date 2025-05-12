@@ -23,7 +23,7 @@ class MockedSpotipyProxy():
     def __init__(self, logger: logging.Logger=None):
         self.user_id = 'Us000'
         self.user_queue, self.prev_songs, self.user_artists, self.artists, \
-            self.env_albums, self.tracks, self.playlists = [], [], [], [], [], [], []
+            self.env_albums, self.tracks_lookup_table, self.playlists = [], [], [], [], [], [], []
         
         self.current_user_followed_artists_response = artm.current_user_followed_artists_test_message.copy()
         self.current_user_playlists_response = artm.current_user_playlists_test_message.copy()
@@ -95,7 +95,7 @@ class MockedSpotipyProxy():
         return None
         
     def playlist_add_items(self, playlist_id, items, position=None):
-        track_objects = [track for track in self.tracks if track['id'] in items]
+        track_objects = [track for track in self.tracks_lookup_table if track['id'] in items]
         if len(track_objects) != len(items):
             raise Exception(f"playlist_add_items: not all tracks found, track_objects: {len(track_objects)}, items: {len(items)}")
         
@@ -168,7 +168,10 @@ class MockedSpotipyProxy():
         return "NOT IMPLEMENTED"
     
     def track(self, track_id, market=None):
-        return next((track for track in self.tracks if track_id == track['id']), None)
+        return next((track for track in self.tracks_lookup_table if track_id == track['id']), None)
+    
+    def tracks(self, tracks, market=None):
+        return {'tracks': [self.track(track_id) for track_id in tracks]}
 
     def artist(self, artist_id, market=None):
         return next((artist for artist in self.artists if artist_id == artist['id']), None)
@@ -182,7 +185,8 @@ class MockedSpotipyProxy():
         for album_id in albums:
             tmp_album = self.album(album_id).copy()
             tmp_album['tracks'] = {}
-            tmp_album['tracks']['items'] = [self.track(track['id']) for track in self.tracks if track['album']['id'] == album_id]
+            tmp_album['tracks']['items'] = [self.track(track['id']) for track in self.tracks_lookup_table 
+                                            if track['album']['id'] == album_id]
             albums_list.append(tmp_album)
         return {'albums': albums_list}
         

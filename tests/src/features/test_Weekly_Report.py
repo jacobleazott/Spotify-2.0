@@ -60,7 +60,7 @@ class TestWeeklyReport(unittest.TestCase):
         
         self.weekly_report._gen_playback_graph()
         # Test DB Conn Connection
-        mock_connect.assert_called_once_with(Settings.LISTENING_DB)
+        mock_connect.assert_called_once_with(Settings.LISTENING_VAULT_DB)
         mock_conn.execute.assert_called()
         mock_conn.close.assert_called_once()
         # Test Plot Creation

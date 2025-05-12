@@ -55,7 +55,7 @@ class SanityTest(LogAllMethods):
     def __init__(self, logger: logging.Logger=None) -> None:
         self.track_list_to_disregard = list(Settings.MACRO_LIST) 
         self.logger = logger if logger is not None else logging.getLogger()
-        self.dbh = DatabaseHelpers(self.logger)
+        self.dbh = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)
         
         self._gather_playlist_data()
     
@@ -68,11 +68,11 @@ class SanityTest(LogAllMethods):
     OUTPUT: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     def _gather_playlist_data(self):
-        self.user_followed_artists = self.dbh.db_get_user_followed_artists()
-        self.user_playlists = self.dbh.db_get_user_playlists()
+        self.user_followed_artists = self.dbh.get_user_followed_artists()
+        self.user_playlists = self.dbh.get_user_playlists()
         
         for playlist in self.user_playlists:
-            tracks = self.dbh.db_get_tracks_from_playlist(playlist['id'])
+            tracks = self.dbh.get_tracks_from_playlist(playlist['id'])
             
             if playlist['name'].startswith('__'):
                 self.individual_artist_playlists.append({'name': playlist['name'][2:], 'tracks': tracks})
@@ -97,7 +97,7 @@ class SanityTest(LogAllMethods):
 
         for track in tracks:
             if track['id'] in checked_ids and track['id'] not in duplicate_ids:
-                artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
+                artist_names = [artist['name'] for artist in self.dbh.get_track_artists(track['id'])]
                 duplicates.append({'Name': track['name'], 'Artists': artist_names})
                 duplicate_ids.add(track['id'])
             checked_ids.add(track['id'])
@@ -119,7 +119,7 @@ class SanityTest(LogAllMethods):
             if disregard_tracks and track['id'] in self.track_list_to_disregard: 
                 continue
             if track not in to_verify_track_list: 
-                artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
+                artist_names = [artist['name'] for artist in self.dbh.get_track_artists(track['id'])]
                 res_list.append({'Name': track['name'], 'Artists': artist_names})
         
         return res_list
@@ -217,7 +217,7 @@ class SanityTest(LogAllMethods):
                     continue
                 checked_track_ids.add(track['id'])
                 # Get track artists and filter for followed ones (excluding the current playlist owner)
-                track_artists = self.dbh.db_get_track_artists(track['id'])
+                track_artists = self.dbh.get_track_artists(track['id'])
                 valid_artists = [artist['name'] for artist in track_artists if artist['name'] in followed_artist_names 
                                  and artist['name'] != playlist['name']]
 
@@ -246,7 +246,7 @@ class SanityTest(LogAllMethods):
         for playlist in self.individual_artist_playlists:
             tracks = []
             for track in playlist['tracks']:
-                artists = self.dbh.db_get_track_artists(track['id'])
+                artists = self.dbh.get_track_artists(track['id'])
                 if not any(playlist['name'] == artist['name'] for artist in artists):
                     tracks.append({'Name': track['name'], 'Artists': [artist['name'] for artist in artists]})
 
@@ -266,7 +266,7 @@ class SanityTest(LogAllMethods):
         
         for track in self.master_playlist[0]['tracks']:
             if not track['is_playable'] and not track['is_local']:
-                artist_names = [artist['name'] for artist in self.dbh.db_get_track_artists(track['id'])]
+                artist_names = [artist['name'] for artist in self.dbh.get_track_artists(track['id'])]
                 res_list.append({'Track': track['name'], 'Artists': artist_names})
                 
         return res_list

@@ -37,6 +37,7 @@ def create_album(album_id: str, name: str, artists: list[dict], album_type: str)
         'name': name,
         'artists': artists,
         'album_type': album_type,   # "album", "single", "compilation"
+        'total_tracks': 0,
         'release_date': '0000-01-01'
     }
 
@@ -59,7 +60,9 @@ def create_track(track_id: str, name: str, album: str, artists: list[dict], is_l
         'artists': artists,
         'is_local': is_local,
         'duration_ms': 1,
-        'is_playable': is_playable
+        'is_playable': is_playable,
+        'disc_number': 1,
+        'track_number': 1
     }
 
 
@@ -141,7 +144,7 @@ def create_env(spotify_mocked):
     tr014 = create_track('Tr014', 'Fake Track 14', al010, [artist_unfollowed_appears_on])
     tr015 = create_track('Tr015', 'Fake Track 15', al010, [artist_unfollowed_appears_on, artist_followed_appears_on])
 
-    spotify_mocked.sp.tracks += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008
+    spotify_mocked.sp.tracks_lookup_table += [local_track, tr001, tr002, tr003, tr004, tr005, tr006, tr007, tr008
                                  , tr009, tr010, tr011, tr012, tr013, tr014, tr015]
 
     # Create Playlists

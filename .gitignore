@@ -13,3 +13,5 @@ coverage.xml
 .venv/
 __pycache__/
 Test/
+
+!tests/helpers/unit_test.db

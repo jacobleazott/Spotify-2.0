@@ -34,12 +34,13 @@ class MockedSettingsClass():
     # Playlists
     PLAYLISTS_WE_CAN_DELETE_FROM: tuple = ["Pl111"] # 'The 100'
     MASTER_MIX_ID: str                  = "Pl222"   # 'The Good - Master Mix'
-    PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ["Pl333"] # 'Soundtracks - Master Mix'
+    CHRISTMAS_MASTER_MIX_ID: str        = "Pl333"   # 'The Good Christmas - Master Mix'
+    PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ["Pl444"] # 'Soundtracks - Master Mix'
     
     # Latest '100' Configuration
     LATEST_PLAYLIST_LENGTH: int = 10
     LATEST_SOURCE_PLAYLIST: str = MASTER_MIX_ID
-    LATEST_DEST_PLAYLIST: str   = "Pl444" # Note this should be in PLAYLISTS_WE_CAN_DELETE_FROM, as a
+    LATEST_DEST_PLAYLIST: str   = "Pl555" # Note this should be in PLAYLISTS_WE_CAN_DELETE_FROM, as a
                                                            #    safety percaution it is not a refernce but a duplicate.
 
     # Spotify API Scopes
@@ -64,8 +65,7 @@ class MockedSettingsClass():
     # DB Locations
     BACKUPS_LOCATION: str       = "fake_path/fake_backups/"
     LAST_TRACK_PICKLE: str      = "fake_path/fake_pickle.pk"
-    LISTENING_DB: str           = "fake_path/fake_ldb.db"
-    TRACK_COUNTS_DB: str        = "fake_path/fake_tcdb.db"
+    LISTENING_VAULT_DB: str     = "fake_path/fake_ldb.db"
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15

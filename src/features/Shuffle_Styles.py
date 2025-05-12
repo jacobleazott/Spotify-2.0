@@ -49,9 +49,8 @@ class Shuffler(LogAllMethods):
     def __init__(self, spotify, tcdb_path: str=None, logger: logging.Logger=None) -> None:
         self.spotify = spotify
         self.logger = logger if logger is not None else logging.getLogger()
-        self.dbh = DatabaseHelpers(logger=self.logger)
-        self.tcdb_path = tcdb_path or Settings.TRACK_COUNTS_DB
-        
+        self.vault_db = DatabaseHelpers(Settings.LISTENING_VAULT_DB, logger=self.logger)        
+    
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Creates a weighted list of tracks, it orders tracks from least to most listened and 'partially'
                  randomizes the queue based upon how many times specifically we have listened to each track.
@@ -59,38 +58,27 @@ class Shuffler(LogAllMethods):
     OUTPUT: List of tracks partially randomized in the reverse weighted form.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     def _weighted_shuffle(self, track_ids: list[str]) -> list[str]:
-        track_count_data = []
-        with sqlite3.connect(self.tcdb_path) as tcdb_conn:
-            tcdb_conn.execute(f'''CREATE TABLE IF NOT EXISTS 'tracks'(
-                                     track_id TEXT PRIMARY KEY,
-                                     play_count INTEGER NOT NULL);''')
-            
-            # Grab all the track_counts for our track_ids, we default to 0 listens if we don't find it
-            for track_id in track_ids:
-                track_query = tcdb_conn.execute(
-                    f"SELECT * FROM 'tracks' WHERE 'tracks'.track_id = '{track_id}'").fetchone()
-                if track_query is None:
-                    track_count_data.append((0, track_id))
-                else:
-                    track_count_data.append((track_query[1], track_id))
+        track_counts = {row['id']: row['play_count'] for row in self.vault_db.get_track_play_counts(track_ids)}
+        for track_id in track_ids:
+            track_counts[track_id] = track_counts.get(track_id, 0)
         
-        track_count_data.sort()
-      
+        track_counts_list = [{'id': k, 'play_count': v} for k, v in track_counts.items()]
+        track_counts_list.sort(key=lambda x: x['play_count'])
+        
         # Below we are going to group same play_count tracks, so we start with [[1, a], [1, b], [4, c], [4, d], [5, e]]
         #   and end with [[a, b], [c, d], [e]]. Once we reach a minimum of QUEUE_LENGTH of total tracks in 
         #   track_count_groupings we exit out since we don't care past that
         cur_play_count = 0
-        tmp_track_count_group = []
-        track_count_groupings = []
+        tmp_track_count_group, track_count_groupings = [], []
 
-        for idx, track in enumerate(track_count_data):
-            if track[0] > cur_play_count and len(tmp_track_count_group) > 0:
+        for idx, track_data in enumerate(track_counts_list):
+            if track_data['play_count'] > cur_play_count and len(tmp_track_count_group) > 0:
                 track_count_groupings.append(tmp_track_count_group)
                 tmp_track_count_group = []
                 if idx >= Settings.MAX_QUEUE_LENGTH:
                     break
-            tmp_track_count_group.append(track[1])
-            cur_play_count = track[0]
+            tmp_track_count_group.append(track_data['id'])
+            cur_play_count = track_data['play_count']
             
         track_count_groupings.append(tmp_track_count_group)
         
@@ -114,7 +102,7 @@ class Shuffler(LogAllMethods):
     @gsh.scopes(["user-modify-playback-state"])
     def shuffle(self, playlist_id: str, shuffle_type: ShuffleType) -> None:
         self.logger.info(f"Shuffle Type: {shuffle_type}, Playlist: {playlist_id}")
-        track_ids = [track['id'] for track in self.dbh.db_get_tracks_from_playlist(playlist_id) 
+        track_ids = [track['id'] for track in self.vault_db.get_tracks_from_playlist(playlist_id) 
                      if track['id'] not in Settings.MACRO_LIST and not track['is_local']]
         self.logger.info(f"\tFound '{len(track_ids)}' Tracks")
         

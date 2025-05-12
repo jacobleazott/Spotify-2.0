@@ -41,6 +41,7 @@ class SettingsClass:
     # Playlists
     PLAYLISTS_WE_CAN_DELETE_FROM: tuple = ("3dZVHLVdpOGlSy8oH9WvBi",) # 'The 100'
     MASTER_MIX_ID: str                  = "6kGQQoelXM2YDOSmqUUzRw"   # 'The Good - Master Mix'
+    CHRISTMAS_MASTER_MIX_ID: str        = "3qki5BF8FMoFklkBdugQN6"   # 'The Good Christmas - Master Mix'
     PLAYLIST_IDS_NOT_IN_ARTISTS: tuple  = ("7Mgr45oWF0fzRzdlz0NNgT",) # 'Soundtracks - Master Mix'
     
     # Latest '100' Configuration
@@ -70,9 +71,8 @@ class SettingsClass:
 
     # DB Locations
     BACKUPS_LOCATION: str       = "databases/backups/"
+    LISTENING_VAULT_DB: str     = "databases/listening_vault.db"
     LAST_TRACK_PICKLE: str      = "databases/lastTrack.pk"
-    LISTENING_DB: str           = "databases/listening_data.db"
-    TRACK_COUNTS_DB: str        = "databases/track_counts.db"
     
     # Logging Settings
     FUNCTION_ARG_LOGGING_LEVEL: int = 15

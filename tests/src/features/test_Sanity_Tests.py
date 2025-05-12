@@ -10,7 +10,6 @@
 # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import logging
 import unittest
-from pprint import pprint
 from unittest import mock
 
 from src.features.Sanity_Tests import SanityTest
@@ -39,7 +38,7 @@ class TestSanityTests(unittest.TestCase):
         self.assertEqual(mock_gather_playlist_data.call_count, 1)
     
     def test_gather_playlist_data(self):
-        self.mock_dbh.db_get_user_playlists.return_value = [
+        self.mock_dbh.get_user_playlists.return_value = [
             {'id': 'playlist_1', 'name': '__Test Artist 1'}
           , {'id': 'playlist_2', 'name': '__Test Artist 2'}
           , {'id': 'playlist_3', 'name': '_Test Artist 3'}
@@ -61,15 +60,15 @@ class TestSanityTests(unittest.TestCase):
                 [{'id': '6', 'name': 'Track 6', 'duration_ms': 10, 'is_local': 0, 'is_playable': 1}]
         }
         
-        self.mock_dbh.db_get_tracks_from_playlist.side_effect = lambda playlist_id: \
+        self.mock_dbh.get_tracks_from_playlist.side_effect = lambda playlist_id: \
             mock_playlist_data.get(playlist_id, [])
         self.sanityTester._gather_playlist_data()
         
-        self.mock_dbh.db_get_user_followed_artists.assert_called_once()
+        self.mock_dbh.get_user_followed_artists.assert_called_once()
         self.assertEqual(self.sanityTester.user_followed_artists
-                         , self.mock_dbh.db_get_user_followed_artists.return_value)
-        self.mock_dbh.db_get_user_playlists.assert_called_once()
-        self.assertEqual(self.sanityTester.user_playlists, self.mock_dbh.db_get_user_playlists.return_value)
+                         , self.mock_dbh.get_user_followed_artists.return_value)
+        self.mock_dbh.get_user_playlists.assert_called_once()
+        self.assertEqual(self.sanityTester.user_playlists, self.mock_dbh.get_user_playlists.return_value)
         
         self.assertEqual(self.sanityTester.individual_artist_playlists, [
             {'name': 'Test Artist 1', 'tracks': mock_playlist_data['playlist_1']},
@@ -90,7 +89,7 @@ class TestSanityTests(unittest.TestCase):
           , '3': [{'name': 'Artist 3'}]
         }
 
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         # Test Empty List
         duplicates = self.sanityTester._find_duplicates([])
@@ -133,7 +132,7 @@ class TestSanityTests(unittest.TestCase):
           , Settings.MACRO_LIST[0]: [{'name': 'Artist 6'}]
         }
 
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         # Test Empty Lists
         diff_list = self.sanityTester._compare_track_lists([], [])
@@ -208,7 +207,7 @@ class TestSanityTests(unittest.TestCase):
         mock_track_artists = {
             '0': [{'name': 'Artist 1'}, {'name': 'Artist 2'}]
         }
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         duplicate_list = self.sanityTester.sanity_duplicates()
         self.assertEqual(duplicate_list, [
@@ -236,11 +235,9 @@ class TestSanityTests(unittest.TestCase):
           , '3': [{'name': 'Artist 3'}]
         }
 
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         sanity_artists = self.sanityTester.sanity_contributing_artists()
-        for x in sanity_artists:
-            print(x)
             
         self.assertEqual(sanity_artists, [
             {'Track': 'Track 1', 'Artists': ['Artist 2', 'Artist 1', 'Artist 5'], 'Missing': ['Artist 2']}
@@ -265,12 +262,9 @@ class TestSanityTests(unittest.TestCase):
           , '3': [{'name': 'Artist 3'}]
         }
         
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         sanity_artists = self.sanityTester.sanity_artist_playlist_integrity()
-        # print(sanity_artists)
-        for playlist in sanity_artists:
-            print(playlist)
         self.assertEqual(sanity_artists, [
             {'Playlist': 'Artist 1', 'Track': [{'Name': 'Track 2', 'Artists': ['Artist 2', 'Artist 3']}]}
           , {'Playlist': 'Artist 2', 'Track': [{'Name': 'Track 3', 'Artists': ['Artist 3']}]}
@@ -281,7 +275,7 @@ class TestSanityTests(unittest.TestCase):
             '2': [{'name': 'Artist 1'}, {'name': 'Artist 2'}]
           , '3': [{'name': 'Artist 2'}]
         }
-        self.mock_dbh.db_get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
+        self.mock_dbh.get_track_artists.side_effect = lambda track_id: mock_track_artists.get(track_id, [])
         
         self.sanityTester.master_playlist[0] = {
             'tracks': [
