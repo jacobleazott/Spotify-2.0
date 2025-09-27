@@ -73,6 +73,8 @@ class MiscFeatures(LogAllMethods):
         if len(artist_id_list) == 0:
             return None
         
+        self.logger.info(f"ARTIST_RELEASE {start_date} to {end_date} ================================================")
+        
         playlist_id = self.spotify.create_playlist(playlist_name, description=playlist_description)
         self.logger.info(f"Created New Playlist: {playlist_id}")
         tracks = []
@@ -104,6 +106,8 @@ class MiscFeatures(LogAllMethods):
         good_playlist = None
         year_playlist = None
         artist_playlists = list()
+
+        self.logger.info(f"DISTRIBUTE_TRACKS {playlist_id} ==========================================================")
         
         for playlist in user_playlists:
                 if playlist["id"] == Settings.MASTER_MIX_ID:
