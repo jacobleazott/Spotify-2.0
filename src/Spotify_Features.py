@@ -101,10 +101,17 @@ class SpotifyFeatures(LogAllMethods):
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     @gsh.scopes(["user-follow-read"])
     def generate_monthly_release(self) -> None:
+        def sort_key(name: str) -> str:
+            name_upper = name.upper()
+            for prefix in ("THE ", "A ", "AN "):
+                if name_upper.startswith(prefix):
+                    return name_upper[len(prefix):]
+            return name_upper
+
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
         self.mfeatures.generate_artist_release(
             [artist['id'] for artist in sorted(self.spotify.get_user_artists(info=['id', 'name'])
-                                                        , key=lambda ar: ar['name'].upper())]
+                                                ,key=lambda ar: sort_key(ar['name']))]
             , f"Release Radar: {last_month.strftime("%m-%Y")}"
             , f"Releases From All Followed Artists From The Month {last_month.strftime("%m-%Y")}"
             , start_date=datetime(last_month.year, last_month.month, 1)
