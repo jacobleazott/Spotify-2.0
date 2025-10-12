@@ -606,7 +606,7 @@ class GeneralSpotifyHelpers:
         for track_chunk in track_chunks:
             spotify = self.sp.tracks(track_chunk, market="US")
             data = self._gather_data(spotify, field_structure)
-            print(data)
+            # print(data)
 
         return [track for track_chunk in track_chunks
                 for track in self._gather_data(self.sp.tracks(track_chunk, market="US")

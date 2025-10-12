@@ -1,0 +1,449 @@
+{
+  "collaborative": false,
+  "description": "",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/playlist/0NckgOfzbPc2jV6AiMdd3y"
+  },
+  "followers": {
+    "href": null,
+    "total": 0
+  },
+  "href": "https://api.spotify.com/v1/playlists/0NckgOfzbPc2jV6AiMdd3y?market=US&locale=en-US%2Cen%3Bq%3D0.5",
+  "id": "0NckgOfzbPc2jV6AiMdd3y",
+  "images": [
+    {
+      "height": 640,
+      "url": "https://mosaic.scdn.co/640/ab67616d00001e023b67693fbdf7a58f1d5c6238ab67616d00001e02483a4979f1d07f0552bf5c64ab67616d00001e027af7cc71d75198c95617af78ab67616d00001e0283eeb48ba416a635b2b1293a",
+      "width": 640
+    },
+    {
+      "height": 300,
+      "url": "https://mosaic.scdn.co/300/ab67616d00001e023b67693fbdf7a58f1d5c6238ab67616d00001e02483a4979f1d07f0552bf5c64ab67616d00001e027af7cc71d75198c95617af78ab67616d00001e0283eeb48ba416a635b2b1293a",
+      "width": 300
+    },
+    {
+      "height": 60,
+      "url": "https://mosaic.scdn.co/60/ab67616d00001e023b67693fbdf7a58f1d5c6238ab67616d00001e02483a4979f1d07f0552bf5c64ab67616d00001e027af7cc71d75198c95617af78ab67616d00001e0283eeb48ba416a635b2b1293a",
+      "width": 60
+    }
+  ],
+  "name": "Hymns and Hers",
+  "owner": {
+    "display_name": "Jacob Leazott",
+    "external_urls": {
+      "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+    },
+    "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+    "id": "azm67mmfixu99v9idlpc6r9bs",
+    "type": "user",
+    "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+  },
+  "primary_color": null,
+  "public": true,
+  "snapshot_id": "AAAAByxAJWYWZtNbKm8SzBT8r5hFNSaM",
+  "tracks": {
+    "href": "https://api.spotify.com/v1/playlists/0NckgOfzbPc2jV6AiMdd3y/tracks?offset=0&limit=100&market=US&locale=en-US,en;q%3D0.5",
+    "items": [
+      {
+        "added_at": "2024-12-03T18:40:37Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+          },
+          "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+          "id": "azm67mmfixu99v9idlpc6r9bs",
+          "type": "user",
+          "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "track": {
+          "preview_url": null,
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "album",
+            "href": "https://api.spotify.com/v1/albums/6LeblcCSxck1527dUN2Fdd",
+            "id": "6LeblcCSxck1527dUN2Fdd",
+            "images": [
+              {
+                "url": "https://i.scdn.co/image/ab67616d0000b2737af7cc71d75198c95617af78",
+                "width": 640,
+                "height": 640
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d00001e027af7cc71d75198c95617af78",
+                "width": 300,
+                "height": 300
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d000048517af7cc71d75198c95617af78",
+                "width": 64,
+                "height": 64
+              }
+            ],
+            "name": "Rite 7",
+            "release_date": "2009-03-15",
+            "release_date_precision": "day",
+            "uri": "spotify:album:6LeblcCSxck1527dUN2Fdd",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/2yWwCqofMJniMhT0TSA7zC"
+                },
+                "href": "https://api.spotify.com/v1/artists/2yWwCqofMJniMhT0TSA7zC",
+                "id": "2yWwCqofMJniMhT0TSA7zC",
+                "name": "Emmaus Way",
+                "type": "artist",
+                "uri": "spotify:artist:2yWwCqofMJniMhT0TSA7zC"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/6LeblcCSxck1527dUN2Fdd"
+            },
+            "total_tracks": 10
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/2yWwCqofMJniMhT0TSA7zC"
+              },
+              "href": "https://api.spotify.com/v1/artists/2yWwCqofMJniMhT0TSA7zC",
+              "id": "2yWwCqofMJniMhT0TSA7zC",
+              "name": "Emmaus Way",
+              "type": "artist",
+              "uri": "spotify:artist:2yWwCqofMJniMhT0TSA7zC"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 2,
+          "duration_ms": 312755,
+          "external_ids": {
+            "isrc": "US3UC0900002"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/3SQtg81eUM8DkouDMaJaHc"
+          },
+          "href": "https://api.spotify.com/v1/tracks/3SQtg81eUM8DkouDMaJaHc",
+          "id": "3SQtg81eUM8DkouDMaJaHc",
+          "name": "Canticle of the Turning",
+          "popularity": 19,
+          "uri": "spotify:track:3SQtg81eUM8DkouDMaJaHc",
+          "is_local": false
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      },
+      {
+        "added_at": "2024-12-17T21:14:59Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+          },
+          "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+          "id": "azm67mmfixu99v9idlpc6r9bs",
+          "type": "user",
+          "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "track": {
+          "preview_url": null,
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "album",
+            "href": "https://api.spotify.com/v1/albums/4kU6kyJqqpCgzgpfxgDfth",
+            "id": "4kU6kyJqqpCgzgpfxgDfth",
+            "images": [
+              {
+                "url": "https://i.scdn.co/image/ab67616d0000b273015af4e12c06a4db9e7e75b2",
+                "width": 640,
+                "height": 640
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d00001e02015af4e12c06a4db9e7e75b2",
+                "width": 300,
+                "height": 300
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d00004851015af4e12c06a4db9e7e75b2",
+                "width": 64,
+                "height": 64
+              }
+            ],
+            "name": "Night of Silence",
+            "release_date": "1987-01-01",
+            "release_date_precision": "day",
+            "uri": "spotify:album:4kU6kyJqqpCgzgpfxgDfth",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/3pSC7R2x1hvn4CMi1vTv7s"
+                },
+                "href": "https://api.spotify.com/v1/artists/3pSC7R2x1hvn4CMi1vTv7s",
+                "id": "3pSC7R2x1hvn4CMi1vTv7s",
+                "name": "Marty Haugen",
+                "type": "artist",
+                "uri": "spotify:artist:3pSC7R2x1hvn4CMi1vTv7s"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/4kU6kyJqqpCgzgpfxgDfth"
+            },
+            "total_tracks": 12
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3pSC7R2x1hvn4CMi1vTv7s"
+              },
+              "href": "https://api.spotify.com/v1/artists/3pSC7R2x1hvn4CMi1vTv7s",
+              "id": "3pSC7R2x1hvn4CMi1vTv7s",
+              "name": "Marty Haugen",
+              "type": "artist",
+              "uri": "spotify:artist:3pSC7R2x1hvn4CMi1vTv7s"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 3,
+          "duration_ms": 184573,
+          "external_ids": {
+            "isrc": "US7851010422"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/2Rk2FldPopw2XgnoBtLtbR"
+          },
+          "href": "https://api.spotify.com/v1/tracks/2Rk2FldPopw2XgnoBtLtbR",
+          "id": "4V7lO7TdQ2sf0lPwwlOGoO",
+          "name": "People, Look East",
+          "popularity": 0,
+          "uri": "spotify:track:4V7lO7TdQ2sf0lPwwlOGoO",
+          "is_local": false,
+          "linked_from": {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/2Rk2FldPopw2XgnoBtLtbR"
+            },
+            "href": "https://api.spotify.com/v1/tracks/2Rk2FldPopw2XgnoBtLtbR",
+            "id": "2Rk2FldPopw2XgnoBtLtbR",
+            "type": "track",
+            "uri": "spotify:track:2Rk2FldPopw2XgnoBtLtbR"
+          }
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      },
+      {
+        "added_at": "2025-02-10T13:39:32Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+          },
+          "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+          "id": "azm67mmfixu99v9idlpc6r9bs",
+          "type": "user",
+          "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "track": {
+          "preview_url": null,
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "album",
+            "href": "https://api.spotify.com/v1/albums/0wvJrJsbryrS70BzvlTt4s",
+            "id": "0wvJrJsbryrS70BzvlTt4s",
+            "images": [
+              {
+                "url": "https://i.scdn.co/image/ab67616d0000b27383eeb48ba416a635b2b1293a",
+                "width": 640,
+                "height": 640
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d00001e0283eeb48ba416a635b2b1293a",
+                "width": 300,
+                "height": 300
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d0000485183eeb48ba416a635b2b1293a",
+                "width": 64,
+                "height": 64
+              }
+            ],
+            "name": "Blessed Assurance",
+            "release_date": "2018-02-23",
+            "release_date_precision": "day",
+            "uri": "spotify:album:0wvJrJsbryrS70BzvlTt4s",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/29PfPMTOAqc611mj1siNoH"
+                },
+                "href": "https://api.spotify.com/v1/artists/29PfPMTOAqc611mj1siNoH",
+                "id": "29PfPMTOAqc611mj1siNoH",
+                "name": "Guy Penrod",
+                "type": "artist",
+                "uri": "spotify:artist:29PfPMTOAqc611mj1siNoH"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/0wvJrJsbryrS70BzvlTt4s"
+            },
+            "total_tracks": 12
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/29PfPMTOAqc611mj1siNoH"
+              },
+              "href": "https://api.spotify.com/v1/artists/29PfPMTOAqc611mj1siNoH",
+              "id": "29PfPMTOAqc611mj1siNoH",
+              "name": "Guy Penrod",
+              "type": "artist",
+              "uri": "spotify:artist:29PfPMTOAqc611mj1siNoH"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 2,
+          "duration_ms": 188853,
+          "external_ids": {
+            "isrc": "US5X41800002"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/7r0ewDpfwzUAuP5bSBF1to"
+          },
+          "href": "https://api.spotify.com/v1/tracks/7r0ewDpfwzUAuP5bSBF1to",
+          "id": "7r0ewDpfwzUAuP5bSBF1to",
+          "name": "Before The Throne Of God Above",
+          "popularity": 20,
+          "uri": "spotify:track:7r0ewDpfwzUAuP5bSBF1to",
+          "is_local": false
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      },
+      {
+        "added_at": "2025-04-08T15:08:09Z",
+        "added_by": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+          },
+          "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+          "id": "azm67mmfixu99v9idlpc6r9bs",
+          "type": "user",
+          "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        },
+        "is_local": false,
+        "primary_color": null,
+        "track": {
+          "preview_url": null,
+          "is_playable": true,
+          "explicit": false,
+          "type": "track",
+          "episode": false,
+          "track": true,
+          "album": {
+            "is_playable": true,
+            "type": "album",
+            "album_type": "album",
+            "href": "https://api.spotify.com/v1/albums/1mBF38ohxVc3Eq3tGQkxJs",
+            "id": "1mBF38ohxVc3Eq3tGQkxJs",
+            "images": [
+              {
+                "url": "https://i.scdn.co/image/ab67616d0000b2733b67693fbdf7a58f1d5c6238",
+                "width": 640,
+                "height": 640
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d00001e023b67693fbdf7a58f1d5c6238",
+                "width": 300,
+                "height": 300
+              },
+              {
+                "url": "https://i.scdn.co/image/ab67616d000048513b67693fbdf7a58f1d5c6238",
+                "width": 64,
+                "height": 64
+              }
+            ],
+            "name": "O the Love of My Redeemer",
+            "release_date": "2019-04-22",
+            "release_date_precision": "day",
+            "uri": "spotify:album:1mBF38ohxVc3Eq3tGQkxJs",
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/12lyCe0QldQ5lyLS5j2Zb4"
+                },
+                "href": "https://api.spotify.com/v1/artists/12lyCe0QldQ5lyLS5j2Zb4",
+                "id": "12lyCe0QldQ5lyLS5j2Zb4",
+                "name": "Josh Caterer",
+                "type": "artist",
+                "uri": "spotify:artist:12lyCe0QldQ5lyLS5j2Zb4"
+              }
+            ],
+            "external_urls": {
+              "spotify": "https://open.spotify.com/album/1mBF38ohxVc3Eq3tGQkxJs"
+            },
+            "total_tracks": 10
+          },
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12lyCe0QldQ5lyLS5j2Zb4"
+              },
+              "href": "https://api.spotify.com/v1/artists/12lyCe0QldQ5lyLS5j2Zb4",
+              "id": "12lyCe0QldQ5lyLS5j2Zb4",
+              "name": "Josh Caterer",
+              "type": "artist",
+              "uri": "spotify:artist:12lyCe0QldQ5lyLS5j2Zb4"
+            }
+          ],
+          "disc_number": 1,
+          "track_number": 1,
+          "duration_ms": 256976,
+          "external_ids": {
+            "isrc": "TCAEE1955099"
+          },
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/2VEz7YLMQO0AMtCJYGI8Uh"
+          },
+          "href": "https://api.spotify.com/v1/tracks/2VEz7YLMQO0AMtCJYGI8Uh",
+          "id": "2VEz7YLMQO0AMtCJYGI8Uh",
+          "name": "O the Love of My Redeemer",
+          "popularity": 8,
+          "uri": "spotify:track:2VEz7YLMQO0AMtCJYGI8Uh",
+          "is_local": false
+        },
+        "video_thumbnail": {
+          "url": null
+        }
+      }
+    ],
+    "limit": 100,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 4
+  },
+  "type": "playlist",
+  "uri": "spotify:playlist:0NckgOfzbPc2jV6AiMdd3y"
+}

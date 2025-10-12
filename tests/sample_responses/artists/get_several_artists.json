@@ -1,0 +1,79 @@
+{
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+      },
+      "followers": {
+        "href": null,
+        "total": 32157591
+      },
+      "genres": [
+        "rock",
+        "hard rock",
+        "classic rock",
+        "rock and roll"
+      ],
+      "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un?locale=en-US%2Cen%3Bq%3D0.5",
+      "id": "711MCceyCBcFnzjGY4Q7Un",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebc4c77549095c86acb4e77b37",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174c4c77549095c86acb4e77b37",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178c4c77549095c86acb4e77b37",
+          "height": 160,
+          "width": 160
+        }
+      ],
+      "name": "AC/DC",
+      "popularity": 80,
+      "type": "artist",
+      "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+    },
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/69ehZttjLAjoMPMoFvOMV9"
+      },
+      "followers": {
+        "href": null,
+        "total": 3823
+      },
+      "genres": [
+        "christian alternative rock",
+        "christian rock",
+        "ccm"
+      ],
+      "href": "https://api.spotify.com/v1/artists/69ehZttjLAjoMPMoFvOMV9?locale=en-US%2Cen%3Bq%3D0.5",
+      "id": "69ehZttjLAjoMPMoFvOMV9",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2738aa149144284dc489db62522",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e022e71fdf55ec8037a0baac99c",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048518aa149144284dc489db62522",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Adam Again",
+      "popularity": 10,
+      "type": "artist",
+      "uri": "spotify:artist:69ehZttjLAjoMPMoFvOMV9"
+    }
+  ]
+}

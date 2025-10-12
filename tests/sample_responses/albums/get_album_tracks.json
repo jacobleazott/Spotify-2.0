@@ -1,0 +1,155 @@
+{
+  "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=5&market=US&locale=en-US,en;q%3D0.5",
+  "items": [
+    {
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 312293,
+      "explicit": false,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/69QHm3pustz01CJRwdo20z"
+      },
+      "href": "https://api.spotify.com/v1/tracks/69QHm3pustz01CJRwdo20z",
+      "id": "69QHm3pustz01CJRwdo20z",
+      "is_playable": true,
+      "name": "Hells Bells",
+      "preview_url": null,
+      "track_number": 1,
+      "type": "track",
+      "uri": "spotify:track:69QHm3pustz01CJRwdo20z",
+      "is_local": false
+    },
+    {
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 317426,
+      "explicit": false,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/0C80GCp0mMuBzLf3EAXqxv"
+      },
+      "href": "https://api.spotify.com/v1/tracks/0C80GCp0mMuBzLf3EAXqxv",
+      "id": "0C80GCp0mMuBzLf3EAXqxv",
+      "is_playable": true,
+      "name": "Shoot to Thrill",
+      "preview_url": null,
+      "track_number": 2,
+      "type": "track",
+      "uri": "spotify:track:0C80GCp0mMuBzLf3EAXqxv",
+      "is_local": false
+    },
+    {
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 215533,
+      "explicit": false,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/6Th6ND8RQPywiyelecP5Lf"
+      },
+      "href": "https://api.spotify.com/v1/tracks/6Th6ND8RQPywiyelecP5Lf",
+      "id": "6Th6ND8RQPywiyelecP5Lf",
+      "is_playable": true,
+      "name": "What Do You Do for Money Honey",
+      "preview_url": null,
+      "track_number": 3,
+      "type": "track",
+      "uri": "spotify:track:6Th6ND8RQPywiyelecP5Lf",
+      "is_local": false
+    },
+    {
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 211760,
+      "explicit": false,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/6rAy2MsMUabbqu2VygrblP"
+      },
+      "href": "https://api.spotify.com/v1/tracks/6rAy2MsMUabbqu2VygrblP",
+      "id": "6rAy2MsMUabbqu2VygrblP",
+      "is_playable": true,
+      "name": "Givin the Dog a Bone",
+      "preview_url": null,
+      "track_number": 4,
+      "type": "track",
+      "uri": "spotify:track:6rAy2MsMUabbqu2VygrblP",
+      "is_local": false
+    },
+    {
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 255266,
+      "explicit": false,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/5XeMsYb1rWxQL1bUUaZajn"
+      },
+      "href": "https://api.spotify.com/v1/tracks/5XeMsYb1rWxQL1bUUaZajn",
+      "id": "5XeMsYb1rWxQL1bUUaZajn",
+      "is_playable": true,
+      "name": "Let Me Put My Love Into You",
+      "preview_url": null,
+      "track_number": 5,
+      "type": "track",
+      "uri": "spotify:track:5XeMsYb1rWxQL1bUUaZajn",
+      "is_local": false
+    }
+  ],
+  "limit": 5,
+  "next": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=5&limit=5&market=US&locale=en-US,en;q%3D0.5",
+  "offset": 0,
+  "previous": null,
+  "total": 10
+}

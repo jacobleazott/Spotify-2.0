@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, List, Callable
-from Track import Track
-from Playlist import Playlist
-from Artist import Artist
+from playlist import Playlist
+from artist import Artist
 
 @dataclass
 class User:

@@ -1,0 +1,235 @@
+{
+  "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un/albums?offset=0&limit=5&market=US&locale=en-US,en;q%3D0.5&include_groups=album,single,compilation,appears_on",
+  "limit": 5,
+  "next": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un/albums?offset=5&limit=5&market=US&locale=en-US,en;q%3D0.5&include_groups=album,single,compilation,appears_on",
+  "offset": 0,
+  "previous": null,
+  "total": 28,
+  "items": [
+    {
+      "album_type": "album",
+      "total_tracks": 12,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3bTNxJYk2bwdWBMtrjBxb0"
+      },
+      "href": "https://api.spotify.com/v1/albums/3bTNxJYk2bwdWBMtrjBxb0",
+      "id": "3bTNxJYk2bwdWBMtrjBxb0",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b27304db0e3bcd166c1d6cfd81f9",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e0204db0e3bcd166c1d6cfd81f9",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000485104db0e3bcd166c1d6cfd81f9",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "POWER UP",
+      "release_date": "2020-11-13",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:3bTNxJYk2bwdWBMtrjBxb0",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "album_group": "album"
+    },
+    {
+      "album_type": "album",
+      "total_tracks": 11,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6OwvO40ahugJE5PH4TjqTg"
+      },
+      "href": "https://api.spotify.com/v1/albums/6OwvO40ahugJE5PH4TjqTg",
+      "id": "6OwvO40ahugJE5PH4TjqTg",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273f5ea32b7c7b4ee3a4583d5df",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02f5ea32b7c7b4ee3a4583d5df",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851f5ea32b7c7b4ee3a4583d5df",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Rock or Bust",
+      "release_date": "2014-11-28",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:6OwvO40ahugJE5PH4TjqTg",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "album_group": "album"
+    },
+    {
+      "album_type": "album",
+      "total_tracks": 19,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4H6JMsvxmh0U7VBYiWiyLa"
+      },
+      "href": "https://api.spotify.com/v1/albums/4H6JMsvxmh0U7VBYiWiyLa",
+      "id": "4H6JMsvxmh0U7VBYiWiyLa",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2730a80b890ab011362fd7aa73b",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e020a80b890ab011362fd7aa73b",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048510a80b890ab011362fd7aa73b",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Live at River Plate",
+      "release_date": "2012-11-19",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:4H6JMsvxmh0U7VBYiWiyLa",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "album_group": "album"
+    },
+    {
+      "album_type": "album",
+      "total_tracks": 15,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/7qVfz4UGONwEd5nQjj0ESN"
+      },
+      "href": "https://api.spotify.com/v1/albums/7qVfz4UGONwEd5nQjj0ESN",
+      "id": "7qVfz4UGONwEd5nQjj0ESN",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273107d182a8d39586f8f3f23a0",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02107d182a8d39586f8f3f23a0",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851107d182a8d39586f8f3f23a0",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Black Ice",
+      "release_date": "2008-10-20",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:7qVfz4UGONwEd5nQjj0ESN",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "album_group": "album"
+    },
+    {
+      "album_type": "album",
+      "total_tracks": 12,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5JPVHEB67TREre4Q8JOfCQ"
+      },
+      "href": "https://api.spotify.com/v1/albums/5JPVHEB67TREre4Q8JOfCQ",
+      "id": "5JPVHEB67TREre4Q8JOfCQ",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2736376f65001ec44cb380e12c1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e026376f65001ec44cb380e12c1",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048516376f65001ec44cb380e12c1",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Stiff Upper Lip",
+      "release_date": "2000-02-25",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:5JPVHEB67TREre4Q8JOfCQ",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "album_group": "album"
+    }
+  ]
+}

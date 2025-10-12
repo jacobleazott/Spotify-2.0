@@ -1,0 +1,106 @@
+{
+  "is_playing": true,
+  "timestamp": 1760296074542,
+  "context": {
+    "external_urls": {
+      "spotify": "https://open.spotify.com/playlist/6kGQQoelXM2YDOSmqUUzRw"
+    },
+    "href": "https://api.spotify.com/v1/playlists/6kGQQoelXM2YDOSmqUUzRw",
+    "type": "playlist",
+    "uri": "spotify:playlist:6kGQQoelXM2YDOSmqUUzRw"
+  },
+  "progress_ms": 61897,
+  "item": {
+    "album": {
+      "album_type": "single",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1SbnQl7KrIVnXhYcQcMjL2"
+          },
+          "href": "https://api.spotify.com/v1/artists/1SbnQl7KrIVnXhYcQcMjL2",
+          "id": "1SbnQl7KrIVnXhYcQcMjL2",
+          "name": "Josh Wilson",
+          "type": "artist",
+          "uri": "spotify:artist:1SbnQl7KrIVnXhYcQcMjL2"
+        }
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2L2DSHWCvTxnMU0fiTNfDF"
+      },
+      "href": "https://api.spotify.com/v1/albums/2L2DSHWCvTxnMU0fiTNfDF",
+      "id": "2L2DSHWCvTxnMU0fiTNfDF",
+      "images": [
+        {
+          "height": 640,
+          "url": "https://i.scdn.co/image/ab67616d0000b2736b09c1f03741b303a67892a8",
+          "width": 640
+        },
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ab67616d00001e026b09c1f03741b303a67892a8",
+          "width": 300
+        },
+        {
+          "height": 64,
+          "url": "https://i.scdn.co/image/ab67616d000048516b09c1f03741b303a67892a8",
+          "width": 64
+        }
+      ],
+      "is_playable": true,
+      "name": "Reimagined: Vol. 1",
+      "release_date": "2023-06-09",
+      "release_date_precision": "day",
+      "total_tracks": 5,
+      "type": "album",
+      "uri": "spotify:album:2L2DSHWCvTxnMU0fiTNfDF"
+    },
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1SbnQl7KrIVnXhYcQcMjL2"
+        },
+        "href": "https://api.spotify.com/v1/artists/1SbnQl7KrIVnXhYcQcMjL2",
+        "id": "1SbnQl7KrIVnXhYcQcMjL2",
+        "name": "Josh Wilson",
+        "type": "artist",
+        "uri": "spotify:artist:1SbnQl7KrIVnXhYcQcMjL2"
+      },
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1QsLz7bHnX7T98D5QzaECR"
+        },
+        "href": "https://api.spotify.com/v1/artists/1QsLz7bHnX7T98D5QzaECR",
+        "id": "1QsLz7bHnX7T98D5QzaECR",
+        "name": "Becca Wilson",
+        "type": "artist",
+        "uri": "spotify:artist:1QsLz7bHnX7T98D5QzaECR"
+      }
+    ],
+    "disc_number": 1,
+    "duration_ms": 174117,
+    "explicit": false,
+    "external_ids": {
+      "isrc": "NLRD52017105"
+    },
+    "external_urls": {
+      "spotify": "https://open.spotify.com/track/10sEv6jS8llcmJKXfNbkvj"
+    },
+    "href": "https://api.spotify.com/v1/tracks/10sEv6jS8llcmJKXfNbkvj",
+    "id": "10sEv6jS8llcmJKXfNbkvj",
+    "is_local": false,
+    "is_playable": true,
+    "name": "How To Fall - Reimagined",
+    "popularity": 8,
+    "preview_url": null,
+    "track_number": 3,
+    "type": "track",
+    "uri": "spotify:track:10sEv6jS8llcmJKXfNbkvj"
+  },
+  "currently_playing_type": "track",
+  "actions": {
+    "disallows": {
+      "resuming": true
+    }
+  }
+}

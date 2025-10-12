@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
-from Artist import Artist
-from Album import Album
+from artist import Artist
+from album import Album
 
 @dataclass
 class Artist:

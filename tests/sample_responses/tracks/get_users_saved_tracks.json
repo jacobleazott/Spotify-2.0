@@ -1,0 +1,99 @@
+{
+  "href": "https://api.spotify.com/v1/me/tracks?offset=0&limit=20&market=US&locale=en-US,en;q%3D0.5",
+  "items": [
+    {
+      "added_at": "2025-04-23T14:16:01Z",
+      "track": {
+        "album": {
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/3RghLagVWsyJ69agzOVeDn"
+              },
+              "href": "https://api.spotify.com/v1/artists/3RghLagVWsyJ69agzOVeDn",
+              "id": "3RghLagVWsyJ69agzOVeDn",
+              "name": "Kunning Fox",
+              "type": "artist",
+              "uri": "spotify:artist:3RghLagVWsyJ69agzOVeDn"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4tEkblRHszVwFLyV9nC3w3"
+          },
+          "href": "https://api.spotify.com/v1/albums/4tEkblRHszVwFLyV9nC3w3",
+          "id": "4tEkblRHszVwFLyV9nC3w3",
+          "images": [
+            {
+              "height": 640,
+              "width": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b27382c112d15f3f70a92a9f636a"
+            },
+            {
+              "height": 300,
+              "width": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e0282c112d15f3f70a92a9f636a"
+            },
+            {
+              "height": 64,
+              "width": 64,
+              "url": "https://i.scdn.co/image/ab67616d0000485182c112d15f3f70a92a9f636a"
+            }
+          ],
+          "is_playable": true,
+          "name": "Back To Unova, Vol. II (Music From \"Pokémon Black & White\")",
+          "release_date": "2021-02-21",
+          "release_date_precision": "day",
+          "total_tracks": 35,
+          "type": "album",
+          "uri": "spotify:album:4tEkblRHszVwFLyV9nC3w3"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/3RghLagVWsyJ69agzOVeDn"
+            },
+            "href": "https://api.spotify.com/v1/artists/3RghLagVWsyJ69agzOVeDn",
+            "id": "3RghLagVWsyJ69agzOVeDn",
+            "name": "Kunning Fox",
+            "type": "artist",
+            "uri": "spotify:artist:3RghLagVWsyJ69agzOVeDn"
+          }
+        ],
+        "disc_number": 1,
+        "duration_ms": 113000,
+        "explicit": false,
+        "external_ids": {
+          "isrc": "QZGWX2018118"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/7wuYoEUNGqAHkIFZt6YQpx"
+        },
+        "href": "https://api.spotify.com/v1/tracks/7wuYoEUNGqAHkIFZt6YQpx",
+        "id": "24nivhIJtLNB6Uq6IIvoq3",
+        "is_local": false,
+        "is_playable": true,
+        "name": "An Unwavering Heart",
+        "popularity": 31,
+        "preview_url": null,
+        "track_number": 20,
+        "type": "track",
+        "uri": "spotify:track:24nivhIJtLNB6Uq6IIvoq3",
+        "linked_from": {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/7wuYoEUNGqAHkIFZt6YQpx"
+          },
+          "href": "https://api.spotify.com/v1/tracks/7wuYoEUNGqAHkIFZt6YQpx",
+          "id": "7wuYoEUNGqAHkIFZt6YQpx",
+          "type": "track",
+          "uri": "spotify:track:7wuYoEUNGqAHkIFZt6YQpx"
+        }
+      }
+    }
+  ],
+  "limit": 20,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total": 1
+}

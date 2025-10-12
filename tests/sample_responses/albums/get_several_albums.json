@@ -1,0 +1,745 @@
+{
+  "albums": [
+    {
+      "album_type": "album",
+      "total_tracks": 10,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh"
+      },
+      "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh?market=US&locale=en-US%2Cen%3Bq%3D0.5",
+      "id": "6mUdeDZCsExyJLMdAfDuwh",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2730b51f8d91f3a21e8426361ae",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e020b51f8d91f3a21e8426361ae",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048510b51f8d91f3a21e8426361ae",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Back In Black",
+      "release_date": "1980-07-25",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:6mUdeDZCsExyJLMdAfDuwh",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "tracks": {
+        "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=50&market=US&locale=en-US,en;q%3D0.5",
+        "limit": 50,
+        "next": null,
+        "offset": 0,
+        "previous": null,
+        "total": 10,
+        "items": [
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 312293,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/69QHm3pustz01CJRwdo20z"
+            },
+            "href": "https://api.spotify.com/v1/tracks/69QHm3pustz01CJRwdo20z",
+            "id": "69QHm3pustz01CJRwdo20z",
+            "is_playable": true,
+            "name": "Hells Bells",
+            "preview_url": null,
+            "track_number": 1,
+            "type": "track",
+            "uri": "spotify:track:69QHm3pustz01CJRwdo20z",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 317426,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/0C80GCp0mMuBzLf3EAXqxv"
+            },
+            "href": "https://api.spotify.com/v1/tracks/0C80GCp0mMuBzLf3EAXqxv",
+            "id": "0C80GCp0mMuBzLf3EAXqxv",
+            "is_playable": true,
+            "name": "Shoot to Thrill",
+            "preview_url": null,
+            "track_number": 2,
+            "type": "track",
+            "uri": "spotify:track:0C80GCp0mMuBzLf3EAXqxv",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 215533,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/6Th6ND8RQPywiyelecP5Lf"
+            },
+            "href": "https://api.spotify.com/v1/tracks/6Th6ND8RQPywiyelecP5Lf",
+            "id": "6Th6ND8RQPywiyelecP5Lf",
+            "is_playable": true,
+            "name": "What Do You Do for Money Honey",
+            "preview_url": null,
+            "track_number": 3,
+            "type": "track",
+            "uri": "spotify:track:6Th6ND8RQPywiyelecP5Lf",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 211760,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/6rAy2MsMUabbqu2VygrblP"
+            },
+            "href": "https://api.spotify.com/v1/tracks/6rAy2MsMUabbqu2VygrblP",
+            "id": "6rAy2MsMUabbqu2VygrblP",
+            "is_playable": true,
+            "name": "Givin the Dog a Bone",
+            "preview_url": null,
+            "track_number": 4,
+            "type": "track",
+            "uri": "spotify:track:6rAy2MsMUabbqu2VygrblP",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 255266,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/5XeMsYb1rWxQL1bUUaZajn"
+            },
+            "href": "https://api.spotify.com/v1/tracks/5XeMsYb1rWxQL1bUUaZajn",
+            "id": "5XeMsYb1rWxQL1bUUaZajn",
+            "is_playable": true,
+            "name": "Let Me Put My Love Into You",
+            "preview_url": null,
+            "track_number": 5,
+            "type": "track",
+            "uri": "spotify:track:5XeMsYb1rWxQL1bUUaZajn",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 255493,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj"
+            },
+            "href": "https://api.spotify.com/v1/tracks/08mG3Y1vljYA6bvDt4Wqkj",
+            "id": "08mG3Y1vljYA6bvDt4Wqkj",
+            "is_playable": true,
+            "name": "Back In Black",
+            "preview_url": null,
+            "track_number": 6,
+            "type": "track",
+            "uri": "spotify:track:08mG3Y1vljYA6bvDt4Wqkj",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 210173,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo"
+            },
+            "href": "https://api.spotify.com/v1/tracks/2SiXAy7TuUkycRVbbWDEpo",
+            "id": "2SiXAy7TuUkycRVbbWDEpo",
+            "is_playable": true,
+            "name": "You Shook Me All Night Long",
+            "preview_url": null,
+            "track_number": 7,
+            "type": "track",
+            "uri": "spotify:track:2SiXAy7TuUkycRVbbWDEpo",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 238466,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/4dDurgTN3eGyU0ghzFJ0T1"
+            },
+            "href": "https://api.spotify.com/v1/tracks/4dDurgTN3eGyU0ghzFJ0T1",
+            "id": "4dDurgTN3eGyU0ghzFJ0T1",
+            "is_playable": true,
+            "name": "Have a Drink on Me",
+            "preview_url": null,
+            "track_number": 8,
+            "type": "track",
+            "uri": "spotify:track:4dDurgTN3eGyU0ghzFJ0T1",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 245666,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/2MCUmp0I98gsJBmey7DfZS"
+            },
+            "href": "https://api.spotify.com/v1/tracks/2MCUmp0I98gsJBmey7DfZS",
+            "id": "2MCUmp0I98gsJBmey7DfZS",
+            "is_playable": true,
+            "name": "Shake a Leg",
+            "preview_url": null,
+            "track_number": 9,
+            "type": "track",
+            "uri": "spotify:track:2MCUmp0I98gsJBmey7DfZS",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 266040,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/6J17MkMmuzBiIOjRH6MOBZ"
+            },
+            "href": "https://api.spotify.com/v1/tracks/6J17MkMmuzBiIOjRH6MOBZ",
+            "id": "6J17MkMmuzBiIOjRH6MOBZ",
+            "is_playable": true,
+            "name": "Rock and Roll Ain't Noise Pollution",
+            "preview_url": null,
+            "track_number": 10,
+            "type": "track",
+            "uri": "spotify:track:6J17MkMmuzBiIOjRH6MOBZ",
+            "is_local": false
+          }
+        ]
+      },
+      "copyrights": [
+        {
+          "text": "(P) 1980 Leidseplein Presse B.V.",
+          "type": "P"
+        }
+      ],
+      "external_ids": {
+        "upc": "886444889841"
+      },
+      "genres": [],
+      "label": "Columbia",
+      "popularity": 79
+    },
+    {
+      "album_type": "album",
+      "total_tracks": 11,
+      "is_playable": true,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1zXYNAA57WJ33GgZJHchhX"
+      },
+      "href": "https://api.spotify.com/v1/albums/1zXYNAA57WJ33GgZJHchhX?market=US&locale=en-US%2Cen%3Bq%3D0.5",
+      "id": "1zXYNAA57WJ33GgZJHchhX",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273dd72be577ed91add8f268f5e",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02dd72be577ed91add8f268f5e",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851dd72be577ed91add8f268f5e",
+          "height": 64,
+          "width": 64
+        }
+      ],
+      "name": "Ballbreaker",
+      "release_date": "1995-09-22",
+      "release_date_precision": "day",
+      "type": "album",
+      "uri": "spotify:album:1zXYNAA57WJ33GgZJHchhX",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "tracks": {
+        "href": "https://api.spotify.com/v1/albums/1zXYNAA57WJ33GgZJHchhX/tracks?offset=0&limit=50&market=US&locale=en-US,en;q%3D0.5",
+        "limit": 50,
+        "next": null,
+        "offset": 0,
+        "previous": null,
+        "total": 11,
+        "items": [
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 271000,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/1gij27s31tFKcTHa8f1u4g"
+            },
+            "href": "https://api.spotify.com/v1/tracks/1gij27s31tFKcTHa8f1u4g",
+            "id": "1gij27s31tFKcTHa8f1u4g",
+            "is_playable": true,
+            "name": "Hard as a Rock",
+            "preview_url": null,
+            "track_number": 1,
+            "type": "track",
+            "uri": "spotify:track:1gij27s31tFKcTHa8f1u4g",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 272640,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/56OSb0BpuPI9tp4tDvhC8i"
+            },
+            "href": "https://api.spotify.com/v1/tracks/56OSb0BpuPI9tp4tDvhC8i",
+            "id": "56OSb0BpuPI9tp4tDvhC8i",
+            "is_playable": true,
+            "name": "Cover You in Oil",
+            "preview_url": null,
+            "track_number": 2,
+            "type": "track",
+            "uri": "spotify:track:56OSb0BpuPI9tp4tDvhC8i",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 250693,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/6ijCRYmsTbeOWp4qEgl9e0"
+            },
+            "href": "https://api.spotify.com/v1/tracks/6ijCRYmsTbeOWp4qEgl9e0",
+            "id": "6ijCRYmsTbeOWp4qEgl9e0",
+            "is_playable": true,
+            "name": "The Furor",
+            "preview_url": null,
+            "track_number": 3,
+            "type": "track",
+            "uri": "spotify:track:6ijCRYmsTbeOWp4qEgl9e0",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 246973,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/2eeDDhFzhTi78mVOQMEnDw"
+            },
+            "href": "https://api.spotify.com/v1/tracks/2eeDDhFzhTi78mVOQMEnDw",
+            "id": "2eeDDhFzhTi78mVOQMEnDw",
+            "is_playable": true,
+            "name": "Boogie Man",
+            "preview_url": null,
+            "track_number": 4,
+            "type": "track",
+            "uri": "spotify:track:2eeDDhFzhTi78mVOQMEnDw",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 335026,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/6EV7R20p1qHi1HwldZorHi"
+            },
+            "href": "https://api.spotify.com/v1/tracks/6EV7R20p1qHi1HwldZorHi",
+            "id": "6EV7R20p1qHi1HwldZorHi",
+            "is_playable": true,
+            "name": "The Honey Roll",
+            "preview_url": null,
+            "track_number": 5,
+            "type": "track",
+            "uri": "spotify:track:6EV7R20p1qHi1HwldZorHi",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 305506,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/4iAZhaVvrX1d1By5f0QWSB"
+            },
+            "href": "https://api.spotify.com/v1/tracks/4iAZhaVvrX1d1By5f0QWSB",
+            "id": "4iAZhaVvrX1d1By5f0QWSB",
+            "is_playable": true,
+            "name": "Burnin' Alive",
+            "preview_url": null,
+            "track_number": 6,
+            "type": "track",
+            "uri": "spotify:track:4iAZhaVvrX1d1By5f0QWSB",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 314426,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/5Pa0DPtpyGUlpRJgxq9BMk"
+            },
+            "href": "https://api.spotify.com/v1/tracks/5Pa0DPtpyGUlpRJgxq9BMk",
+            "id": "5Pa0DPtpyGUlpRJgxq9BMk",
+            "is_playable": true,
+            "name": "Hail Caesar",
+            "preview_url": null,
+            "track_number": 7,
+            "type": "track",
+            "uri": "spotify:track:5Pa0DPtpyGUlpRJgxq9BMk",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 194133,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/0uCshTeOj3C39Qj4bS539q"
+            },
+            "href": "https://api.spotify.com/v1/tracks/0uCshTeOj3C39Qj4bS539q",
+            "id": "0uCshTeOj3C39Qj4bS539q",
+            "is_playable": true,
+            "name": "Love Bomb",
+            "preview_url": null,
+            "track_number": 8,
+            "type": "track",
+            "uri": "spotify:track:0uCshTeOj3C39Qj4bS539q",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 254533,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/0vT0i6fUPaE0UB4BO74bFI"
+            },
+            "href": "https://api.spotify.com/v1/tracks/0vT0i6fUPaE0UB4BO74bFI",
+            "id": "0vT0i6fUPaE0UB4BO74bFI",
+            "is_playable": true,
+            "name": "Caught with Your Pants Down",
+            "preview_url": null,
+            "track_number": 9,
+            "type": "track",
+            "uri": "spotify:track:0vT0i6fUPaE0UB4BO74bFI",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 275133,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/4KytLdPRCctWfEvXRhbHB4"
+            },
+            "href": "https://api.spotify.com/v1/tracks/4KytLdPRCctWfEvXRhbHB4",
+            "id": "4KytLdPRCctWfEvXRhbHB4",
+            "is_playable": true,
+            "name": "Whiskey on the Rocks",
+            "preview_url": null,
+            "track_number": 10,
+            "type": "track",
+            "uri": "spotify:track:4KytLdPRCctWfEvXRhbHB4",
+            "is_local": false
+          },
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+                },
+                "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+                "id": "711MCceyCBcFnzjGY4Q7Un",
+                "name": "AC/DC",
+                "type": "artist",
+                "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 270760,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/1TJX5KxBVqwqPPUPH16MFL"
+            },
+            "href": "https://api.spotify.com/v1/tracks/1TJX5KxBVqwqPPUPH16MFL",
+            "id": "1TJX5KxBVqwqPPUPH16MFL",
+            "is_playable": true,
+            "name": "Ballbreaker",
+            "preview_url": null,
+            "track_number": 11,
+            "type": "track",
+            "uri": "spotify:track:1TJX5KxBVqwqPPUPH16MFL",
+            "is_local": false
+          }
+        ]
+      },
+      "copyrights": [
+        {
+          "text": "(P) 1995 Riff Raff Limited Partnership",
+          "type": "P"
+        }
+      ],
+      "external_ids": {
+        "upc": "886444890175"
+      },
+      "genres": [],
+      "label": "Columbia/Legacy",
+      "popularity": 50
+    }
+  ]
+}

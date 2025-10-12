@@ -22,79 +22,16 @@
 import contextlib
 import logging
 import sqlite3
+
 from datetime import datetime
 from enum     import Enum
+from pathlib  import Path
 
 from src.helpers.decorators import *
 
 class DatabaseSchema(Enum):
     FULL = "full"         # includes listening_sessions and track_play_counts
     SNAPSHOT = "snapshot" # excludes those two tables
-
-
-SCHEMA_FIELDS = {
-    "playlists": {
-          "id" : "TEXT UNIQUE PRIMARY KEY"
-        , "name"         : "TEXT"
-        , "description"  : "TEXT"
-        , "__without_rowid__" : True
-    },
-    "artists": {
-          "id" : "TEXT UNIQUE PRIMARY KEY"
-        , "name"         : "TEXT"
-        , "__without_rowid__" : True
-    },
-    "albums": {
-          "id" : "TEXT UNIQUE PRIMARY KEY"
-        , "name"         : "TEXT"
-        , "release_date" : "TEXT"
-        , "total_tracks" : "INTEGER"
-        , "__without_rowid__" : True
-    },
-    "tracks": {
-          "id" : "TEXT UNIQUE PRIMARY KEY"
-        , "name"         : "TEXT"
-        , "duration_ms"  : "INTEGER"
-        , "is_local"     : "INTEGER"
-        , "is_playable"  : "INTEGER"
-        , "disc_number"  : "INTEGER"
-        , "track_number" : "INTEGER"
-        , "__without_rowid__" : True
-    },
-    "followed_artists": {
-          "id" : "TEXT PRIMARY KEY REFERENCES artists(id)"
-        , "__without_rowid__" : True
-    },
-    "playlists_tracks": {
-          "id_playlist"  : "TEXT REFERENCES playlists(id)"
-        , "id_track"     : "TEXT REFERENCES tracks(id)"
-    },
-    "tracks_artists": {
-          "id_track"     : "TEXT REFERENCES tracks(id)"
-        , "id_artist"    : "TEXT REFERENCES artists(id)"
-        , "__constraints__" : ["UNIQUE(id_track, id_artist)"]
-    },
-    "tracks_albums": {
-          "id_track"     : "TEXT REFERENCES tracks(id)"
-        , "id_album"     : "TEXT REFERENCES albums(id)"
-        , "__constraints__" : ["UNIQUE(id_track, id_album)"]
-    },
-    "albums_artists": {
-          "id_album"     : "TEXT REFERENCES albums(id)"
-        , "id_artist"    : "TEXT REFERENCES artists(id)"
-        , "__constraints__" : ["UNIQUE(id_album, id_artist)"]
-    },
-    "listening_sessions": {
-          "time"         : "TIMESTAMP NOT NULL"
-        , "id_track"     : "TEXT" # REFERENCES tracks(id)"
-    },
-    "track_play_counts": {
-          "id_track"     : "TEXT REFERENCES tracks(id) PRIMARY KEY"
-        , "play_count"   : "INTEGER NOT NULL"
-        , "__without_rowid__" : True
-    },
-}
-
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Generic function to create a sql statement to create a table.
@@ -232,7 +169,7 @@ DESCRIPTION: Collection of methods similar to GSH that grab from our latest loca
              Table definitions can be found in Backup_Spotify_Data.py.
              The Database we use is just the latest from our Backup_Spotify_Data location.
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-class DatabaseHelpers(LogAllMethods):
+class DatabaseHandler(LogAllMethods):
     
     def __init__(self, db_path: str,
                  schema: DatabaseSchema=DatabaseSchema.FULL,
@@ -282,19 +219,34 @@ class DatabaseHelpers(LogAllMethods):
     INPUT: N/A
     Output: N/A
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""         
-    def create_database(self) -> None:
-        schema_sql = []
+    # def create_database(self) -> None:
+    #     schema_sql = []
 
-        for table, fields in SCHEMA_FIELDS.items():
-            if self.schema == DatabaseSchema.SNAPSHOT and table in {"listening_sessions", "track_play_counts"}:
-                continue
+    #     for table, fields in SCHEMA_FIELDS.items():
+    #         if self.schema == DatabaseSchema.SNAPSHOT and table in {"listening_sessions", "track_play_counts"}:
+    #             continue
             
-            field_copy = fields.copy()
-            stmt = generate_create_statement(table, field_copy)
-            schema_sql.append(stmt)
+    #         field_copy = fields.copy()
+    #         stmt = generate_create_statement(table, field_copy)
+    #         schema_sql.append(stmt)
             
+    #     with self.connect_db() as db_conn:
+    #         db_conn.executescript("\n".join(schema_sql))
+
+
+    def create_database(self) -> None:
+        schema_path = Path(__file__).with_name("schema.sql")
+        schema_sql = schema_path.read_text()
+
+        if self.schema == DatabaseSchema.SNAPSHOT:
+            # Remove certain tables for snapshot schema
+            schema_sql = "\n".join(
+                stmt for stmt in schema_sql.split(";")
+                if not any(tbl in stmt for tbl in ("listening_sessions", "track_play_counts"))
+            )
+
         with self.connect_db() as db_conn:
-            db_conn.executescript("\n".join(schema_sql))
+            db_conn.executescript(schema_sql)
     
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''""""""
     DESCRIPTION: Inserts a variable amount of elements into a database table while verifying the types of your 'values'
@@ -352,6 +304,13 @@ class DatabaseHelpers(LogAllMethods):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # Generic Data Functions ══════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    def execute_query(self, query: str, p_val: tuple=()):
+        with self.connect_db_readonly() as db_conn:
+            return db_conn.execute(query, p_val).fetchall()
+        
+    
+        
     
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""''"""
     DESCRIPTION: Since we want to return dicts and not lists of our db data we can use this method to grab our db 

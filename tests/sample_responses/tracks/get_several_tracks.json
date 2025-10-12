@@ -1,0 +1,158 @@
+{
+  "tracks": [
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+            },
+            "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+            "id": "711MCceyCBcFnzjGY4Q7Un",
+            "name": "AC/DC",
+            "type": "artist",
+            "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+          }
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh"
+        },
+        "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh",
+        "id": "6mUdeDZCsExyJLMdAfDuwh",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2730b51f8d91f3a21e8426361ae",
+            "width": 640,
+            "height": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00001e020b51f8d91f3a21e8426361ae",
+            "width": 300,
+            "height": 300
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d000048510b51f8d91f3a21e8426361ae",
+            "width": 64,
+            "height": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "Back In Black",
+        "release_date": "1980-07-25",
+        "release_date_precision": "day",
+        "total_tracks": 10,
+        "type": "album",
+        "uri": "spotify:album:6mUdeDZCsExyJLMdAfDuwh"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 255493,
+      "explicit": false,
+      "external_ids": {
+        "isrc": "AUAP08000046"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj"
+      },
+      "href": "https://api.spotify.com/v1/tracks/08mG3Y1vljYA6bvDt4Wqkj",
+      "id": "08mG3Y1vljYA6bvDt4Wqkj",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Back In Black",
+      "popularity": 84,
+      "preview_url": null,
+      "track_number": 6,
+      "type": "track",
+      "uri": "spotify:track:08mG3Y1vljYA6bvDt4Wqkj"
+    },
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+            },
+            "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+            "id": "711MCceyCBcFnzjGY4Q7Un",
+            "name": "AC/DC",
+            "type": "artist",
+            "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+          }
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/1zXYNAA57WJ33GgZJHchhX"
+        },
+        "href": "https://api.spotify.com/v1/albums/1zXYNAA57WJ33GgZJHchhX",
+        "id": "1zXYNAA57WJ33GgZJHchhX",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b273dd72be577ed91add8f268f5e",
+            "width": 640,
+            "height": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00001e02dd72be577ed91add8f268f5e",
+            "width": 300,
+            "height": 300
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00004851dd72be577ed91add8f268f5e",
+            "width": 64,
+            "height": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "Ballbreaker",
+        "release_date": "1995-09-22",
+        "release_date_precision": "day",
+        "total_tracks": 11,
+        "type": "album",
+        "uri": "spotify:album:1zXYNAA57WJ33GgZJHchhX"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
+          },
+          "href": "https://api.spotify.com/v1/artists/711MCceyCBcFnzjGY4Q7Un",
+          "id": "711MCceyCBcFnzjGY4Q7Un",
+          "name": "AC/DC",
+          "type": "artist",
+          "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un"
+        }
+      ],
+      "disc_number": 1,
+      "duration_ms": 305506,
+      "explicit": false,
+      "external_ids": {
+        "isrc": "USSM10412545"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/4iAZhaVvrX1d1By5f0QWSB"
+      },
+      "href": "https://api.spotify.com/v1/tracks/4iAZhaVvrX1d1By5f0QWSB",
+      "id": "4iAZhaVvrX1d1By5f0QWSB",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Burnin' Alive",
+      "popularity": 39,
+      "preview_url": null,
+      "track_number": 6,
+      "type": "track",
+      "uri": "spotify:track:4iAZhaVvrX1d1By5f0QWSB"
+    }
+  ]
+}

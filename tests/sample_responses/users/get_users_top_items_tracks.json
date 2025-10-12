@@ -1,0 +1,485 @@
+{
+  "items": [
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+            "name": "Rxseboy",
+            "type": "artist",
+            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          }
+        ],
+        "available_markets": [
+          "AR",
+          "XK"
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/3hSXWXvaemZjvygdWtKKNP"
+        },
+        "href": "https://api.spotify.com/v1/albums/3hSXWXvaemZjvygdWtKKNP",
+        "id": "3hSXWXvaemZjvygdWtKKNP",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273090b8dd1c14bf9cff82d7add",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02090b8dd1c14bf9cff82d7add",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851090b8dd1c14bf9cff82d7add",
+            "width": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "A Catalog of Forgotten Songs",
+        "release_date": "2020-01-01",
+        "release_date_precision": "day",
+        "total_tracks": 11,
+        "type": "album",
+        "uri": "spotify:album:3hSXWXvaemZjvygdWtKKNP"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+          },
+          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+          "name": "Rxseboy",
+          "type": "artist",
+          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+        }
+      ],
+      "available_markets": [
+        "AR",
+        "XK"
+      ],
+      "disc_number": 1,
+      "duration_ms": 191115,
+      "explicit": true,
+      "external_ids": {
+        "isrc": "QZWFQ2470119"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/6c1RcDmlSU7RDrCW3PRK8p"
+      },
+      "href": "https://api.spotify.com/v1/tracks/6c1RcDmlSU7RDrCW3PRK8p",
+      "id": "6c1RcDmlSU7RDrCW3PRK8p",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Who Knows",
+      "popularity": 12,
+      "preview_url": null,
+      "track_number": 11,
+      "type": "track",
+      "uri": "spotify:track:6c1RcDmlSU7RDrCW3PRK8p"
+    },
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+            "name": "Rxseboy",
+            "type": "artist",
+            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          }
+        ],
+        "available_markets": [
+          "AR",
+          "XK"
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/0Aj6SA3ZF7CkTPMOP37eXE"
+        },
+        "href": "https://api.spotify.com/v1/albums/0Aj6SA3ZF7CkTPMOP37eXE",
+        "id": "0Aj6SA3ZF7CkTPMOP37eXE",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273883091d8e57c7bf231679e74",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02883091d8e57c7bf231679e74",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851883091d8e57c7bf231679e74",
+            "width": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "A Catalog of Cool Songs",
+        "release_date": "2019-08-31",
+        "release_date_precision": "day",
+        "total_tracks": 7,
+        "type": "album",
+        "uri": "spotify:album:0Aj6SA3ZF7CkTPMOP37eXE"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+          },
+          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+          "name": "Rxseboy",
+          "type": "artist",
+          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/6bmlMHgSheBauioMgKv2tn"
+          },
+          "href": "https://api.spotify.com/v1/artists/6bmlMHgSheBauioMgKv2tn",
+          "id": "6bmlMHgSheBauioMgKv2tn",
+          "name": "Powfu",
+          "type": "artist",
+          "uri": "spotify:artist:6bmlMHgSheBauioMgKv2tn"
+        }
+      ],
+      "available_markets": [
+        "AR",
+        "XK"
+      ],
+      "disc_number": 1,
+      "duration_ms": 107504,
+      "explicit": false,
+      "external_ids": {
+        "isrc": "QZH5E1957278"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/4CEi5D2lTrJeHzwc5hfrpO"
+      },
+      "href": "https://api.spotify.com/v1/tracks/4CEi5D2lTrJeHzwc5hfrpO",
+      "id": "4CEi5D2lTrJeHzwc5hfrpO",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Bored Without You",
+      "popularity": 31,
+      "preview_url": null,
+      "track_number": 7,
+      "type": "track",
+      "uri": "spotify:track:4CEi5D2lTrJeHzwc5hfrpO"
+    },
+    {
+      "album": {
+        "album_type": "single",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0dcxj82ddksd6tDDcJgbqo"
+            },
+            "href": "https://api.spotify.com/v1/artists/0dcxj82ddksd6tDDcJgbqo",
+            "id": "0dcxj82ddksd6tDDcJgbqo",
+            "name": "Thomas Reid",
+            "type": "artist",
+            "uri": "spotify:artist:0dcxj82ddksd6tDDcJgbqo"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+            "name": "Rxseboy",
+            "type": "artist",
+            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          }
+        ],
+        "available_markets": [
+          "AR",
+          "XK"
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/3V6haIpi9uc0pnaApwlYPe"
+        },
+        "href": "https://api.spotify.com/v1/albums/3V6haIpi9uc0pnaApwlYPe",
+        "id": "3V6haIpi9uc0pnaApwlYPe",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273f2202834f7158eff00024bcf",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02f2202834f7158eff00024bcf",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851f2202834f7158eff00024bcf",
+            "width": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "Are You Okay?",
+        "release_date": "2020-01-30",
+        "release_date_precision": "day",
+        "total_tracks": 1,
+        "type": "album",
+        "uri": "spotify:album:3V6haIpi9uc0pnaApwlYPe"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0dcxj82ddksd6tDDcJgbqo"
+          },
+          "href": "https://api.spotify.com/v1/artists/0dcxj82ddksd6tDDcJgbqo",
+          "id": "0dcxj82ddksd6tDDcJgbqo",
+          "name": "Thomas Reid",
+          "type": "artist",
+          "uri": "spotify:artist:0dcxj82ddksd6tDDcJgbqo"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+          },
+          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+          "name": "Rxseboy",
+          "type": "artist",
+          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/6bmlMHgSheBauioMgKv2tn"
+          },
+          "href": "https://api.spotify.com/v1/artists/6bmlMHgSheBauioMgKv2tn",
+          "id": "6bmlMHgSheBauioMgKv2tn",
+          "name": "Powfu",
+          "type": "artist",
+          "uri": "spotify:artist:6bmlMHgSheBauioMgKv2tn"
+        }
+      ],
+      "available_markets": [
+        "AR",
+        "XK"
+      ],
+      "disc_number": 1,
+      "duration_ms": 220396,
+      "explicit": true,
+      "external_ids": {
+        "isrc": "QZFYZ2011271"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/2U8tH2LXMh5EQvI6oBhSHJ"
+      },
+      "href": "https://api.spotify.com/v1/tracks/2U8tH2LXMh5EQvI6oBhSHJ",
+      "id": "2U8tH2LXMh5EQvI6oBhSHJ",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Are You Okay?",
+      "popularity": 48,
+      "preview_url": null,
+      "track_number": 1,
+      "type": "track",
+      "uri": "spotify:track:2U8tH2LXMh5EQvI6oBhSHJ"
+    },
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+            "name": "Rxseboy",
+            "type": "artist",
+            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          }
+        ],
+        "available_markets": [
+          "AR",
+          "XK"
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/2XYvlqsY26au1zqyqzRYLA"
+        },
+        "href": "https://api.spotify.com/v1/albums/2XYvlqsY26au1zqyqzRYLA",
+        "id": "2XYvlqsY26au1zqyqzRYLA",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b273fae5acb23cf72bc35d84f63a",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e02fae5acb23cf72bc35d84f63a",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d00004851fae5acb23cf72bc35d84f63a",
+            "width": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "My Mind",
+        "release_date": "2019-03-17",
+        "release_date_precision": "day",
+        "total_tracks": 8,
+        "type": "album",
+        "uri": "spotify:album:2XYvlqsY26au1zqyqzRYLA"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+          },
+          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+          "name": "Rxseboy",
+          "type": "artist",
+          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+        }
+      ],
+      "available_markets": [
+        "AR",
+        "XK"
+      ],
+      "disc_number": 1,
+      "duration_ms": 132298,
+      "explicit": true,
+      "external_ids": {
+        "isrc": "QM8DG1982604"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/5YsvHGG9lmrVgbm5R7bGq9"
+      },
+      "href": "https://api.spotify.com/v1/tracks/5YsvHGG9lmrVgbm5R7bGq9",
+      "id": "5YsvHGG9lmrVgbm5R7bGq9",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Sayonara",
+      "popularity": 16,
+      "preview_url": null,
+      "track_number": 8,
+      "type": "track",
+      "uri": "spotify:track:5YsvHGG9lmrVgbm5R7bGq9"
+    },
+    {
+      "album": {
+        "album_type": "album",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+            "name": "Rxseboy",
+            "type": "artist",
+            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          }
+        ],
+        "available_markets": [
+          "AR",
+          "XK"
+        ],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/0sbvYqYtz7vPaQ8p2Epa0B"
+        },
+        "href": "https://api.spotify.com/v1/albums/0sbvYqYtz7vPaQ8p2Epa0B",
+        "id": "0sbvYqYtz7vPaQ8p2Epa0B",
+        "images": [
+          {
+            "height": 640,
+            "url": "https://i.scdn.co/image/ab67616d0000b27381b9e8c8d1d6c81703cb7783",
+            "width": 640
+          },
+          {
+            "height": 300,
+            "url": "https://i.scdn.co/image/ab67616d00001e0281b9e8c8d1d6c81703cb7783",
+            "width": 300
+          },
+          {
+            "height": 64,
+            "url": "https://i.scdn.co/image/ab67616d0000485181b9e8c8d1d6c81703cb7783",
+            "width": 64
+          }
+        ],
+        "is_playable": true,
+        "name": "Enjoy the Moment",
+        "release_date": "2019-05-31",
+        "release_date_precision": "day",
+        "total_tracks": 7,
+        "type": "album",
+        "uri": "spotify:album:0sbvYqYtz7vPaQ8p2Epa0B"
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+          },
+          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
+          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+          "name": "Rxseboy",
+          "type": "artist",
+          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/0E1HulHZpqPQBOA8isuQ7a"
+          },
+          "href": "https://api.spotify.com/v1/artists/0E1HulHZpqPQBOA8isuQ7a",
+          "id": "0E1HulHZpqPQBOA8isuQ7a",
+          "name": "Skinny Atlas",
+          "type": "artist",
+          "uri": "spotify:artist:0E1HulHZpqPQBOA8isuQ7a"
+        }
+      ],
+      "available_markets": [
+        "AR",
+        "XK"
+      ],
+      "disc_number": 1,
+      "duration_ms": 185817,
+      "explicit": true,
+      "external_ids": {
+        "isrc": "QZH5E1915813"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/69hutV8UX8HBc6GWil3noF"
+      },
+      "href": "https://api.spotify.com/v1/tracks/69hutV8UX8HBc6GWil3noF",
+      "id": "69hutV8UX8HBc6GWil3noF",
+      "is_local": false,
+      "is_playable": true,
+      "name": "Say You Do",
+      "popularity": 14,
+      "preview_url": null,
+      "track_number": 3,
+      "type": "track",
+      "uri": "spotify:track:69hutV8UX8HBc6GWil3noF"
+    }
+  ],
+  "total": 5823,
+  "limit": 5,
+  "offset": 0,
+  "href": "https://api.spotify.com/v1/me/top/tracks?offset=0&limit=5&locale=en-US,en;q%3D0.5",
+  "next": "https://api.spotify.com/v1/me/top/tracks?offset=5&limit=5&locale=en-US,en;q%3D0.5",
+  "previous": null
+}
