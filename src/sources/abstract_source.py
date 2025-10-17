@@ -17,6 +17,10 @@ class AbstractSource(ABC):
     def get_tracks(self, track_ids: list[str]) -> list[Track]:
         pass
 
+    @abstractmethod
+    def get_track_recommendations(self) -> list[Track]:
+        pass
+
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -33,7 +37,7 @@ class AbstractSource(ABC):
         pass
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ARTISTS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     @abstractmethod
     def get_artist(self, artist_id: str) -> Artist:
@@ -45,6 +49,10 @@ class AbstractSource(ABC):
 
     @abstractmethod
     def get_artist_albums(self, artist_id: str) -> list[Album]:
+        pass
+
+    @abstractmethod
+    def get_related_artists(self, artist: Artist) -> list[Artist]:
         pass
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -94,6 +102,29 @@ class AbstractSource(ABC):
     def change_playback(self, pause: Optional[bool]=None, skip: str="", shuffle: Optional[bool]=None, repeat: str="") -> None:
         pass
 
+    def get_recent_tracks(self) -> list[Track]:
+        pass
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # USER ════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+    @abstractmethod
+    def get_user_followed_artists(self, user: User) -> list[Artist]:
+        pass
+
+    @abstractmethod
+    def get_user_playlists(self, user: User) -> list[Playlist]:
+        pass
+
+    @abstractmethod
+    def get_user_top_artists(self, user: User) -> list[Artist]:
+        pass
+
+    @abstractmethod
+    def get_user_top_tracks(self, user: User) -> list[Track]:
+        pass
+
+    @abstractmethod
+    def get_user_queue(self, user: User) -> list[Track]:
+        pass
