@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, List, Callable
-from track import Track
-from artist import Artist
+from typing import Optional, Callable
 
 @dataclass
 class Album:
@@ -10,26 +8,26 @@ class Album:
     release_date: str
     album_type: str
     total_tracks: int
-    tracks: list[Track]
-    artists: list[Artist]
+    tracks: list["Track"]
+    artists: list["Artist"]
 
-    _track_ids: List[str]
-    _artist_ids: List[str]
+    _track_ids: list[str]
+    _artist_ids: list[str]
 
-    _tracks: Optional[List["Track"]] = field(default=None, init=False, repr=False)
-    _artists: Optional[List["Artist"]] = field(default=None, init=False, repr=False)
+    _tracks: Optional[list["Track"]] = field(default=None, init=False, repr=False)
+    _artists: Optional[list["Artist"]] = field(default=None, init=False, repr=False)
 
-    _track_loader: Optional[Callable[[List[str]], List["Track"]]] = field(default=None, repr=False)
-    _artist_loader: Optional[Callable[[List[str]], List["Artist"]]] = field(default=None, repr=False)
+    _track_loader: Optional[Callable[[list[str]], list["Track"]]] = field(default=None, repr=False)
+    _artist_loader: Optional[Callable[[list[str]], list["Artist"]]] = field(default=None, repr=False)
 
     @property
-    def tracks(self) -> List["Track"]:
+    def tracks(self) -> list["Track"]:
         if self._tracks is None and self._track_loader:
             self._album = self._track_loader(self._track_ids)
         return self._tracks
 
     @property
-    def artists(self) -> List["Artist"]:
+    def artists(self) -> list["Artist"]:
         if self._artists is None and self._artist_loader:
             self._artists = self._artist_loader(self._artist_ids)
         return self._artists
