@@ -4,8 +4,6 @@ from typing import Any, Dict, List, Optional
 from src.models import Track, Album, Artist, Playlist, Playback, User
 
 class AbstractSource(ABC):
-    """Defines the contract for all data sources (API, DB, etc.)"""
-
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -127,4 +125,27 @@ class AbstractSource(ABC):
 
     @abstractmethod
     def get_user_queue(self, user: User) -> list[Track]:
+        pass
+    
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # MAPPERS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    @abstractmethod
+    def map_track(self, data: Dict[str, Any]) -> Track:
+        pass
+
+    @abstractmethod
+    def map_artist(self, data: Dict[str, Any]) -> Artist:
+        pass
+
+    @abstractmethod
+    def map_album(self, data: Dict[str, Any]) -> Album:
+        pass
+
+    @abstractmethod
+    def map_playlist(self, data: Dict[str, Any]) -> Playlist:
+        pass
+
+    @abstractmethod
+    def map_user(self, data: Dict[str, Any]) -> User:
         pass
