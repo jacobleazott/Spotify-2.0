@@ -1,7 +1,7 @@
 from src.models.track import Track
 from src.models.album import Album
-from src.models.playlist import Playlist
-from src.models.user import User
+# from src.models.playlist import Playlist
+# from src.models.user import User
 from src.models.artist import Artist
 from src.common.enums import DataSource
 

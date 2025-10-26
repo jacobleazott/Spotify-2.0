@@ -1,12 +1,14 @@
 from src.models.track import Track
 from src.models.album import Album
-from src.models.playlist import Playlist
-from src.models.user import User
+# from src.models.playlist import Playlist
+# from src.models.user import User
 from src.models.artist import Artist
 from src.common.enums import DataSource
 
-from src.mappers.album_mapper import normalize_album_data
-from src.mappers.artist_mapper import normalize_artist_data
+# from src.mappers.album_mapper import normalize_album_data
+# from src.mappers.artist_mapper import normalize_artist_data
+
+from src.mappers import normalize_album_data, normalize_artist_data
 
 def normalize_track_data(data: dict, src: DataSource) -> dict:
     match src:
@@ -61,7 +63,7 @@ def normalize_track_data_from_spotipy(data: dict) -> dict:
     for item in track_items:
         if item.get("type", None) == "track":
             item["artists"] = normalize_artist_data(item["artists"], src=DataSource.SPOTIPY)
-            item["album"] = normalize_album_data(item["album"], src=DataSource.SPOTIPY)
+            item["album"] = normalize_album_data(item.get("album", {}), src=DataSource.SPOTIPY)
             tracks.append(item)
         
     return tracks
@@ -90,8 +92,8 @@ def map_track_from_spotipy(data: dict) -> Track:
         is_playable  = data['preview_url'] is not None,
         disc_number  = data['disc_number'],
         track_number = data['track_number'],
-        album_id     = data.get('album', {}).get('id', None),       # OPTIONAL
-        artist_ids   = [artist['id'] for artist in data['artists']],
+        _album_id    = data.get('album', {}).get('id', None),       # OPTIONAL
+        _artist_ids  = [artist['id'] for artist in data['artists']],
     )
 
 def map_track_from_db(data: dict) -> Track:
