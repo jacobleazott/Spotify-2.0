@@ -2,11 +2,12 @@ from src.sources.abstract_source import AbstractSource
 from typing import Any, Dict, List, Optional
 
 from src.models import Track, Album, Artist, Playlist, Playback, User
+from src.proxy.Spotipy_Proxy import SpotipyProxy
 
 
 class SpotipyAPISource(AbstractSource):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self):
+        self.sp = SpotipyProxy()
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # TRACKS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -54,43 +55,33 @@ class SpotipyAPISource(AbstractSource):
     def get_playlist(self, playlist_id: str) -> Playlist:
         pass
 
-    
     def get_playlists(self, playlist_ids: list[str]) -> list[Playlist]:
         pass
-    
     
     def add_tracks_to_playlist(self, track_ids: list[str], playlist_id: str) -> None:
         pass
 
-    
     def get_playlist_tracks(self, playlist_id: str) -> list[Track]:
         pass
-
     
     def create_playlist(self, name, description: str='', public: bool=False) -> Playlist:
         pass
 
-    
     def change_playlist_details(self, playlist_id: str, name: Optional[str]=None, description: Optional[str]=None) -> Playlist:
         pass
 
-    
     def remove_playlist_tracks(self, playlist_id: str) -> None:
         pass
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # PLAYBACK ════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
-    
     def get_playback(self) -> Playback:
         pass
-
     
     def write_to_queue(self, tracks: list[Track]) -> None:
         pass
 
-    
     def change_playback(self, pause: Optional[bool]=None, skip: str="", shuffle: Optional[bool]=None, repeat: str="") -> None:
         pass
 
@@ -100,27 +91,21 @@ class SpotipyAPISource(AbstractSource):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # USER ════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-
-    
     def get_user_followed_artists(self, user: User) -> list[Artist]:
         pass
 
-    
     def get_user_playlists(self, user: User) -> list[Playlist]:
         pass
 
-    
     def get_user_top_artists(self, user: User) -> list[Artist]:
         pass
-
     
     def get_user_top_tracks(self, user: User) -> list[Track]:
         pass
 
-    
     def get_user_queue(self, user: User) -> list[Track]:
         pass
-
+    
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # MAPPERS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════

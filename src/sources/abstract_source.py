@@ -100,6 +100,7 @@ class AbstractSource(ABC):
     def change_playback(self, pause: Optional[bool]=None, skip: str="", shuffle: Optional[bool]=None, repeat: str="") -> None:
         pass
 
+    @abstractmethod
     def get_recent_tracks(self) -> list[Track]:
         pass
     
@@ -125,6 +126,29 @@ class AbstractSource(ABC):
 
     @abstractmethod
     def get_user_queue(self, user: User) -> list[Track]:
+        pass
+
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    # NORMALIZERS ═════════════════════════════════════════════════════════════════════════════════════════════════════
+    # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    @abstractmethod
+    def normalize_track(self, data: Dict[str, Any]) -> Track:
+        pass
+
+    @abstractmethod
+    def normalize_artist(self, data: Dict[str, Any]) -> Artist:
+        pass
+
+    @abstractmethod
+    def normalize_album(self, data: Dict[str, Any]) -> Album:
+        pass
+
+    @abstractmethod
+    def normalize_playlist(self, data: Dict[str, Any]) -> Playlist:
+        pass
+
+    @abstractmethod
+    def normalize_user(self, data: Dict[str, Any]) -> User:
         pass
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
