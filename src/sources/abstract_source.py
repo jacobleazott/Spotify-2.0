@@ -19,6 +19,14 @@ class AbstractSource(ABC):
     def get_track_recommendations(self) -> list[Track]:
         pass
 
+    @abstractmethod
+    def get_album_tracks(self, album_id: str) -> list[Track]:
+        pass
+
+    @abstractmethod
+    def get_playlist_tracks(self, playlist_id: str) -> list[Track]:
+        pass
+
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ALBUMS ══════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -31,7 +39,7 @@ class AbstractSource(ABC):
         pass
 
     @abstractmethod
-    def get_album_tracks(self, album_id: str) -> list[Track]:
+    def get_artist_albums(self, artist_id: str) -> list[Album]:
         pass
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -43,10 +51,6 @@ class AbstractSource(ABC):
 
     @abstractmethod
     def get_artists(self, artist_ids: list[str]) -> list[Artist]:
-        pass
-
-    @abstractmethod
-    def get_artist_albums(self, artist_id: str) -> list[Album]:
         pass
 
     @abstractmethod
@@ -66,10 +70,6 @@ class AbstractSource(ABC):
     
     @abstractmethod
     def add_tracks_to_playlist(self, track_ids: list[str], playlist_id: str) -> None:
-        pass
-
-    @abstractmethod
-    def get_playlist_tracks(self, playlist_id: str) -> list[Track]:
         pass
 
     @abstractmethod

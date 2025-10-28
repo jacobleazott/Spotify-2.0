@@ -1,19 +1,22 @@
 from dataclasses import dataclass, field
 from typing import Optional, Callable
 
+from src.models.track import Track
+
 @dataclass
 class Playlist:
     id: str
     name: str
     description: str
-    tracks: list["Track"]
+    snapshot_id: str
+    total_tracks: int
+    track_ids: list[str] = field(default_factory=list)
+    tracks: list[Track] = field(default_factory=list, repr=False)
 
-    _track_ids: list[str]
-    _tracks: Optional[list["Track"]] = field(default=None, init=False, repr=False)
-    _track_loader: Optional[Callable[[list[str]], list["Track"]]] = field(default=None, repr=False)
-
-    @property
-    def tracks(self) -> list["Track"]:
-        if self._tracks is None and self._track_loader:
-            self._album = self._track_loader(self._track_ids)
-        return self._tracks
+    def __str__(self) -> str:
+        return f"id: {self.id}\n" + \
+               f"name: {self.name}\n" + \
+               f"\t description: {self.description}\n" + \
+               f"\t snapshot_id: {self.snapshot_id}\n" + \
+               f"\t total_tracks: {self.total_tracks}\n" + \
+               f"\t tracks: {', '.join([id for id in self.track_ids])}\n"

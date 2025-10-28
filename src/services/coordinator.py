@@ -1,26 +1,17 @@
+from src.services.identity_map import IdentityMap
+from src.sources.abstract_source import AbstractSource
 
-from src.services import TrackService, AlbumService, ArtistService, PlaylistService, PlaybackService, UserService
-from src.models import Track, Album, Artist, Playlist, Playback, User
+class Coordinator:
+    def __init__(self, external_source: AbstractSource, internal_source: AbstractSource):
+        self.id_map = IdentityMap()
+        self.ext_source = external_source
+        self.int_source = internal_source
 
-class Coordinator():
+        self.track_service = None
+        self.album_service = None
+        self.artist_service = None
 
-    def __init__(self):
-        self.track_service = TrackService()
-        self.artist_service = ArtistService()
-        self.album_service = AlbumService()
-        self.playlist_service = PlaylistService()
-        self.playback_service = PlaybackService()
-        self.user_service = UserService()
-
-    def get_tracks(self, track_ids: list[str]) -> list[Track]:
-        tracks = []
-        tracks_data = self.track_service.get_tracks(track_ids)
-        for track_data in tracks_data:
-            track = self.track_service.map_track(track_data)
-            track.album = self.album_service.map_album(track_data['album'])
-            track.artists = [self.artist_service.map_artist(a) for a in track_data['artists']]
-            tracks.append(track)
-
-        return tracks
-            
-            
+    def bind_services(self, track_service, album_service, artist_service):
+        self.track_service = track_service
+        self.album_service = album_service
+        self.artist_service = artist_service

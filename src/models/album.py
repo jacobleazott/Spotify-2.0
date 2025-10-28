@@ -1,16 +1,10 @@
 from __future__ import annotations
-
 from dataclasses import dataclass, field
-<<<<<<< Updated upstream
-from typing import Optional, Callable
-=======
-from typing import Optional, List, Callable
+from typing import Optional, TYPE_CHECKING
 
-# from src.models.track import Track
-# from src.models.artist import Artist
-
-
->>>>>>> Stashed changes
+if TYPE_CHECKING:
+    from .track import Track
+    from .artist import Artist
 
 @dataclass
 class Album:
@@ -19,36 +13,16 @@ class Album:
     release_date: str
     album_type: str
     total_tracks: int
-<<<<<<< Updated upstream
-    tracks: list["Track"]
-    artists: list["Artist"]
-=======
->>>>>>> Stashed changes
-
-    _track_ids: list[str]
-    _artist_ids: list[str]
-
-    _tracks: Optional[list["Track"]] = field(default=None, init=False, repr=False)
-    _artists: Optional[list["Artist"]] = field(default=None, init=False, repr=False)
-
-    _track_loader: Optional[Callable[[list[str]], list["Track"]]] = field(default=None, repr=False)
-    _artist_loader: Optional[Callable[[list[str]], list["Artist"]]] = field(default=None, repr=False)
-
-    @property
-    def tracks(self) -> list["Track"]:
-        if self._tracks is None and self._track_loader:
-            self._album = self._track_loader(self._track_ids)
-        return self._tracks
-
-    @property
-    def artists(self) -> list["Artist"]:
-        if self._artists is None and self._artist_loader:
-            self._artists = self._artist_loader(self._artist_ids)
-        return self._artists
+    track_ids: list[str] = field(default_factory=list)
+    artist_ids: list[str] = field(default_factory=list)
+    tracks: list[Track] = field(default_factory=list, repr=False)
+    artist: Optional[Artist] = field(default=None, repr=False)
     
     def __str__(self) -> str:
         return f"id: {self.id}\n" + \
                f"name: {self.name}\n" + \
-               f"release_date: {self.release_date}\n" + \
-               f"album_type: {self.album_type}\n" + \
-               f"total_tracks: {self.total_tracks}\n"
+               f"\trelease_date: {self.release_date}\n" + \
+               f"\talbum_type: {self.album_type}\n" + \
+               f"\ttotal_tracks: {self.total_tracks}\n" + \
+               f"\tracks: {', '.join([id for id in self.track_ids])}\n" + \
+               f"\artists: {', '.join([id for id in self.artist_ids])}\n"
