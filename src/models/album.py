@@ -13,8 +13,6 @@ class Album:
     release_date: str
     album_type: str
     total_tracks: int
-    track_ids: list[str] = field(default_factory=list)
-    artist_ids: list[str] = field(default_factory=list)
     tracks: list[Track] = field(default_factory=list, repr=False)
     artists: list[Artist] = field(default_factory=list, repr=False)
     
@@ -24,5 +22,5 @@ class Album:
                f"\t release_date: {self.release_date}\n" + \
                f"\t album_type: {self.album_type}\n" + \
                f"\t total_tracks: {self.total_tracks}\n" + \
-               f"\t racks: {', '.join([id for id in self.track_ids])}\n" + \
-               f"\t artists: {', '.join([id for id in self.artist_ids])}\n"
+               f"\t racks: {', '.join([track.id for track in self.tracks])}\n" + \
+               f"\t artists: {', '.join([artist.id for artist in self.artists])}\n"

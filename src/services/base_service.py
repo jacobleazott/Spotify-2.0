@@ -35,8 +35,11 @@ class BaseService(Generic[T]):
         obj = factory()
         self.coordinator.id_map.set(self.model_cls, obj_id, obj)
         return obj
+    
+    def get_source(self, prefer_external: bool) -> AbstractSource:
+        return self.coordinator.ext_source if prefer_external else self.coordinator.int_source
 
     def _fetch_and_hydrate(self, fetch_fn: Callable[[AbstractSource], Any], prefer_external: bool=True) -> list[T]:
-        source = self.coordinator.ext_source if prefer_external else self.coordinator.int_source
+        source = self.get_source(prefer_external)
         raw_data = fetch_fn(source)
         return self._get_many_from_raw(raw_data, source)
