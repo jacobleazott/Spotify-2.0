@@ -16,13 +16,13 @@ class Album:
     track_ids: list[str] = field(default_factory=list)
     artist_ids: list[str] = field(default_factory=list)
     tracks: list[Track] = field(default_factory=list, repr=False)
-    artist: Optional[Artist] = field(default=None, repr=False)
+    artists: list[Artist] = field(default_factory=list, repr=False)
     
     def __str__(self) -> str:
         return f"id: {self.id}\n" + \
                f"name: {self.name}\n" + \
-               f"\trelease_date: {self.release_date}\n" + \
-               f"\talbum_type: {self.album_type}\n" + \
-               f"\ttotal_tracks: {self.total_tracks}\n" + \
-               f"\tracks: {', '.join([id for id in self.track_ids])}\n" + \
-               f"\artists: {', '.join([id for id in self.artist_ids])}\n"
+               f"\t release_date: {self.release_date}\n" + \
+               f"\t album_type: {self.album_type}\n" + \
+               f"\t total_tracks: {self.total_tracks}\n" + \
+               f"\t racks: {', '.join([id for id in self.track_ids])}\n" + \
+               f"\t artists: {', '.join([id for id in self.artist_ids])}\n"
