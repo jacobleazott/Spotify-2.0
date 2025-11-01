@@ -9,6 +9,4 @@ def map_track(track_data: dict) -> Track:
         is_playable  = track_data['preview_url'] is not None,
         disc_number  = track_data['disc_number'],
         track_number = track_data['track_number'],
-        album_id     = track_data.get('album', {}).get('id', None),         # OPTIONAL
-        artist_ids   = [ar['id'] for ar in track_data.get('artists', [])],  # OPTIONAL
     )

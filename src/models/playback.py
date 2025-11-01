@@ -1,11 +1,27 @@
 from dataclasses import dataclass, field
 from typing import Optional, Callable
+from src.models import Track
 
 @dataclass
 class Playback:
-    track: Optional["Track"]
-    device: Optional[str]
-    progress_ms: Optional[int]
+    track: Track | None = field(default=None, repr=False)
+    device_id: str
+    device_name: str
+    volume_percent: int
+    progress_ms: int
     is_playing: bool
-    shuffle: Optional[str]
-    repeat: Optional[str]
+    shuffle: str
+    repeat: str
+    timestamp: int
+
+    def __str__(self) -> str:
+        return f"Track.id: {self.track.id if self.track else 'None'}" + \
+               f"Track.name: {self.track.name if self.track else 'None'}" + \
+               f"\t Device ID: {self.device_id}" + \
+               f"\t Device Name: {self.device_name}" + \
+               f"\t Volume: {self.volume_percent}" + \
+               f"\t Progress: {self.progress_ms}" + \
+               f"\t Is Playing: {self.is_playing}" + \
+               f"\t Shuffle: {self.shuffle}" + \
+               f"\t Repeat: {self.repeat}" + \
+               f"\t Timestamp: {self.timestamp}"

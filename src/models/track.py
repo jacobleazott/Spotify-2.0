@@ -15,7 +15,7 @@ class Track:
     is_playable: bool
     disc_number: int
     track_number: int
-    album: Optional[Album] = field(default=None, repr=False)
+    album: Album | None = field(default=None, repr=False)
     artists: list[Artist] = field(default_factory=list, repr=False)
     
     def __str__(self) -> str:

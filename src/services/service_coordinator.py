@@ -1,12 +1,12 @@
-from src.sources.abstract_source import AbstractSource
+from src.sources import SourceBundle
 
 from .identity_map import IdentityMap
 from .album_service import AlbumService
 from .artist_service import ArtistService
 from .track_service import TrackService
 
-class Coordinator:
-    def __init__(self, external_source: AbstractSource, internal_source: AbstractSource):
+class ServiceCoordinator:
+    def __init__(self, external_source: SourceBundle, internal_source: SourceBundle):
         self.id_map = IdentityMap()
         self.ext_source = external_source
         self.int_source = internal_source

@@ -11,9 +11,9 @@
 import functools
 import logging
 import requests
-from typing import Union, Optional
+from typing import Union
 
-from src.helpers.Settings import Settings
+from src.common.settings import Settings
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 DESCRIPTION: Crates a simple Logger object with our desired format and returns it.

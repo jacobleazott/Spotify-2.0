@@ -7,5 +7,4 @@ def map_playlist(playlist_data: dict) -> Playlist:
         description  = playlist_data['description'],
         snapshot_id  = playlist_data['snapshot_id'],
         total_tracks = playlist_data['total_tracks'],
-        track_ids    = [t['id'] for t in playlist_data.get('tracks', [])],     # OPTIONAL
     )
