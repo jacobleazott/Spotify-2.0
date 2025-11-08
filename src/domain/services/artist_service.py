@@ -1,8 +1,8 @@
-from src.models import Artist
-from src.mappers import map_artist
-from src.sources import SourceBundle
+from domain.models import Artist
+from infrastructure.mappers import map_artist
+from domain.repositories import RepoBundle
+from domain.core import ServiceCoordinator
 
-from .service_coordinator import ServiceCoordinator
 from .base_service import BaseService
 
 class ArtistService(BaseService[Artist]):
@@ -12,7 +12,7 @@ class ArtistService(BaseService[Artist]):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # BASE METHODS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    def _normalize(self, raw_data: dict, source: SourceBundle) -> dict:
+    def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
         return source.artist.normalize(raw_data)
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Artist:

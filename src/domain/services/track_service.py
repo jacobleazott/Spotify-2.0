@@ -1,8 +1,8 @@
-from src.models import Track
-from src.mappers import map_track
-from src.sources import SourceBundle
+from domain.models import Track
+from infrastructure.mappers import map_track
+from domain.repositories import RepoBundle
+from domain.core import ServiceCoordinator
 
-from .service_coordinator import ServiceCoordinator
 from .base_service import BaseService
 
 class TrackService(BaseService[Track]):
@@ -12,8 +12,17 @@ class TrackService(BaseService[Track]):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # BASE METHODS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    def _normalize(self, raw_data: dict, source: SourceBundle) -> dict:
+    def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
         return source.track.normalize(raw_data)
+    
+    def _normalize(self, raw_data: dict, prefer_external: bool) -> dict:
+        if prefer_external:
+            return self._normalize(raw_data, self.coordinator.external_normalizers.normalize_track(raw_data))
+        else:
+            return self._normalize(raw_data, self.coordinator.internal_normalizers.normalize_track(raw_data))
+        
+    def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
+        return source.normalize.track(raw_data)
 
     def _get_one_from_norm_raw(self, norm_data: dict) -> Track:
         if not norm_data: # TODO: Is this necessary? We check if we have norm_data before calling others.

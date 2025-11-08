@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Optional, Callable
 
-from src.models.track import Track
+from .track import Track
 
 @dataclass
 class Playlist:

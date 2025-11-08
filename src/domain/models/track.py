@@ -1,10 +1,22 @@
-from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional, TYPE_CHECKING
+from typing import TypedDict, TYPE_CHECKING
+
+from .artist import Artist, NormalizedArtist
 
 if TYPE_CHECKING:
-    from .album import Album
-    from .artist import Artist
+    from .album import Album, NormalizedAlbum
+
+class NormalizedTrack(TypedDict):
+    id: str
+    name: str
+    duration_ms: int
+    is_local: bool
+    is_playable: bool
+    disc_number: int
+    track_number: int
+    album: 'NormalizedAlbum'
+    artists: list[NormalizedArtist]
+
 
 @dataclass
 class Track:

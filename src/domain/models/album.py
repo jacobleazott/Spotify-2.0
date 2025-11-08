@@ -1,11 +1,11 @@
-from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional, TYPE_CHECKING
 
+from .artist import Artist
+
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .track import Track
-    from .artist import Artist
-
+    
 @dataclass
 class Album:
     id: str

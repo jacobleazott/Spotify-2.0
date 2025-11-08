@@ -1,8 +1,8 @@
-from src.models import Playback, Track
-from src.mappers import map_playback
-from src.sources import SourceBundle
+from domain.models import Playback, Track
+from infrastructure.mappers import map_playback
+from domain.repositories import RepoBundle
+from domain.core import ServiceCoordinator
 
-from .service_coordinator import ServiceCoordinator
 from .base_service import BaseService
 
 
@@ -15,7 +15,7 @@ class PlaybackService(BaseService[Playback]):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # HELPERS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    def _normalize(self, raw_data: dict, source: SourceBundle) -> dict:
+    def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
         return source.playback.normalize(raw_data)
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Playback:

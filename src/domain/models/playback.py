@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Optional, Callable
-from src.models import Track
+
+from .track import Track
 
 @dataclass
 class Playback:
     track: Track | None = field(default=None, repr=False)
+    playlist_id: str
     device_id: str
     device_name: str
     volume_percent: int
@@ -17,6 +18,7 @@ class Playback:
     def __str__(self) -> str:
         return f"Track.id: {self.track.id if self.track else 'None'}" + \
                f"Track.name: {self.track.name if self.track else 'None'}" + \
+               f"\t Playlist ID: {self.playlist_id}" + \
                f"\t Device ID: {self.device_id}" + \
                f"\t Device Name: {self.device_name}" + \
                f"\t Volume: {self.volume_percent}" + \

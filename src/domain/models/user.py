@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Callable
+
 from .playlist import Playlist
 from .artist import Artist
 

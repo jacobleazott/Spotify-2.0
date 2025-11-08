@@ -1,8 +1,8 @@
-from src.models import Playlist
-from src.mappers import map_playlist
-from src.sources import SourceBundle
+from domain.models import Playlist
+from infrastructure.mappers import map_playlist
+from domain.repositories import RepoBundle
+from domain.core import ServiceCoordinator
 
-from .service_coordinator import ServiceCoordinator
 from .base_service import BaseService
 
 from typing import Any, Dict, List, Optional
@@ -14,7 +14,7 @@ class PlaylistService(BaseService[Playlist]):
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # HELPERS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    def _normalize(self, raw_data: dict, source: SourceBundle) -> dict:
+    def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
         return source.playlist.normalize(raw_data)
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Playlist:
