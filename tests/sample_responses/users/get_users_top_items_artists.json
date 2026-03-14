@@ -1,140 +1,142 @@
 {
+  "href": "https://api.spotify.com/v1/me/top/artists?offset=0&limit=5&locale=en-US,en;q%3D0.9",
+  "limit": 5,
+  "next": "https://api.spotify.com/v1/me/top/artists?offset=5&limit=5&locale=en-US,en;q%3D0.9",
+  "offset": 0,
+  "previous": null,
+  "total": 337,
   "items": [
     {
       "external_urls": {
-        "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+        "spotify": "https://open.spotify.com/artist/1SZMaiNHfdUuU0qZKZ6y62"
       },
       "followers": {
         "href": null,
-        "total": 182545
+        "total": 1221821
       },
-      "genres": [],
-      "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-      "id": "1ScHz7wPPxVTEKsc9g3Z0c",
+      "genres": ["christian", "ccm", "christian rock", "worship", "christian alternative rock", "christian pop", "pop worship"],
+      "href": "https://api.spotify.com/v1/artists/1SZMaiNHfdUuU0qZKZ6y62",
+      "id": "1SZMaiNHfdUuU0qZKZ6y62",
       "images": [
         {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebb0e7ce225f88f48957c24dc8",
           "height": 640,
-          "url": "https://i.scdn.co/image/ab6761610000e5eb1407800a3f610df52469ab37",
           "width": 640
         },
         {
+          "url": "https://i.scdn.co/image/ab67616100005174b0e7ce225f88f48957c24dc8",
           "height": 320,
-          "url": "https://i.scdn.co/image/ab676161000051741407800a3f610df52469ab37",
           "width": 320
         },
         {
+          "url": "https://i.scdn.co/image/ab6761610000f178b0e7ce225f88f48957c24dc8",
           "height": 160,
-          "url": "https://i.scdn.co/image/ab6761610000f1781407800a3f610df52469ab37",
           "width": 160
         }
       ],
-      "name": "Rxseboy",
-      "popularity": 54,
+      "name": "Newsboys",
+      "popularity": 56,
       "type": "artist",
-      "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+      "uri": "spotify:artist:1SZMaiNHfdUuU0qZKZ6y62"
     },
     {
       "external_urls": {
-        "spotify": "https://open.spotify.com/artist/3ao3jf5d70Tf4fPh2bnXVl"
+        "spotify": "https://open.spotify.com/artist/5OyoCvyau6TiGqcCKnDBCR"
       },
       "followers": {
         "href": null,
-        "total": 1312484
-      },
-      "genres": [
-        "pop punk"
-      ],
-      "href": "https://api.spotify.com/v1/artists/3ao3jf5d70Tf4fPh2bnXVl",
-      "id": "3ao3jf5d70Tf4fPh2bnXVl",
-      "images": [
-        {
-          "height": 640,
-          "url": "https://i.scdn.co/image/ab6761610000e5eb5769c8fcb7cb9e65c7eb6b72",
-          "width": 640
-        },
-        {
-          "height": 320,
-          "url": "https://i.scdn.co/image/ab676161000051745769c8fcb7cb9e65c7eb6b72",
-          "width": 320
-        },
-        {
-          "height": 160,
-          "url": "https://i.scdn.co/image/ab6761610000f1785769c8fcb7cb9e65c7eb6b72",
-          "width": 160
-        }
-      ],
-      "name": "We The Kings",
-      "popularity": 58,
-      "type": "artist",
-      "uri": "spotify:artist:3ao3jf5d70Tf4fPh2bnXVl"
-    },
-    {
-      "external_urls": {
-        "spotify": "https://open.spotify.com/artist/7kSP0XY1UueKCMOGJhIV9N"
-      },
-      "followers": {
-        "href": null,
-        "total": 82423
+        "total": 251303
       },
       "genres": [],
-      "href": "https://api.spotify.com/v1/artists/7kSP0XY1UueKCMOGJhIV9N",
-      "id": "7kSP0XY1UueKCMOGJhIV9N",
+      "href": "https://api.spotify.com/v1/artists/5OyoCvyau6TiGqcCKnDBCR",
+      "id": "5OyoCvyau6TiGqcCKnDBCR",
       "images": [
         {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb008c3670b6b9a2bc714bdbd3",
           "height": 640,
-          "url": "https://i.scdn.co/image/ab6761610000e5eb8e4d414953fe6e1fe37cca1e",
           "width": 640
         },
         {
+          "url": "https://i.scdn.co/image/ab67616100005174008c3670b6b9a2bc714bdbd3",
           "height": 320,
-          "url": "https://i.scdn.co/image/ab676161000051748e4d414953fe6e1fe37cca1e",
           "width": 320
         },
         {
+          "url": "https://i.scdn.co/image/ab6761610000f178008c3670b6b9a2bc714bdbd3",
           "height": 160,
-          "url": "https://i.scdn.co/image/ab6761610000f1788e4d414953fe6e1fe37cca1e",
           "width": 160
         }
       ],
-      "name": "Masakatsu Takagi",
+      "name": "Ollie",
       "popularity": 47,
       "type": "artist",
-      "uri": "spotify:artist:7kSP0XY1UueKCMOGJhIV9N"
+      "uri": "spotify:artist:5OyoCvyau6TiGqcCKnDBCR"
     },
     {
       "external_urls": {
-        "spotify": "https://open.spotify.com/artist/0gadJ2b9A4SKsB1RFkBb66"
+        "spotify": "https://open.spotify.com/artist/0vEsuISMWAKNctLlUAhSZC"
       },
       "followers": {
         "href": null,
-        "total": 3749960
+        "total": 2029506
       },
-      "genres": [
-        "folk pop"
-      ],
-      "href": "https://api.spotify.com/v1/artists/0gadJ2b9A4SKsB1RFkBb66",
-      "id": "0gadJ2b9A4SKsB1RFkBb66",
+      "genres": [],
+      "href": "https://api.spotify.com/v1/artists/0vEsuISMWAKNctLlUAhSZC",
+      "id": "0vEsuISMWAKNctLlUAhSZC",
       "images": [
         {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebe49e02d94a91ccdb846a62fa",
           "height": 640,
-          "url": "https://i.scdn.co/image/ab6761610000e5eba340be7e0bd2c71a3f2ca9ce",
           "width": 640
         },
         {
+          "url": "https://i.scdn.co/image/ab67616100005174e49e02d94a91ccdb846a62fa",
           "height": 320,
-          "url": "https://i.scdn.co/image/ab67616100005174a340be7e0bd2c71a3f2ca9ce",
           "width": 320
         },
         {
+          "url": "https://i.scdn.co/image/ab6761610000f178e49e02d94a91ccdb846a62fa",
           "height": 160,
-          "url": "https://i.scdn.co/image/ab6761610000f178a340be7e0bd2c71a3f2ca9ce",
           "width": 160
         }
       ],
-      "name": "Passenger",
-      "popularity": 67,
+      "name": "Counting Crows",
+      "popularity": 68,
       "type": "artist",
-      "uri": "spotify:artist:0gadJ2b9A4SKsB1RFkBb66"
+      "uri": "spotify:artist:0vEsuISMWAKNctLlUAhSZC"
+    },
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/6QgOGgahvXBHEEzpjbDsOj"
+      },
+      "followers": {
+        "href": null,
+        "total": 390213
+      },
+      "genres": ["christian", "ccm", "christian rock", "worship", "christian alternative rock", "christian pop"],
+      "href": "https://api.spotify.com/v1/artists/6QgOGgahvXBHEEzpjbDsOj",
+      "id": "6QgOGgahvXBHEEzpjbDsOj",
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebf2b496af0394b09a70031fac",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174f2b496af0394b09a70031fac",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178f2b496af0394b09a70031fac",
+          "height": 160,
+          "width": 160
+        }
+      ],
+      "name": "Sanctus Real",
+      "popularity": 53,
+      "type": "artist",
+      "uri": "spotify:artist:6QgOGgahvXBHEEzpjbDsOj"
     },
     {
       "external_urls": {
@@ -142,40 +144,32 @@
       },
       "followers": {
         "href": null,
-        "total": 23417928
+        "total": 23618976
       },
-      "genres": [
-        "edm"
-      ],
+      "genres": ["edm"],
       "href": "https://api.spotify.com/v1/artists/1vCWHaC5f2uS3yhpwWbIA6",
       "id": "1vCWHaC5f2uS3yhpwWbIA6",
       "images": [
         {
-          "height": 640,
           "url": "https://i.scdn.co/image/ab6761610000e5ebae07171f989fb39736674113",
+          "height": 640,
           "width": 640
         },
         {
-          "height": 320,
           "url": "https://i.scdn.co/image/ab67616100005174ae07171f989fb39736674113",
+          "height": 320,
           "width": 320
         },
         {
-          "height": 160,
           "url": "https://i.scdn.co/image/ab6761610000f178ae07171f989fb39736674113",
+          "height": 160,
           "width": 160
         }
       ],
       "name": "Avicii",
-      "popularity": 79,
+      "popularity": 80,
       "type": "artist",
       "uri": "spotify:artist:1vCWHaC5f2uS3yhpwWbIA6"
     }
-  ],
-  "total": 304,
-  "limit": 5,
-  "offset": 0,
-  "href": "https://api.spotify.com/v1/me/top/artists?offset=0&limit=5&locale=en-US,en;q%3D0.5",
-  "next": "https://api.spotify.com/v1/me/top/artists?offset=5&limit=5&locale=en-US,en;q%3D0.5",
-  "previous": null
+  ]
 }

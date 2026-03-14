@@ -1,7 +1,7 @@
 {
-  "country": "string",
-  "display_name": "string",
-  "email": "string",
+  "country": "US",
+  "display_name": "TestUserName",
+  "email": "TestUserEmail",
   "explicit_content": {
     "filter_enabled": false,
     "filter_locked": false
@@ -14,7 +14,7 @@
     "total": 0
   },
   "href": "string",
-  "id": "string",
+  "id": "TestUserId",
   "images": [
     {
       "url": "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228",

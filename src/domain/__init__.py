@@ -13,7 +13,7 @@ from .repositories import (
 from .models import (
     Album,
     Artist,
-    # Playback,
+    Playback,
     Playlist,
     Track,
     User,
@@ -30,7 +30,7 @@ __all__ = [
     "RepoBundle",
     "Album",
     "Artist",
-    # "Playback",
+    "Playback",
     "Playlist",
     "Track",
     "User",

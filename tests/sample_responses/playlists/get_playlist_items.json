@@ -1,5 +1,10 @@
 {
-  "href": "https://api.spotify.com/v1/playlists/0NckgOfzbPc2jV6AiMdd3y/tracks?offset=0&limit=10&market=US&locale=en-US,en;q%3D0.5",
+  "href": "https://api.spotify.com/v1/playlists/0NckgOfzbPc2jV6AiMdd3y/items?offset=0&limit=100&market=US&locale=en-US,en;q%3D0.9",
+  "limit": 100,
+  "next": null,
+  "offset": 0,
+  "previous": null,
+  "total": 4,
   "items": [
     {
       "added_at": "2024-12-03T18:40:37Z",
@@ -13,40 +18,36 @@
         "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
       },
       "is_local": false,
-      "primary_color": null,
-      "track": {
-        "preview_url": null,
-        "is_playable": true,
-        "explicit": false,
-        "type": "track",
-        "episode": false,
-        "track": true,
+      "item": {
         "album": {
-          "is_playable": true,
-          "type": "album",
           "album_type": "album",
+          "total_tracks": 10,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/6LeblcCSxck1527dUN2Fdd"
+          },
           "href": "https://api.spotify.com/v1/albums/6LeblcCSxck1527dUN2Fdd",
           "id": "6LeblcCSxck1527dUN2Fdd",
           "images": [
             {
-              "height": 640,
               "url": "https://i.scdn.co/image/ab67616d0000b2737af7cc71d75198c95617af78",
+              "height": 640,
               "width": 640
             },
             {
-              "height": 300,
               "url": "https://i.scdn.co/image/ab67616d00001e027af7cc71d75198c95617af78",
+              "height": 300,
               "width": 300
             },
             {
-              "height": 64,
               "url": "https://i.scdn.co/image/ab67616d000048517af7cc71d75198c95617af78",
+              "height": 64,
               "width": 64
             }
           ],
           "name": "Rite 7",
           "release_date": "2009-03-15",
           "release_date_precision": "day",
+          "type": "album",
           "uri": "spotify:album:6LeblcCSxck1527dUN2Fdd",
           "artists": [
             {
@@ -60,10 +61,7 @@
               "uri": "spotify:artist:2yWwCqofMJniMhT0TSA7zC"
             }
           ],
-          "external_urls": {
-            "spotify": "https://open.spotify.com/album/6LeblcCSxck1527dUN2Fdd"
-          },
-          "total_tracks": 10
+          "is_playable": true
         },
         "artists": [
           {
@@ -78,8 +76,8 @@
           }
         ],
         "disc_number": 1,
-        "track_number": 2,
         "duration_ms": 312755,
+        "explicit": false,
         "external_ids": {
           "isrc": "US3UC0900002"
         },
@@ -88,11 +86,18 @@
         },
         "href": "https://api.spotify.com/v1/tracks/3SQtg81eUM8DkouDMaJaHc",
         "id": "3SQtg81eUM8DkouDMaJaHc",
+        "is_playable": true,
         "name": "Canticle of the Turning",
-        "popularity": 19,
+        "popularity": 20,
+        "preview_url": null,
+        "track_number": 2,
+        "type": "track",
         "uri": "spotify:track:3SQtg81eUM8DkouDMaJaHc",
-        "is_local": false
+        "is_local": false,
+        "episode": false,
+        "track": true
       },
+      "primary_color": null,
       "video_thumbnail": {
         "url": null
       }
@@ -109,40 +114,36 @@
         "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
       },
       "is_local": false,
-      "primary_color": null,
-      "track": {
-        "preview_url": null,
-        "is_playable": true,
-        "explicit": false,
-        "type": "track",
-        "episode": false,
-        "track": true,
+      "item": {
         "album": {
-          "is_playable": true,
-          "type": "album",
           "album_type": "album",
+          "total_tracks": 12,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/4kU6kyJqqpCgzgpfxgDfth"
+          },
           "href": "https://api.spotify.com/v1/albums/4kU6kyJqqpCgzgpfxgDfth",
           "id": "4kU6kyJqqpCgzgpfxgDfth",
           "images": [
             {
-              "height": 640,
               "url": "https://i.scdn.co/image/ab67616d0000b273015af4e12c06a4db9e7e75b2",
+              "height": 640,
               "width": 640
             },
             {
-              "height": 300,
               "url": "https://i.scdn.co/image/ab67616d00001e02015af4e12c06a4db9e7e75b2",
+              "height": 300,
               "width": 300
             },
             {
-              "height": 64,
               "url": "https://i.scdn.co/image/ab67616d00004851015af4e12c06a4db9e7e75b2",
+              "height": 64,
               "width": 64
             }
           ],
           "name": "Night of Silence",
           "release_date": "1987-01-01",
           "release_date_precision": "day",
+          "type": "album",
           "uri": "spotify:album:4kU6kyJqqpCgzgpfxgDfth",
           "artists": [
             {
@@ -156,10 +157,7 @@
               "uri": "spotify:artist:3pSC7R2x1hvn4CMi1vTv7s"
             }
           ],
-          "external_urls": {
-            "spotify": "https://open.spotify.com/album/4kU6kyJqqpCgzgpfxgDfth"
-          },
-          "total_tracks": 12
+          "is_playable": true
         },
         "artists": [
           {
@@ -174,8 +172,8 @@
           }
         ],
         "disc_number": 1,
-        "track_number": 3,
         "duration_ms": 184573,
+        "explicit": false,
         "external_ids": {
           "isrc": "US7851010422"
         },
@@ -184,10 +182,7 @@
         },
         "href": "https://api.spotify.com/v1/tracks/2Rk2FldPopw2XgnoBtLtbR",
         "id": "4V7lO7TdQ2sf0lPwwlOGoO",
-        "name": "People, Look East",
-        "popularity": 0,
-        "uri": "spotify:track:4V7lO7TdQ2sf0lPwwlOGoO",
-        "is_local": false,
+        "is_playable": true,
         "linked_from": {
           "external_urls": {
             "spotify": "https://open.spotify.com/track/2Rk2FldPopw2XgnoBtLtbR"
@@ -196,8 +191,18 @@
           "id": "2Rk2FldPopw2XgnoBtLtbR",
           "type": "track",
           "uri": "spotify:track:2Rk2FldPopw2XgnoBtLtbR"
-        }
+        },
+        "name": "People, Look East",
+        "popularity": 0,
+        "preview_url": null,
+        "track_number": 3,
+        "type": "track",
+        "uri": "spotify:track:4V7lO7TdQ2sf0lPwwlOGoO",
+        "is_local": false,
+        "episode": false,
+        "track": true
       },
+      "primary_color": null,
       "video_thumbnail": {
         "url": null
       }
@@ -214,40 +219,36 @@
         "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
       },
       "is_local": false,
-      "primary_color": null,
-      "track": {
-        "preview_url": null,
-        "is_playable": true,
-        "explicit": false,
-        "type": "track",
-        "episode": false,
-        "track": true,
+      "item": {
         "album": {
-          "is_playable": true,
-          "type": "album",
           "album_type": "album",
+          "total_tracks": 12,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0wvJrJsbryrS70BzvlTt4s"
+          },
           "href": "https://api.spotify.com/v1/albums/0wvJrJsbryrS70BzvlTt4s",
           "id": "0wvJrJsbryrS70BzvlTt4s",
           "images": [
             {
-              "height": 640,
               "url": "https://i.scdn.co/image/ab67616d0000b27383eeb48ba416a635b2b1293a",
+              "height": 640,
               "width": 640
             },
             {
-              "height": 300,
               "url": "https://i.scdn.co/image/ab67616d00001e0283eeb48ba416a635b2b1293a",
+              "height": 300,
               "width": 300
             },
             {
-              "height": 64,
               "url": "https://i.scdn.co/image/ab67616d0000485183eeb48ba416a635b2b1293a",
+              "height": 64,
               "width": 64
             }
           ],
           "name": "Blessed Assurance",
           "release_date": "2018-02-23",
           "release_date_precision": "day",
+          "type": "album",
           "uri": "spotify:album:0wvJrJsbryrS70BzvlTt4s",
           "artists": [
             {
@@ -261,10 +262,7 @@
               "uri": "spotify:artist:29PfPMTOAqc611mj1siNoH"
             }
           ],
-          "external_urls": {
-            "spotify": "https://open.spotify.com/album/0wvJrJsbryrS70BzvlTt4s"
-          },
-          "total_tracks": 12
+          "is_playable": true
         },
         "artists": [
           {
@@ -279,8 +277,8 @@
           }
         ],
         "disc_number": 1,
-        "track_number": 2,
         "duration_ms": 188853,
+        "explicit": false,
         "external_ids": {
           "isrc": "US5X41800002"
         },
@@ -289,11 +287,18 @@
         },
         "href": "https://api.spotify.com/v1/tracks/7r0ewDpfwzUAuP5bSBF1to",
         "id": "7r0ewDpfwzUAuP5bSBF1to",
+        "is_playable": true,
         "name": "Before The Throne Of God Above",
         "popularity": 20,
+        "preview_url": null,
+        "track_number": 2,
+        "type": "track",
         "uri": "spotify:track:7r0ewDpfwzUAuP5bSBF1to",
-        "is_local": false
+        "is_local": false,
+        "episode": false,
+        "track": true
       },
+      "primary_color": null,
       "video_thumbnail": {
         "url": null
       }
@@ -310,40 +315,36 @@
         "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
       },
       "is_local": false,
-      "primary_color": null,
-      "track": {
-        "preview_url": null,
-        "is_playable": true,
-        "explicit": false,
-        "type": "track",
-        "episode": false,
-        "track": true,
+      "item": {
         "album": {
-          "is_playable": true,
-          "type": "album",
           "album_type": "album",
+          "total_tracks": 10,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/1mBF38ohxVc3Eq3tGQkxJs"
+          },
           "href": "https://api.spotify.com/v1/albums/1mBF38ohxVc3Eq3tGQkxJs",
           "id": "1mBF38ohxVc3Eq3tGQkxJs",
           "images": [
             {
-              "height": 640,
               "url": "https://i.scdn.co/image/ab67616d0000b2733b67693fbdf7a58f1d5c6238",
+              "height": 640,
               "width": 640
             },
             {
-              "height": 300,
               "url": "https://i.scdn.co/image/ab67616d00001e023b67693fbdf7a58f1d5c6238",
+              "height": 300,
               "width": 300
             },
             {
-              "height": 64,
               "url": "https://i.scdn.co/image/ab67616d000048513b67693fbdf7a58f1d5c6238",
+              "height": 64,
               "width": 64
             }
           ],
           "name": "O the Love of My Redeemer",
           "release_date": "2019-04-22",
           "release_date_precision": "day",
+          "type": "album",
           "uri": "spotify:album:1mBF38ohxVc3Eq3tGQkxJs",
           "artists": [
             {
@@ -357,10 +358,7 @@
               "uri": "spotify:artist:12lyCe0QldQ5lyLS5j2Zb4"
             }
           ],
-          "external_urls": {
-            "spotify": "https://open.spotify.com/album/1mBF38ohxVc3Eq3tGQkxJs"
-          },
-          "total_tracks": 10
+          "is_playable": true
         },
         "artists": [
           {
@@ -375,8 +373,8 @@
           }
         ],
         "disc_number": 1,
-        "track_number": 1,
         "duration_ms": 256976,
+        "explicit": false,
         "external_ids": {
           "isrc": "TCAEE1955099"
         },
@@ -385,19 +383,21 @@
         },
         "href": "https://api.spotify.com/v1/tracks/2VEz7YLMQO0AMtCJYGI8Uh",
         "id": "2VEz7YLMQO0AMtCJYGI8Uh",
+        "is_playable": true,
         "name": "O the Love of My Redeemer",
         "popularity": 8,
+        "preview_url": null,
+        "track_number": 1,
+        "type": "track",
         "uri": "spotify:track:2VEz7YLMQO0AMtCJYGI8Uh",
-        "is_local": false
+        "is_local": false,
+        "episode": false,
+        "track": true
       },
+      "primary_color": null,
       "video_thumbnail": {
         "url": null
       }
     }
-  ],
-  "limit": 10,
-  "next": null,
-  "offset": 0,
-  "previous": null,
-  "total": 4
+  ]
 }

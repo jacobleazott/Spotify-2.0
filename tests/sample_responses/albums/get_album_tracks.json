@@ -1,5 +1,10 @@
 {
-  "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=5&market=US&locale=en-US,en;q%3D0.5",
+  "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=5&market=US&locale=en-US,en;q%3D0.9",
+  "limit": 5,
+  "next": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=5&limit=5&market=US&locale=en-US,en;q%3D0.9",
+  "offset": 0,
+  "previous": null,
+  "total": 10,
   "items": [
     {
       "artists": [
@@ -15,7 +20,7 @@
         }
       ],
       "disc_number": 1,
-      "duration_ms": 312293,
+      "duration_ms": 312815,
       "explicit": false,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/69QHm3pustz01CJRwdo20z"
@@ -44,7 +49,7 @@
         }
       ],
       "disc_number": 1,
-      "duration_ms": 317426,
+      "duration_ms": 318231,
       "explicit": false,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/0C80GCp0mMuBzLf3EAXqxv"
@@ -73,7 +78,7 @@
         }
       ],
       "disc_number": 1,
-      "duration_ms": 215533,
+      "duration_ms": 215675,
       "explicit": false,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/6Th6ND8RQPywiyelecP5Lf"
@@ -102,7 +107,7 @@
         }
       ],
       "disc_number": 1,
-      "duration_ms": 211760,
+      "duration_ms": 212400,
       "explicit": false,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/6rAy2MsMUabbqu2VygrblP"
@@ -131,7 +136,7 @@
         }
       ],
       "disc_number": 1,
-      "duration_ms": 255266,
+      "duration_ms": 256057,
       "explicit": false,
       "external_urls": {
         "spotify": "https://open.spotify.com/track/5XeMsYb1rWxQL1bUUaZajn"
@@ -146,10 +151,5 @@
       "uri": "spotify:track:5XeMsYb1rWxQL1bUUaZajn",
       "is_local": false
     }
-  ],
-  "limit": 5,
-  "next": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=5&limit=5&market=US&locale=en-US,en;q%3D0.5",
-  "offset": 0,
-  "previous": null,
-  "total": 10
+  ]
 }

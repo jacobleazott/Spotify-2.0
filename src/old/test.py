@@ -1,4 +1,4 @@
-from domain.models import Album, Artist, Track, Playlist, Playback
+from domain.models import Album, Artist, Track, Playlist, Playback, User
 
 def build_album(album_raw: dict) -> Album:
     if not album_raw or not album_raw.get("id"):
@@ -26,6 +26,7 @@ def build_artist(artist_raw: dict) -> Artist:
         id=artist_raw["id"],
         name=artist_raw.get("name", ""),
     )
+
 
 def build_track(track_raw: dict) -> Track:
         if not track_raw:
@@ -59,23 +60,52 @@ def build_playlist(playlist_raw: dict) -> Playlist:
     if not playlist_raw or not playlist_raw.get("id"):
         return None
     
-    tracks = [build_track(track) for track in playlist_raw.get("tracks", {}).get("items", [])]
+    tracks = [build_track(track) for track in playlist_raw.get("items", {}).get("items", [])]
     
     return Playlist(
         id=playlist_raw["id"],
         name=playlist_raw.get("name"),
         description=playlist_raw.get("description"),
         snapshot_id=playlist_raw.get("snapshot_id", ""),
-        total_tracks=playlist_raw.get("tracks", {}).get("total", 0),
+        collaborative=playlist_raw.get("collaborative"),
+        public=playlist_raw.get("public"),
+        total_tracks=playlist_raw.get("items", {}).get("total", 0),
         tracks=tracks
     )
+
+
+def build_user(user_raw: dict) -> dict:
+    if not user_raw or not user_raw.get("id"):
+        return None
+    
+    return User(
+        username=user_raw["display_name"],
+        id=user_raw["id"],
+        email=user_raw["email"],
+        country=user_raw["country"],
+        # When are we doing Playlists
+        # When are we doing Artists
+    )
+
 
 def build_playback(playback_raw: dict) -> dict:
     if not playback_raw:
         return None
     
+    return Playback(
+        playlist_id=playback_raw.get("context", {}).get("uri").split(":")[2],
+        device_id=playback_raw.get("device", {}).get("id"),
+        device_name=playback_raw.get("device", {}).get("name"),
+        volume_percent=playback_raw.get("device", {}).get("volume_percent"),
+        progress_ms=playback_raw.get("progress_ms"),
+        is_playing=playback_raw.get("is_playing"),
+        shuffle=playback_raw.get("shuffle_state"),
+        smart_shuffle=playback_raw.get("smart_shuffle"),
+        repeat=playback_raw.get("repeat_state"),
+        timestamp=playback_raw.get("timestamp"),
+        track=build_track(playback_raw.get("item"))
+    )   
 
-    return playback_raw
 
 from pathlib import Path
 import json
@@ -156,12 +186,6 @@ if __name__ == "__main__":
             for track in data['items']:
                 print(build_track(track))
 
-    def test_users_playlists():
-        with open(current_dir / "../../tests/sample_responses/playlists/get_users_playlists.json", "r") as f:
-            data = json.load(f)
-            for playlist in data['items']:
-                print(build_playlist(playlist))
-
     def test_current_users_playlists():
         with open(current_dir / "../../tests/sample_responses/playlists/get_current_users_playlists.json", "r") as f:
             data = json.load(f)
@@ -169,7 +193,7 @@ if __name__ == "__main__":
                 print(build_playlist(playlist))
                 
     def test_current_user_profile():
-        with open(current_dir / "../../tests/sample_responses/users/get_current_user_profile.json", "r") as f:
+        with open(current_dir / "../../tests/sample_responses/users/get_current_users_profile.json", "r") as f:
             data = json.load(f)
             print(build_user(data))
 
@@ -190,6 +214,39 @@ if __name__ == "__main__":
             data = json.load(f)
             for track in data['items']:
                 print(build_track(track))
+
+    # Don't think we care about this, this is just less info than playback_state
+    # def test_currently_playing_track():
+    #     with open(current_dir / "../../tests/sample_responses/users/get_currently_playing_track.json", "r") as f:
+    #         data = json.load(f)
+    #         print(build_playback(data))
+
+    def test_get_playback_state():
+        with open(current_dir / "../../tests/sample_responses/player/get_playback_state.json", "r") as f:
+            data = json.load(f)
+            print(build_playback(data))
+
+    def test_get_recently_played():
+        with open(current_dir / "../../tests/sample_responses/player/get_recently_played_tracks.json", "r") as f:
+            data = json.load(f)
+            for track in data['items']:
+                print(build_track(track))
+
+    def test_get_users_queue():
+        with open(current_dir / "../../tests/sample_responses/player/get_users_queue.json", "r") as f:
+            data = json.load(f)
+            print("CURRENTLY PLAYLING: ")
+            print(build_track(data['currently_playing']))
+            print("QUEUE: ")
+            for track in data['queue']:
+                print(build_track(track))
+
+    def test_get_artists_albums():
+        with open(current_dir / "../../tests/sample_responses/artists/get_artists_albums.json", "r") as f:
+            data = json.load(f)
+            for album in data['items']:
+                print(build_album(album))
+                
 
     # test_several_tracks()
     # print("\n ###################################################################### \n")
@@ -213,26 +270,27 @@ if __name__ == "__main__":
     # print("\n ###################################################################### \n")
     # test_create_playlist()
     # print("\n ###################################################################### \n")
-    test_playlist()
-    print("\n ###################################################################### \n")
-    test_playlist_items()
+    # test_playlist()
     # print("\n ###################################################################### \n")
-    # test_users_playlists()
+    # test_playlist_items()
     # print("\n ###################################################################### \n")
     # test_current_users_playlists()
     # print("\n ###################################################################### \n")
-    # # test_current_user_profile()
+    # test_current_user_profile()
     # print("\n ###################################################################### \n")
     # test_user_followed_artists()
-    # print("\n ###################################################################### \n")
-    # # data_path = current_dir / "../../tests/sample_responses/users/get_users_profile.json"
     # print("\n ###################################################################### \n")
     # test_user_top_artists()
     # print("\n ###################################################################### \n")
     # test_user_top_tracks()
     # print("\n ###################################################################### \n")
-
+    # test_get_playback_state()
     # print("\n ###################################################################### \n")
+    # test_get_recently_played()
+    # print("\n ###################################################################### \n")
+    # test_get_users_queue()
+    # print("\n ###################################################################### \n")
+    test_get_artists_albums()
 
 
     # Build the path to data.json relative to this file
@@ -257,7 +315,6 @@ if __name__ == "__main__":
     # data_path = current_dir / "../../tests/sample_responses/playlists/create_playlist.json"
     # data_path = current_dir / "../../tests/sample_responses/playlists/get_playlist.json"
     # data_path = current_dir / "../../tests/sample_responses/playlists/get_playlist_items.json"
-    # data_path = current_dir / "../../tests/sample_responses/playlists/get_users_playlists.json"
     # data_path = current_dir / "../../tests/sample_responses/playlists/get_current_users_playlists.json"
 
     ######### USER RESPONSES

@@ -1,485 +1,415 @@
 {
+  "href": "https://api.spotify.com/v1/me/top/tracks?offset=0&limit=5&locale=en-US,en;q%3D0.9",
+  "limit": 5,
+  "next": "https://api.spotify.com/v1/me/top/tracks?offset=5&limit=5&locale=en-US,en;q%3D0.9",
+  "offset": 0,
+  "previous": null,
+  "total": 6792,
   "items": [
     {
       "album": {
-        "album_type": "album",
-        "artists": [
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-            },
-            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-            "name": "Rxseboy",
-            "type": "artist",
-            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-          }
-        ],
-        "available_markets": [
-          "AR",
-          "XK"
-        ],
+        "album_type": "single",
+        "total_tracks": 1,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
         "external_urls": {
-          "spotify": "https://open.spotify.com/album/3hSXWXvaemZjvygdWtKKNP"
+          "spotify": "https://open.spotify.com/album/3Eqm1aI8v6OLoLgnvuuH8N"
         },
-        "href": "https://api.spotify.com/v1/albums/3hSXWXvaemZjvygdWtKKNP",
-        "id": "3hSXWXvaemZjvygdWtKKNP",
+        "href": "https://api.spotify.com/v1/albums/3Eqm1aI8v6OLoLgnvuuH8N",
+        "id": "3Eqm1aI8v6OLoLgnvuuH8N",
         "images": [
           {
+            "url": "https://i.scdn.co/image/ab67616d0000b2735d64b0c4a964515f84da9a7b",
             "height": 640,
-            "url": "https://i.scdn.co/image/ab67616d0000b273090b8dd1c14bf9cff82d7add",
             "width": 640
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d00001e025d64b0c4a964515f84da9a7b",
             "height": 300,
-            "url": "https://i.scdn.co/image/ab67616d00001e02090b8dd1c14bf9cff82d7add",
             "width": 300
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d000048515d64b0c4a964515f84da9a7b",
             "height": 64,
-            "url": "https://i.scdn.co/image/ab67616d00004851090b8dd1c14bf9cff82d7add",
             "width": 64
           }
         ],
-        "is_playable": true,
-        "name": "A Catalog of Forgotten Songs",
-        "release_date": "2020-01-01",
+        "name": "Worst Way",
+        "release_date": "2024-07-12",
         "release_date_precision": "day",
-        "total_tracks": 11,
         "type": "album",
-        "uri": "spotify:album:3hSXWXvaemZjvygdWtKKNP"
+        "uri": "spotify:album:3Eqm1aI8v6OLoLgnvuuH8N",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/5OyoCvyau6TiGqcCKnDBCR"
+            },
+            "href": "https://api.spotify.com/v1/artists/5OyoCvyau6TiGqcCKnDBCR",
+            "id": "5OyoCvyau6TiGqcCKnDBCR",
+            "name": "Ollie",
+            "type": "artist",
+            "uri": "spotify:artist:5OyoCvyau6TiGqcCKnDBCR"
+          }
+        ],
+        "is_playable": true
       },
       "artists": [
         {
           "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            "spotify": "https://open.spotify.com/artist/5OyoCvyau6TiGqcCKnDBCR"
           },
-          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-          "name": "Rxseboy",
+          "href": "https://api.spotify.com/v1/artists/5OyoCvyau6TiGqcCKnDBCR",
+          "id": "5OyoCvyau6TiGqcCKnDBCR",
+          "name": "Ollie",
           "type": "artist",
-          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          "uri": "spotify:artist:5OyoCvyau6TiGqcCKnDBCR"
         }
       ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
+      "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
       "disc_number": 1,
-      "duration_ms": 191115,
-      "explicit": true,
-      "external_ids": {
-        "isrc": "QZWFQ2470119"
-      },
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/6c1RcDmlSU7RDrCW3PRK8p"
-      },
-      "href": "https://api.spotify.com/v1/tracks/6c1RcDmlSU7RDrCW3PRK8p",
-      "id": "6c1RcDmlSU7RDrCW3PRK8p",
-      "is_local": false,
-      "is_playable": true,
-      "name": "Who Knows",
-      "popularity": 12,
-      "preview_url": null,
-      "track_number": 11,
-      "type": "track",
-      "uri": "spotify:track:6c1RcDmlSU7RDrCW3PRK8p"
-    },
-    {
-      "album": {
-        "album_type": "album",
-        "artists": [
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-            },
-            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-            "name": "Rxseboy",
-            "type": "artist",
-            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-          }
-        ],
-        "available_markets": [
-          "AR",
-          "XK"
-        ],
-        "external_urls": {
-          "spotify": "https://open.spotify.com/album/0Aj6SA3ZF7CkTPMOP37eXE"
-        },
-        "href": "https://api.spotify.com/v1/albums/0Aj6SA3ZF7CkTPMOP37eXE",
-        "id": "0Aj6SA3ZF7CkTPMOP37eXE",
-        "images": [
-          {
-            "height": 640,
-            "url": "https://i.scdn.co/image/ab67616d0000b273883091d8e57c7bf231679e74",
-            "width": 640
-          },
-          {
-            "height": 300,
-            "url": "https://i.scdn.co/image/ab67616d00001e02883091d8e57c7bf231679e74",
-            "width": 300
-          },
-          {
-            "height": 64,
-            "url": "https://i.scdn.co/image/ab67616d00004851883091d8e57c7bf231679e74",
-            "width": 64
-          }
-        ],
-        "is_playable": true,
-        "name": "A Catalog of Cool Songs",
-        "release_date": "2019-08-31",
-        "release_date_precision": "day",
-        "total_tracks": 7,
-        "type": "album",
-        "uri": "spotify:album:0Aj6SA3ZF7CkTPMOP37eXE"
-      },
-      "artists": [
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-          },
-          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-          "name": "Rxseboy",
-          "type": "artist",
-          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-        },
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/6bmlMHgSheBauioMgKv2tn"
-          },
-          "href": "https://api.spotify.com/v1/artists/6bmlMHgSheBauioMgKv2tn",
-          "id": "6bmlMHgSheBauioMgKv2tn",
-          "name": "Powfu",
-          "type": "artist",
-          "uri": "spotify:artist:6bmlMHgSheBauioMgKv2tn"
-        }
-      ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
-      "disc_number": 1,
-      "duration_ms": 107504,
+      "duration_ms": 186636,
       "explicit": false,
       "external_ids": {
-        "isrc": "QZH5E1957278"
+        "isrc": "QZPLS2440402"
       },
       "external_urls": {
-        "spotify": "https://open.spotify.com/track/4CEi5D2lTrJeHzwc5hfrpO"
+        "spotify": "https://open.spotify.com/track/54KIAHa71rBTDubyUPwiks"
       },
-      "href": "https://api.spotify.com/v1/tracks/4CEi5D2lTrJeHzwc5hfrpO",
-      "id": "4CEi5D2lTrJeHzwc5hfrpO",
-      "is_local": false,
+      "href": "https://api.spotify.com/v1/tracks/54KIAHa71rBTDubyUPwiks",
+      "id": "54KIAHa71rBTDubyUPwiks",
       "is_playable": true,
-      "name": "Bored Without You",
+      "name": "Worst Way",
       "popularity": 31,
-      "preview_url": null,
-      "track_number": 7,
-      "type": "track",
-      "uri": "spotify:track:4CEi5D2lTrJeHzwc5hfrpO"
-    },
-    {
-      "album": {
-        "album_type": "single",
-        "artists": [
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/0dcxj82ddksd6tDDcJgbqo"
-            },
-            "href": "https://api.spotify.com/v1/artists/0dcxj82ddksd6tDDcJgbqo",
-            "id": "0dcxj82ddksd6tDDcJgbqo",
-            "name": "Thomas Reid",
-            "type": "artist",
-            "uri": "spotify:artist:0dcxj82ddksd6tDDcJgbqo"
-          },
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-            },
-            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-            "name": "Rxseboy",
-            "type": "artist",
-            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-          }
-        ],
-        "available_markets": [
-          "AR",
-          "XK"
-        ],
-        "external_urls": {
-          "spotify": "https://open.spotify.com/album/3V6haIpi9uc0pnaApwlYPe"
-        },
-        "href": "https://api.spotify.com/v1/albums/3V6haIpi9uc0pnaApwlYPe",
-        "id": "3V6haIpi9uc0pnaApwlYPe",
-        "images": [
-          {
-            "height": 640,
-            "url": "https://i.scdn.co/image/ab67616d0000b273f2202834f7158eff00024bcf",
-            "width": 640
-          },
-          {
-            "height": 300,
-            "url": "https://i.scdn.co/image/ab67616d00001e02f2202834f7158eff00024bcf",
-            "width": 300
-          },
-          {
-            "height": 64,
-            "url": "https://i.scdn.co/image/ab67616d00004851f2202834f7158eff00024bcf",
-            "width": 64
-          }
-        ],
-        "is_playable": true,
-        "name": "Are You Okay?",
-        "release_date": "2020-01-30",
-        "release_date_precision": "day",
-        "total_tracks": 1,
-        "type": "album",
-        "uri": "spotify:album:3V6haIpi9uc0pnaApwlYPe"
-      },
-      "artists": [
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/0dcxj82ddksd6tDDcJgbqo"
-          },
-          "href": "https://api.spotify.com/v1/artists/0dcxj82ddksd6tDDcJgbqo",
-          "id": "0dcxj82ddksd6tDDcJgbqo",
-          "name": "Thomas Reid",
-          "type": "artist",
-          "uri": "spotify:artist:0dcxj82ddksd6tDDcJgbqo"
-        },
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-          },
-          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-          "name": "Rxseboy",
-          "type": "artist",
-          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-        },
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/6bmlMHgSheBauioMgKv2tn"
-          },
-          "href": "https://api.spotify.com/v1/artists/6bmlMHgSheBauioMgKv2tn",
-          "id": "6bmlMHgSheBauioMgKv2tn",
-          "name": "Powfu",
-          "type": "artist",
-          "uri": "spotify:artist:6bmlMHgSheBauioMgKv2tn"
-        }
-      ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
-      "disc_number": 1,
-      "duration_ms": 220396,
-      "explicit": true,
-      "external_ids": {
-        "isrc": "QZFYZ2011271"
-      },
-      "external_urls": {
-        "spotify": "https://open.spotify.com/track/2U8tH2LXMh5EQvI6oBhSHJ"
-      },
-      "href": "https://api.spotify.com/v1/tracks/2U8tH2LXMh5EQvI6oBhSHJ",
-      "id": "2U8tH2LXMh5EQvI6oBhSHJ",
-      "is_local": false,
-      "is_playable": true,
-      "name": "Are You Okay?",
-      "popularity": 48,
       "preview_url": null,
       "track_number": 1,
       "type": "track",
-      "uri": "spotify:track:2U8tH2LXMh5EQvI6oBhSHJ"
+      "uri": "spotify:track:54KIAHa71rBTDubyUPwiks",
+      "is_local": false
     },
     {
       "album": {
         "album_type": "album",
-        "artists": [
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-            },
-            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-            "name": "Rxseboy",
-            "type": "artist",
-            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-          }
-        ],
-        "available_markets": [
-          "AR",
-          "XK"
-        ],
+        "total_tracks": 12,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
         "external_urls": {
-          "spotify": "https://open.spotify.com/album/2XYvlqsY26au1zqyqzRYLA"
+          "spotify": "https://open.spotify.com/album/0pm1naNljfu3t7ZBCKMqjT"
         },
-        "href": "https://api.spotify.com/v1/albums/2XYvlqsY26au1zqyqzRYLA",
-        "id": "2XYvlqsY26au1zqyqzRYLA",
+        "href": "https://api.spotify.com/v1/albums/0pm1naNljfu3t7ZBCKMqjT",
+        "id": "0pm1naNljfu3t7ZBCKMqjT",
         "images": [
           {
+            "url": "https://i.scdn.co/image/ab67616d0000b27321db24d96ac55276d1fbfe20",
             "height": 640,
-            "url": "https://i.scdn.co/image/ab67616d0000b273fae5acb23cf72bc35d84f63a",
             "width": 640
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d00001e0221db24d96ac55276d1fbfe20",
             "height": 300,
-            "url": "https://i.scdn.co/image/ab67616d00001e02fae5acb23cf72bc35d84f63a",
             "width": 300
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d0000485121db24d96ac55276d1fbfe20",
             "height": 64,
-            "url": "https://i.scdn.co/image/ab67616d00004851fae5acb23cf72bc35d84f63a",
             "width": 64
           }
         ],
-        "is_playable": true,
-        "name": "My Mind",
-        "release_date": "2019-03-17",
+        "name": "Closer To The Sun",
+        "release_date": "2025-11-14",
         "release_date_precision": "day",
-        "total_tracks": 8,
         "type": "album",
-        "uri": "spotify:album:2XYvlqsY26au1zqyqzRYLA"
+        "uri": "spotify:album:0pm1naNljfu3t7ZBCKMqjT",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4LZ4De2MoO3lP6QaNCfvcu"
+            },
+            "href": "https://api.spotify.com/v1/artists/4LZ4De2MoO3lP6QaNCfvcu",
+            "id": "4LZ4De2MoO3lP6QaNCfvcu",
+            "name": "Said The Sky",
+            "type": "artist",
+            "uri": "spotify:artist:4LZ4De2MoO3lP6QaNCfvcu"
+          }
+        ],
+        "is_playable": true
       },
       "artists": [
         {
           "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            "spotify": "https://open.spotify.com/artist/4LZ4De2MoO3lP6QaNCfvcu"
           },
-          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-          "name": "Rxseboy",
+          "href": "https://api.spotify.com/v1/artists/4LZ4De2MoO3lP6QaNCfvcu",
+          "id": "4LZ4De2MoO3lP6QaNCfvcu",
+          "name": "Said The Sky",
           "type": "artist",
-          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
+          "uri": "spotify:artist:4LZ4De2MoO3lP6QaNCfvcu"
+        },
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/61S5H9Lxn1PDUvu1TV0kCX"
+          },
+          "href": "https://api.spotify.com/v1/artists/61S5H9Lxn1PDUvu1TV0kCX",
+          "id": "61S5H9Lxn1PDUvu1TV0kCX",
+          "name": "Knox",
+          "type": "artist",
+          "uri": "spotify:artist:61S5H9Lxn1PDUvu1TV0kCX"
         }
       ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
+      "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
       "disc_number": 1,
-      "duration_ms": 132298,
-      "explicit": true,
+      "duration_ms": 198000,
+      "explicit": false,
       "external_ids": {
-        "isrc": "QM8DG1982604"
+        "isrc": "NL8RL2539871"
       },
       "external_urls": {
-        "spotify": "https://open.spotify.com/track/5YsvHGG9lmrVgbm5R7bGq9"
+        "spotify": "https://open.spotify.com/track/6OdNHKFBnaMndDRFYyjYFf"
       },
-      "href": "https://api.spotify.com/v1/tracks/5YsvHGG9lmrVgbm5R7bGq9",
-      "id": "5YsvHGG9lmrVgbm5R7bGq9",
-      "is_local": false,
+      "href": "https://api.spotify.com/v1/tracks/6OdNHKFBnaMndDRFYyjYFf",
+      "id": "6OdNHKFBnaMndDRFYyjYFf",
       "is_playable": true,
-      "name": "Sayonara",
-      "popularity": 16,
+      "name": "Dance In The Rain",
+      "popularity": 53,
       "preview_url": null,
-      "track_number": 8,
+      "track_number": 2,
       "type": "track",
-      "uri": "spotify:track:5YsvHGG9lmrVgbm5R7bGq9"
+      "uri": "spotify:track:6OdNHKFBnaMndDRFYyjYFf",
+      "is_local": false
     },
     {
       "album": {
         "album_type": "album",
-        "artists": [
-          {
-            "external_urls": {
-              "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
-            },
-            "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-            "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-            "name": "Rxseboy",
-            "type": "artist",
-            "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-          }
-        ],
-        "available_markets": [
-          "AR",
-          "XK"
-        ],
+        "total_tracks": 12,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
         "external_urls": {
-          "spotify": "https://open.spotify.com/album/0sbvYqYtz7vPaQ8p2Epa0B"
+          "spotify": "https://open.spotify.com/album/1VXFonMeuS9Ry9InvCKaJT"
         },
-        "href": "https://api.spotify.com/v1/albums/0sbvYqYtz7vPaQ8p2Epa0B",
-        "id": "0sbvYqYtz7vPaQ8p2Epa0B",
+        "href": "https://api.spotify.com/v1/albums/1VXFonMeuS9Ry9InvCKaJT",
+        "id": "1VXFonMeuS9Ry9InvCKaJT",
         "images": [
           {
+            "url": "https://i.scdn.co/image/ab67616d0000b2736a06d4011e37343bbd8fe075",
             "height": 640,
-            "url": "https://i.scdn.co/image/ab67616d0000b27381b9e8c8d1d6c81703cb7783",
             "width": 640
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d00001e026a06d4011e37343bbd8fe075",
             "height": 300,
-            "url": "https://i.scdn.co/image/ab67616d00001e0281b9e8c8d1d6c81703cb7783",
             "width": 300
           },
           {
+            "url": "https://i.scdn.co/image/ab67616d000048516a06d4011e37343bbd8fe075",
             "height": 64,
-            "url": "https://i.scdn.co/image/ab67616d0000485181b9e8c8d1d6c81703cb7783",
             "width": 64
           }
         ],
-        "is_playable": true,
-        "name": "Enjoy the Moment",
-        "release_date": "2019-05-31",
+        "name": "North Main Street",
+        "release_date": "2025-09-05",
         "release_date_precision": "day",
-        "total_tracks": 7,
         "type": "album",
-        "uri": "spotify:album:0sbvYqYtz7vPaQ8p2Epa0B"
+        "uri": "spotify:album:1VXFonMeuS9Ry9InvCKaJT",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/7osFcSwjlRPwxZdVALIOuC"
+            },
+            "href": "https://api.spotify.com/v1/artists/7osFcSwjlRPwxZdVALIOuC",
+            "id": "7osFcSwjlRPwxZdVALIOuC",
+            "name": "Henrik",
+            "type": "artist",
+            "uri": "spotify:artist:7osFcSwjlRPwxZdVALIOuC"
+          }
+        ],
+        "is_playable": true
       },
       "artists": [
         {
           "external_urls": {
-            "spotify": "https://open.spotify.com/artist/1ScHz7wPPxVTEKsc9g3Z0c"
+            "spotify": "https://open.spotify.com/artist/7osFcSwjlRPwxZdVALIOuC"
           },
-          "href": "https://api.spotify.com/v1/artists/1ScHz7wPPxVTEKsc9g3Z0c",
-          "id": "1ScHz7wPPxVTEKsc9g3Z0c",
-          "name": "Rxseboy",
+          "href": "https://api.spotify.com/v1/artists/7osFcSwjlRPwxZdVALIOuC",
+          "id": "7osFcSwjlRPwxZdVALIOuC",
+          "name": "Henrik",
           "type": "artist",
-          "uri": "spotify:artist:1ScHz7wPPxVTEKsc9g3Z0c"
-        },
-        {
-          "external_urls": {
-            "spotify": "https://open.spotify.com/artist/0E1HulHZpqPQBOA8isuQ7a"
-          },
-          "href": "https://api.spotify.com/v1/artists/0E1HulHZpqPQBOA8isuQ7a",
-          "id": "0E1HulHZpqPQBOA8isuQ7a",
-          "name": "Skinny Atlas",
-          "type": "artist",
-          "uri": "spotify:artist:0E1HulHZpqPQBOA8isuQ7a"
+          "uri": "spotify:artist:7osFcSwjlRPwxZdVALIOuC"
         }
       ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
+      "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
       "disc_number": 1,
-      "duration_ms": 185817,
-      "explicit": true,
+      "duration_ms": 217766,
+      "explicit": false,
       "external_ids": {
-        "isrc": "QZH5E1915813"
+        "isrc": "QZWFS2552727"
       },
       "external_urls": {
-        "spotify": "https://open.spotify.com/track/69hutV8UX8HBc6GWil3noF"
+        "spotify": "https://open.spotify.com/track/3Yg9qrWaEtEujyBtNHYTZ7"
       },
-      "href": "https://api.spotify.com/v1/tracks/69hutV8UX8HBc6GWil3noF",
-      "id": "69hutV8UX8HBc6GWil3noF",
-      "is_local": false,
+      "href": "https://api.spotify.com/v1/tracks/3Yg9qrWaEtEujyBtNHYTZ7",
+      "id": "3Yg9qrWaEtEujyBtNHYTZ7",
       "is_playable": true,
-      "name": "Say You Do",
-      "popularity": 14,
+      "name": "Part of it",
+      "popularity": 40,
       "preview_url": null,
-      "track_number": 3,
+      "track_number": 4,
       "type": "track",
-      "uri": "spotify:track:69hutV8UX8HBc6GWil3noF"
+      "uri": "spotify:track:3Yg9qrWaEtEujyBtNHYTZ7",
+      "is_local": false
+    },
+    {
+      "album": {
+        "album_type": "album",
+        "total_tracks": 10,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/2Ys4xDkVD5Z7nMOPIvlUen"
+        },
+        "href": "https://api.spotify.com/v1/albums/2Ys4xDkVD5Z7nMOPIvlUen",
+        "id": "2Ys4xDkVD5Z7nMOPIvlUen",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2738e1391c8868e0b021da7fc71",
+            "height": 640,
+            "width": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00001e028e1391c8868e0b021da7fc71",
+            "height": 300,
+            "width": 300
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d000048518e1391c8868e0b021da7fc71",
+            "height": 64,
+            "width": 64
+          }
+        ],
+        "name": "Come To The River",
+        "release_date": "2012-07-06",
+        "release_date_precision": "day",
+        "type": "album",
+        "uri": "spotify:album:2Ys4xDkVD5Z7nMOPIvlUen",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/4ImxhwjNOz0es0voxGHCoP"
+            },
+            "href": "https://api.spotify.com/v1/artists/4ImxhwjNOz0es0voxGHCoP",
+            "id": "4ImxhwjNOz0es0voxGHCoP",
+            "name": "Rhett Walker",
+            "type": "artist",
+            "uri": "spotify:artist:4ImxhwjNOz0es0voxGHCoP"
+          }
+        ],
+        "is_playable": true
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/4ImxhwjNOz0es0voxGHCoP"
+          },
+          "href": "https://api.spotify.com/v1/artists/4ImxhwjNOz0es0voxGHCoP",
+          "id": "4ImxhwjNOz0es0voxGHCoP",
+          "name": "Rhett Walker",
+          "type": "artist",
+          "uri": "spotify:artist:4ImxhwjNOz0es0voxGHCoP"
+        }
+      ],
+      "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
+      "disc_number": 1,
+      "duration_ms": 208026,
+      "explicit": false,
+      "external_ids": {
+        "isrc": "USA5W1200060"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/3hddUcDnhRBus8XUznUJwi"
+      },
+      "href": "https://api.spotify.com/v1/tracks/3hddUcDnhRBus8XUznUJwi",
+      "id": "3hddUcDnhRBus8XUznUJwi",
+      "is_playable": true,
+      "name": "Come To The River",
+      "popularity": 38,
+      "preview_url": null,
+      "track_number": 2,
+      "type": "track",
+      "uri": "spotify:track:3hddUcDnhRBus8XUznUJwi",
+      "is_local": false
+    },
+    {
+      "album": {
+        "album_type": "compilation",
+        "total_tracks": 29,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/6WHuwCiM6ry3EPtzu4b1QI"
+        },
+        "href": "https://api.spotify.com/v1/albums/6WHuwCiM6ry3EPtzu4b1QI",
+        "id": "6WHuwCiM6ry3EPtzu4b1QI",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2731eb9e34acd263ee7b2ee74fc",
+            "height": 640,
+            "width": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00001e021eb9e34acd263ee7b2ee74fc",
+            "height": 300,
+            "width": 300
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d000048511eb9e34acd263ee7b2ee74fc",
+            "height": 64,
+            "width": 64
+          }
+        ],
+        "name": "Summer Ghost Original Sound Track",
+        "release_date": "2022-03-25",
+        "release_date_precision": "day",
+        "type": "album",
+        "uri": "spotify:album:6WHuwCiM6ry3EPtzu4b1QI",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+            },
+            "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+            "id": "0LyfQWJT6nXafLPZqxe9Of",
+            "name": "Various Artists",
+            "type": "artist",
+            "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+          }
+        ],
+        "is_playable": true
+      },
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/4n1lW38WKgyPEIZowQ3AND"
+          },
+          "href": "https://api.spotify.com/v1/artists/4n1lW38WKgyPEIZowQ3AND",
+          "id": "4n1lW38WKgyPEIZowQ3AND",
+          "name": "Akira Kosemura",
+          "type": "artist",
+          "uri": "spotify:artist:4n1lW38WKgyPEIZowQ3AND"
+        }
+      ],
+      "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "PR", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
+      "disc_number": 1,
+      "duration_ms": 136507,
+      "explicit": false,
+      "external_ids": {
+        "isrc": "JPT552200199"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/track/57DldLQx7nHGaeb3cwBgMp"
+      },
+      "href": "https://api.spotify.com/v1/tracks/57DldLQx7nHGaeb3cwBgMp",
+      "id": "57DldLQx7nHGaeb3cwBgMp",
+      "is_playable": true,
+      "name": "Summer Ghost",
+      "popularity": 37,
+      "preview_url": null,
+      "track_number": 29,
+      "type": "track",
+      "uri": "spotify:track:57DldLQx7nHGaeb3cwBgMp",
+      "is_local": false
     }
-  ],
-  "total": 5823,
-  "limit": 5,
-  "offset": 0,
-  "href": "https://api.spotify.com/v1/me/top/tracks?offset=0&limit=5&locale=en-US,en;q%3D0.5",
-  "next": "https://api.spotify.com/v1/me/top/tracks?offset=5&limit=5&locale=en-US,en;q%3D0.5",
-  "previous": null
+  ]
 }

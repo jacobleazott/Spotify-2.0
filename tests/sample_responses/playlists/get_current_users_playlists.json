@@ -1,14 +1,96 @@
 {
-  "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs/playlists?offset=0&limit=5&locale=en-US,en;q%3D0.5",
+  "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs/playlists?offset=0&limit=5&locale=en-US,en;q%3D0.9",
   "limit": 5,
-  "next": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs/playlists?offset=5&limit=5&locale=en-US,en;q%3D0.5",
+  "next": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs/playlists?offset=5&limit=5&locale=en-US,en;q%3D0.9",
   "offset": 0,
   "previous": null,
-  "total": 324,
+  "total": 338,
   "items": [
     {
       "collaborative": false,
-      "description": "Latest 100 tracks for listening",
+      "description": "Releases From All Followed Artists From The Month 02-2026",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/0FQ9JlcVGEgMu0MxKnZGgW"
+      },
+      "href": "https://api.spotify.com/v1/playlists/0FQ9JlcVGEgMu0MxKnZGgW",
+      "id": "0FQ9JlcVGEgMu0MxKnZGgW",
+      "images": [
+        {
+          "url": "https://mosaic.scdn.co/640/ab67616d00001e02192f60a400ee278d0fa10d8dab67616d00001e0231ccb2a9c3e731bd1d7ff623ab67616d00001e025f48f9d76979ecd0b17c54a1ab67616d00001e02a5f32f9c4e3d5bcb94fef628",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://mosaic.scdn.co/300/ab67616d00001e02192f60a400ee278d0fa10d8dab67616d00001e0231ccb2a9c3e731bd1d7ff623ab67616d00001e025f48f9d76979ecd0b17c54a1ab67616d00001e02a5f32f9c4e3d5bcb94fef628",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://mosaic.scdn.co/60/ab67616d00001e02192f60a400ee278d0fa10d8dab67616d00001e0231ccb2a9c3e731bd1d7ff623ab67616d00001e025f48f9d76979ecd0b17c54a1ab67616d00001e02a5f32f9c4e3d5bcb94fef628",
+          "height": 60,
+          "width": 60
+        }
+      ],
+      "name": "Release Radar: 02-2026",
+      "owner": {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+        },
+        "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+        "id": "azm67mmfixu99v9idlpc6r9bs",
+        "type": "user",
+        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs",
+        "display_name": "Jacob Leazott"
+      },
+      "public": true,
+      "snapshot_id": "AAAAB15hRdSYHJ3RYNxIv599SNDw7qc1",
+      "items": {
+        "href": "https://api.spotify.com/v1/playlists/0FQ9JlcVGEgMu0MxKnZGgW/items",
+        "total": 105
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:0FQ9JlcVGEgMu0MxKnZGgW",
+      "primary_color": null
+    },
+    {
+      "collaborative": false,
+      "description": "What I Listened To In 2026",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/playlist/3JcYKsAJ8JL4an5vCe3Ye2"
+      },
+      "href": "https://api.spotify.com/v1/playlists/3JcYKsAJ8JL4an5vCe3Ye2",
+      "id": "3JcYKsAJ8JL4an5vCe3Ye2",
+      "images": [
+        {
+          "url": "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a74a2e04c9538bd4718c4726",
+          "height": null,
+          "width": null
+        }
+      ],
+      "name": "2026",
+      "owner": {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
+        },
+        "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
+        "id": "azm67mmfixu99v9idlpc6r9bs",
+        "type": "user",
+        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs",
+        "display_name": "Jacob Leazott"
+      },
+      "public": true,
+      "snapshot_id": "AAAAD5PKc95u7Zvv7VCToVyWR/gRwYds",
+      "items": {
+        "href": "https://api.spotify.com/v1/playlists/3JcYKsAJ8JL4an5vCe3Ye2/items",
+        "total": 68
+      },
+      "type": "playlist",
+      "uri": "spotify:playlist:3JcYKsAJ8JL4an5vCe3Ye2",
+      "primary_color": null
+    },
+    {
+      "collaborative": false,
+      "description": "Latest 255 tracks for listening",
       "external_urls": {
         "spotify": "https://open.spotify.com/playlist/3dZVHLVdpOGlSy8oH9WvBi"
       },
@@ -16,31 +98,31 @@
       "id": "3dZVHLVdpOGlSy8oH9WvBi",
       "images": [
         {
+          "url": "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e24b5e71931dad8679be995a",
           "height": null,
-          "url": "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e24b5e71931dad8679be995a",
           "width": null
         }
       ],
       "name": "The 255",
       "owner": {
-        "display_name": "Jacob Leazott",
         "external_urls": {
           "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
         },
         "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
         "id": "azm67mmfixu99v9idlpc6r9bs",
         "type": "user",
-        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs",
+        "display_name": "Jacob Leazott"
       },
-      "primary_color": null,
       "public": true,
-      "snapshot_id": "AAAFEh7HulisUyTzVCTr+/BQqD08uH9G",
-      "tracks": {
-        "href": "https://api.spotify.com/v1/playlists/3dZVHLVdpOGlSy8oH9WvBi/tracks",
+      "snapshot_id": "AAAIkf0bfzMY2OjKpl+qCc2BYmdspMIP",
+      "items": {
+        "href": "https://api.spotify.com/v1/playlists/3dZVHLVdpOGlSy8oH9WvBi/items",
         "total": 255
       },
       "type": "playlist",
-      "uri": "spotify:playlist:3dZVHLVdpOGlSy8oH9WvBi"
+      "uri": "spotify:playlist:3dZVHLVdpOGlSy8oH9WvBi",
+      "primary_color": null
     },
     {
       "collaborative": false,
@@ -52,31 +134,31 @@
       "id": "6kGQQoelXM2YDOSmqUUzRw",
       "images": [
         {
-          "height": null,
           "url": "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e8c9b0534fb59f5d2c863d84",
+          "height": null,
           "width": null
         }
       ],
       "name": "The Good - Master Mix",
       "owner": {
-        "display_name": "Jacob Leazott",
         "external_urls": {
           "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
         },
         "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
         "id": "azm67mmfixu99v9idlpc6r9bs",
         "type": "user",
-        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs",
+        "display_name": "Jacob Leazott"
       },
-      "primary_color": null,
       "public": true,
-      "snapshot_id": "AAACFerkAjpfQQ+MTfk7zZBIyMWk0HH0",
-      "tracks": {
-        "href": "https://api.spotify.com/v1/playlists/6kGQQoelXM2YDOSmqUUzRw/tracks",
-        "total": 4726
+      "snapshot_id": "AAACItHwo6DodX4QsOEFj1CDriu1U4ij",
+      "items": {
+        "href": "https://api.spotify.com/v1/playlists/6kGQQoelXM2YDOSmqUUzRw/items",
+        "total": 4900
       },
       "type": "playlist",
-      "uri": "spotify:playlist:6kGQQoelXM2YDOSmqUUzRw"
+      "uri": "spotify:playlist:6kGQQoelXM2YDOSmqUUzRw",
+      "primary_color": null
     },
     {
       "collaborative": false,
@@ -88,113 +170,31 @@
       "id": "7Mgr45oWF0fzRzdlz0NNgT",
       "images": [
         {
-          "height": null,
           "url": "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8473abbedae7e1548320c48a13",
+          "height": null,
           "width": null
         }
       ],
       "name": "Soundtracks - Master Mix",
       "owner": {
-        "display_name": "Jacob Leazott",
         "external_urls": {
           "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
         },
         "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
         "id": "azm67mmfixu99v9idlpc6r9bs",
         "type": "user",
-        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
+        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs",
+        "display_name": "Jacob Leazott"
       },
-      "primary_color": null,
       "public": true,
       "snapshot_id": "AAAAEnor8KKPK+Rr5x3oUn3+FSqf+wDB",
-      "tracks": {
-        "href": "https://api.spotify.com/v1/playlists/7Mgr45oWF0fzRzdlz0NNgT/tracks",
+      "items": {
+        "href": "https://api.spotify.com/v1/playlists/7Mgr45oWF0fzRzdlz0NNgT/items",
         "total": 98
       },
       "type": "playlist",
-      "uri": "spotify:playlist:7Mgr45oWF0fzRzdlz0NNgT"
-    },
-    {
-      "collaborative": false,
-      "description": "What I Listened To In 2025",
-      "external_urls": {
-        "spotify": "https://open.spotify.com/playlist/387oU79IFsRPZfZjkEPzpX"
-      },
-      "href": "https://api.spotify.com/v1/playlists/387oU79IFsRPZfZjkEPzpX",
-      "id": "387oU79IFsRPZfZjkEPzpX",
-      "images": [
-        {
-          "height": null,
-          "url": "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da849cc76dab3a2a320dbc7b7c0c",
-          "width": null
-        }
-      ],
-      "name": "2025",
-      "owner": {
-        "display_name": "Jacob Leazott",
-        "external_urls": {
-          "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
-        },
-        "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
-        "id": "azm67mmfixu99v9idlpc6r9bs",
-        "type": "user",
-        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
-      },
-      "primary_color": null,
-      "public": true,
-      "snapshot_id": "AAAAMB55o/rYdyMAsFits+xub47p8XF9",
-      "tracks": {
-        "href": "https://api.spotify.com/v1/playlists/387oU79IFsRPZfZjkEPzpX/tracks",
-        "total": 379
-      },
-      "type": "playlist",
-      "uri": "spotify:playlist:387oU79IFsRPZfZjkEPzpX"
-    },
-    {
-      "collaborative": false,
-      "description": "Every Track by Newsboys",
-      "external_urls": {
-        "spotify": "https://open.spotify.com/playlist/2w9d2Lmp7UtRZs3YqtUcHO"
-      },
-      "href": "https://api.spotify.com/v1/playlists/2w9d2Lmp7UtRZs3YqtUcHO",
-      "id": "2w9d2Lmp7UtRZs3YqtUcHO",
-      "images": [
-        {
-          "height": 640,
-          "url": "https://mosaic.scdn.co/640/ab67616d00001e0228bc77e4955ab87dc0e2c61cab67616d00001e025d39c181953afd8068f34729ab67616d00001e028a0b968d91e56c6e17c150e7ab67616d00001e02a0a43c1d1430479eec65a95e",
-          "width": 640
-        },
-        {
-          "height": 300,
-          "url": "https://mosaic.scdn.co/300/ab67616d00001e0228bc77e4955ab87dc0e2c61cab67616d00001e025d39c181953afd8068f34729ab67616d00001e028a0b968d91e56c6e17c150e7ab67616d00001e02a0a43c1d1430479eec65a95e",
-          "width": 300
-        },
-        {
-          "height": 60,
-          "url": "https://mosaic.scdn.co/60/ab67616d00001e0228bc77e4955ab87dc0e2c61cab67616d00001e025d39c181953afd8068f34729ab67616d00001e028a0b968d91e56c6e17c150e7ab67616d00001e02a0a43c1d1430479eec65a95e",
-          "width": 60
-        }
-      ],
-      "name": "Newsboys GO THROUGH",
-      "owner": {
-        "display_name": "Jacob Leazott",
-        "external_urls": {
-          "spotify": "https://open.spotify.com/user/azm67mmfixu99v9idlpc6r9bs"
-        },
-        "href": "https://api.spotify.com/v1/users/azm67mmfixu99v9idlpc6r9bs",
-        "id": "azm67mmfixu99v9idlpc6r9bs",
-        "type": "user",
-        "uri": "spotify:user:azm67mmfixu99v9idlpc6r9bs"
-      },
-      "primary_color": null,
-      "public": true,
-      "snapshot_id": "AAAAGQIn2dBUNMyYOPXJzwqnHrgdc8nh",
-      "tracks": {
-        "href": "https://api.spotify.com/v1/playlists/2w9d2Lmp7UtRZs3YqtUcHO/tracks",
-        "total": 345
-      },
-      "type": "playlist",
-      "uri": "spotify:playlist:2w9d2Lmp7UtRZs3YqtUcHO"
+      "uri": "spotify:playlist:7Mgr45oWF0fzRzdlz0NNgT",
+      "primary_color": null
     }
   ]
 }

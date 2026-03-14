@@ -8,6 +8,11 @@ class Playlist:
     name: str
     description: str
     snapshot_id: str
+    collaborative: bool
+    public: bool
+    # owner ? : User
+    # images ? : Image[]
+
     total_tracks: int
     tracks: list[Track] = field(default_factory=list, repr=False)
 

@@ -1,25 +1,24 @@
 {
   "album_type": "album",
   "total_tracks": 10,
-  "is_playable": true,
   "external_urls": {
     "spotify": "https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh"
   },
-  "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh?market=US&locale=en-US%2Cen%3Bq%3D0.5",
+  "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh?market=US&locale=en-US%2Cen%3Bq%3D0.9",
   "id": "6mUdeDZCsExyJLMdAfDuwh",
   "images": [
     {
-      "url": "https://i.scdn.co/image/ab67616d0000b2730b51f8d91f3a21e8426361ae",
+      "url": "https://i.scdn.co/image/ab67616d0000b273ff191d7fbdb5a13eaf84132b",
       "height": 640,
       "width": 640
     },
     {
-      "url": "https://i.scdn.co/image/ab67616d00001e020b51f8d91f3a21e8426361ae",
+      "url": "https://i.scdn.co/image/ab67616d00001e02ff191d7fbdb5a13eaf84132b",
       "height": 300,
       "width": 300
     },
     {
-      "url": "https://i.scdn.co/image/ab67616d000048510b51f8d91f3a21e8426361ae",
+      "url": "https://i.scdn.co/image/ab67616d00004851ff191d7fbdb5a13eaf84132b",
       "height": 64,
       "width": 64
     }
@@ -42,7 +41,7 @@
     }
   ],
   "tracks": {
-    "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=50&market=US&locale=en-US,en;q%3D0.5",
+    "href": "https://api.spotify.com/v1/albums/6mUdeDZCsExyJLMdAfDuwh/tracks?offset=0&limit=50&market=US&locale=en-US,en;q%3D0.9",
     "limit": 50,
     "next": null,
     "offset": 0,
@@ -63,7 +62,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 312293,
+        "duration_ms": 312815,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/69QHm3pustz01CJRwdo20z"
@@ -92,7 +91,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 317426,
+        "duration_ms": 318231,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/0C80GCp0mMuBzLf3EAXqxv"
@@ -121,7 +120,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 215533,
+        "duration_ms": 215675,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/6Th6ND8RQPywiyelecP5Lf"
@@ -150,7 +149,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 211760,
+        "duration_ms": 212400,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/6rAy2MsMUabbqu2VygrblP"
@@ -179,7 +178,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 255266,
+        "duration_ms": 256057,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/5XeMsYb1rWxQL1bUUaZajn"
@@ -208,7 +207,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 255493,
+        "duration_ms": 256000,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj"
@@ -237,7 +236,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 210173,
+        "duration_ms": 210328,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo"
@@ -266,7 +265,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 238466,
+        "duration_ms": 239104,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/4dDurgTN3eGyU0ghzFJ0T1"
@@ -295,7 +294,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 245666,
+        "duration_ms": 246059,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/2MCUmp0I98gsJBmey7DfZS"
@@ -324,7 +323,7 @@
           }
         ],
         "disc_number": 1,
-        "duration_ms": 266040,
+        "duration_ms": 255648,
         "explicit": false,
         "external_urls": {
           "spotify": "https://open.spotify.com/track/6J17MkMmuzBiIOjRH6MOBZ"
@@ -352,5 +351,6 @@
   },
   "genres": [],
   "label": "Columbia",
-  "popularity": 79
+  "popularity": 80,
+  "is_playable": true
 }

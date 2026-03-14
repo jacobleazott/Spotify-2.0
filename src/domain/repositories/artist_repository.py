@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from domain.models import Artist
+
 class AbstractArtistRepository(ABC):
     @abstractmethod
     def get_artist(self, artist_id: str) -> dict:

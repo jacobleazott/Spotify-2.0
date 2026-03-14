@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
+from domain.models import Playback, Track
+
 class AbstractPlaybackRepository(ABC):
     @abstractmethod
-    def get_playback(self) -> dict:
+    def get_playback(self) -> Playback:
         pass
 
     @abstractmethod
@@ -15,9 +17,5 @@ class AbstractPlaybackRepository(ABC):
         pass
 
     @abstractmethod
-    def get_recent_tracks(self) -> list[dict]:
-        pass
-
-    @abstractmethod
-    def normalize(self, playback_raw: dict) -> dict:
+    def get_recent_tracks(self) -> list[Track]:
         pass
