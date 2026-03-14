@@ -1,20 +1,25 @@
-from infrastructure.mappers import map_album
+# from infrastructure.mappers import map_album
 
 from domain.models import Album
 from domain.repositories import RepoBundle
-from domain.core import ServiceCoordinator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.core import ServiceCoordinator
+
 
 from .base_service import BaseService
 
 class AlbumService(BaseService[Album]):
-    def __init__(self, coordinator: ServiceCoordinator) -> None:
+    def __init__(self, coordinator) -> None:
         super().__init__(Album, coordinator)
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # BASE METHODS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
-        return source.album.normalize(raw_data)
+        # return source.album.normalize(raw_data)
+        pass
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Album:    
         if not norm_data:

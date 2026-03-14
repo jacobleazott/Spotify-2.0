@@ -6,5 +6,4 @@ class Artist:
     name: str
 
     def __str__(self) -> str:
-        return f"id: {self.id}\n" + \
-               f"name: {self.name}\n"
+        return f"Artist: {self.name}, id: {self.id}"

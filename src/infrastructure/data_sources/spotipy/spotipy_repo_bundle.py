@@ -15,7 +15,6 @@ from domain import RepoBundle
 
 class SpotipyRepositoryBundle(RepoBundle):
     def __init__(self):
-        self.source_type = DataSource.SPOTIPY
         self.sp = SpotipyProxy()
 
         # Instantiate Repositories In Order Of Dependency
@@ -32,7 +31,7 @@ class SpotipyRepositoryBundle(RepoBundle):
         self.track.bind_album_repository(self.album)
 
         super().__init__(
-            source_type = self.source_type,
+            source_type = DataSource.SPOTIPY,
             album = self.album,
             artist = self.artist,
             playback = self.playback,
@@ -40,6 +39,3 @@ class SpotipyRepositoryBundle(RepoBundle):
             track = self.track,
             user = self.user,
         )
-
-# Next Claude Question
-# I kind of like that "supports(...)" method but that just kind of kicks the can down the rode to the service right? Like I plan to have my Services support multiple different sources. That was kind of the idea of making them abstract to start, the services don't care where the data is coming from. They just "try" and get it. I guess the MusicApp would know because it knows which sources it is supporting but it doesn't know what the downstream users are using. It just is a facade to all the services. I guess it moves the failure one more level up? I don't think type checking will know it's bad because it won't necessarily know which sources I am currently using. Taking that into consideration is it worth doing all that extra supports business?

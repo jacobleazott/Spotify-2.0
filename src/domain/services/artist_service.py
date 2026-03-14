@@ -1,19 +1,24 @@
 from domain.models import Artist
-from infrastructure.mappers import map_artist
+# from infrastructure.mappers import map_artist
 from domain.repositories import RepoBundle
-from domain.core import ServiceCoordinator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.core import ServiceCoordinator
+
 
 from .base_service import BaseService
 
 class ArtistService(BaseService[Artist]):
-    def __init__(self, coordinator: ServiceCoordinator) -> None:
+    def __init__(self, coordinator) -> None:
         super().__init__(Artist, coordinator)
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # BASE METHODS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
-        return source.artist.normalize(raw_data)
+        # return source.artist.normalize(raw_data)
+        pass
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Artist:
         if not norm_data:

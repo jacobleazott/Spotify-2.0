@@ -4,7 +4,6 @@ from .track import Track
 
 @dataclass
 class Playback:
-    track: Track | None = field(default=None, repr=False)
     playlist_id: str
     device_id: str
     device_name: str
@@ -14,6 +13,7 @@ class Playback:
     shuffle: str
     repeat: str
     timestamp: int
+    track: Track | None = field(default=None, repr=False)
 
     def __str__(self) -> str:
         return f"Track.id: {self.track.id if self.track else 'None'}" + \

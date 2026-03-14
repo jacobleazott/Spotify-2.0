@@ -1,19 +1,24 @@
 from domain.models import Track
-from infrastructure.mappers import map_track
+# from infrastructure.mappers import map_track
 from domain.repositories import RepoBundle
-from domain.core import ServiceCoordinator
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.core import ServiceCoordinator
 
 from .base_service import BaseService
 
 class TrackService(BaseService[Track]):
-    def __init__(self, coordinator: ServiceCoordinator) -> None:
+    def __init__(self, coordinator) -> None:
         super().__init__(Track, coordinator)
     
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # BASE METHODS ════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
-        return source.track.normalize(raw_data)
+        # return source.track.normalize(raw_data)
+        pass
     
     def _normalize(self, raw_data: dict, prefer_external: bool) -> dict:
         if prefer_external:

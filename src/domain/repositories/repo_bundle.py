@@ -27,6 +27,10 @@ class RepoBundle:
         self.track = track or UnsupportedSource("track", source_type)
         self.user = user or UnsupportedSource("user", source_type)
 
+    def supports(self, domain: str) -> bool:
+        repo = getattr(self, domain, None)
+        return repo is not None and not isinstance(repo, UnsupportedSource)
+
 
 class UnsupportedSource:
     def __init__(self, domain: str, source_type: DataSource):

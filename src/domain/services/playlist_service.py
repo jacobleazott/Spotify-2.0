@@ -1,21 +1,27 @@
 from domain.models import Playlist
-from infrastructure.mappers import map_playlist
+# from infrastructure.mappers import map_playlist
 from domain.repositories import RepoBundle
-from domain.core import ServiceCoordinator
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.core import ServiceCoordinator
+
 
 from .base_service import BaseService
 
 from typing import Any, Dict, List, Optional
 
 class PlaylistService(BaseService[Playlist]):
-    def __init__(self, coordinator: ServiceCoordinator) -> None:
+    def __init__(self, coordinator) -> None:
         super().__init__(Playlist, coordinator)
 
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     # HELPERS ═════════════════════════════════════════════════════════════════════════════════════════════════════════
     # ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     def _normalize(self, raw_data: dict, source: RepoBundle) -> dict:
-        return source.playlist.normalize(raw_data)
+        pass
+        # return source.playlist.normalize(raw_data)
     
     def _get_one_from_norm_raw(self, norm_data: dict) -> Playlist:
         if not norm_data:

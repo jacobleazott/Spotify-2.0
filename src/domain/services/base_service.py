@@ -1,4 +1,9 @@
-from domain.core import ServiceCoordinator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from domain.core import ServiceCoordinator
+
+
 from domain.repositories import RepoBundle
 
 from typing import Type, TypeVar, Generic, Callable, Any
@@ -7,7 +12,7 @@ from abc import ABC, abstractmethod
 T = TypeVar("T")
 
 class BaseService(Generic[T]):
-    def __init__(self, model_cls: Type[T], coordinator: ServiceCoordinator):
+    def __init__(self, model_cls: Type[T], coordinator):
         self.coordinator = coordinator
         self.model_cls = model_cls
 
