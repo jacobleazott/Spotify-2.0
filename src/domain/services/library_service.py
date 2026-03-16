@@ -1,12 +1,12 @@
-
-from domain.services import (
+from . import (
     TrackService,
     ArtistService,
     AlbumService,
     PlaylistService,
     PlaybackService,
-    UserService
+    UserService,
 )
+
 from domain.core import IdentityMap, ServiceCoordinator
 from domain.repositories import RepoBundle
 from common.enums import DataSource

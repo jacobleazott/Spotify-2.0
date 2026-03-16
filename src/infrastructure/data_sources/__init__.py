@@ -1,9 +1,7 @@
-from .abstract import RepoBundle
-from .spotipy import SpotipySource
+from .spotipy import SpotipyRepositoryBundle
 from .sql import SqlSource
 
 __all__ = [
-    "RepoBundle",
-    "SpotipySource",
+    "SpotipyRepositoryBundle",
     "SqlSource",
 ]
