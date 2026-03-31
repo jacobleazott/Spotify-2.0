@@ -75,12 +75,20 @@ class TestSpotifyFeatures(unittest.TestCase):
     
     def test_generate_monthly_release(self):
         thelp.create_env(self.spotify_features.spotify)
+
+        the_artist = thelp.create_artist('Ar106', "The Artist")
+        a_artist = thelp.create_artist('Ar107', "A Great Artist")
+        an_artist = thelp.create_artist('Ar108', "An Extra Artist")
+
+        self.spotify_features.spotify.sp.artists += [the_artist, a_artist, an_artist]
+        self.spotify_features.spotify.sp.user_artists += [the_artist, a_artist, an_artist]
+
         self.spotify_features.generate_monthly_release()
         last_month = datetime.today().replace(day=1) - timedelta(days=1)
         expected_start_date = datetime(last_month.year, last_month.month, 1)
         expected_end_date = datetime(last_month.year, last_month.month, last_month.day)
         self.mock_misc_features.generate_artist_release.assert_called_once_with(
-                                            ['Ar002', 'Ar003', 'Ar004']
+                                            ['Ar106', 'Ar108', 'Ar002', 'Ar003', 'Ar004', 'Ar107']
                                             , mock.ANY, mock.ANY
                                             , start_date=expected_start_date, end_date=expected_end_date)
     
